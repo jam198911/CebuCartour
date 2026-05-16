@@ -1,0 +1,114 @@
+/**
+ * server.js — CebuCarTour Express entry point.
+ *
+ * Start:
+ *   node server.js          (production)
+ *   npx nodemon server.js   (development)
+ */
+
+require('dotenv').config();
+const express   = require('express');
+const cors      = require('cors');
+const path      = require('path');
+const rateLimit = require('express-rate-limit');
+
+const app  = express();
+const PORT = process.env.PORT || 5000;
+
+// ─── Rate limiters ───────────────────────────────────────────────────────────
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many registration attempts. Please try again in 1 hour.' },
+});
+
+const forgotLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many password reset requests. Please try again in 1 hour.' },
+});
+
+// ─── Middleware ───────────────────────────────────────────────────────────────
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ─── Health check ─────────────────────────────────────────────────────────────
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running', timestamp: new Date().toISOString() });
+});
+
+// ─── Boot-time DB setup ───────────────────────────────────────────────────────
+
+require('./db').query(`
+  CREATE TABLE IF NOT EXISTS password_resets (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    email      VARCHAR(255) NOT NULL,
+    token      VARCHAR(64)  NOT NULL UNIQUE,
+    expires_at DATETIME     NOT NULL,
+    created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+  )
+`).catch(err => console.error('[startup] password_resets table error:', err.message));
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
+
+const usersRouter = require('./routes/users');
+
+// Auth endpoints:  /api/auth/register  /api/auth/login  /api/auth/me
+app.use('/api/auth/login',           loginLimiter);
+app.use('/api/auth/register',        registerLimiter);
+app.use('/api/auth/forgot-password', forgotLimiter);
+app.use('/api/auth', usersRouter);
+
+// User-management: /api/users/  /api/users/:id  /api/users/:id/approve  …
+app.use('/api/users', usersRouter);
+
+app.use('/api/upload',       require('./routes/upload'));
+app.use('/api/cars',         require('./routes/cars'));
+app.use('/api/tours',        require('./routes/tours'));
+app.use('/api/bookings',     require('./routes/bookings'));
+app.use('/api/destinations', require('./routes/destinations'));
+app.use('/api/settings',     require('./routes/settings'));
+
+// ─── 404 handler ─────────────────────────────────────────────────────────────
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not Found', path: req.originalUrl });
+});
+
+// ─── Global error handler ─────────────────────────────────────────────────────
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+  });
+});
+
+// ─── Start ────────────────────────────────────────────────────────────────────
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+module.exports = app;

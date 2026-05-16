@@ -1,0 +1,407 @@
+import { useState } from "react";
+import { api } from "../api.js";
+
+export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetToken = null, onResetDone }) {
+  const [tab, setTab] = useState(resetToken ? "reset" : "login");
+  const [role, setRole] = useState("customer");
+  const [registered, setRegistered] = useState(false);
+  const [showPass, setShowPass]           = useState(false);
+  const [showConfirm, setShowConfirm]     = useState(false);
+  const [showNewPass, setShowNewPass]     = useState(false);
+  const [showNewConfirm, setShowNewConfirm] = useState(false);
+  const [form, setForm] = useState({
+    name:"", email:"", password:"", confirm:"", company:"",
+    phone:"", address:"", idType:"Business Permit", idNumber:"", services:[], bio:""
+  });
+  const [forgotEmail, setForgotEmail]   = useState("");
+  const [forgotSent, setForgotSent]     = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [devResetUrl, setDevResetUrl]   = useState(null);
+  const [newPass, setNewPass]           = useState("");
+  const [newConfirm, setNewConfirm]     = useState("");
+  const [resetDone, setResetDone]       = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError]     = useState("");
+
+  const DEMO = [
+    { id: 99, name: "Admin User",        email: "admin@islatravel.ph",    password: "admin123",  role: "admin" },
+    { id: 2,  name: "TravelEastern PH",  email: "vendor1@example.com",    password: "vendor123", role: "vendor", approved: true,  approvalStatus:"approved", company:"TravelEastern PH",  phone:"09171234567", address:"Tacloban City, Leyte" },
+    { id: 1,  name: "Maria Santos",      email: "maria@example.com",      password: "pass123",   role: "customer" },
+  ];
+
+  const SERVICE_OPTIONS = ["Car Rental","Tour Packages","Island Tours","Adventure Tours","Cultural Tours","Trekking","Airport Transfer"];
+
+  const toggleService = (s) => setForm(f => ({
+    ...f, services: f.services.includes(s) ? f.services.filter(x=>x!==s) : [...f.services, s]
+  }));
+
+  const handleLogin = async () => {
+    try {
+      const { token, user } = await api.auth.login(form.email, form.password);
+      localStorage.setItem("cebuCartour_token", token);
+      onLogin(user);
+    } catch (err) {
+      alert(err.message || "Invalid credentials. Try:\nadmin@islatravel.ph / admin123\nvendor1@example.com / vendor123\nmaria@example.com / pass123");
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!form.name || !form.email) { alert("Please fill in your name and email."); return; }
+    if (role === "vendor" && (!form.company || !form.phone || !form.address)) {
+      alert("Please fill in all vendor business details."); return;
+    }
+    const userData = {
+      name: form.name, email: form.email, role,
+      company: form.company || "", phone: form.phone || "", address: form.address || "",
+      idType: form.idType || "", idNumber: form.idNumber || "",
+      services: form.services || [], bio: form.bio || "",
+    };
+    try {
+      await api.auth.register(userData);
+      setRegistered(true);
+    } catch (err) {
+      alert(err.message || "Registration failed. Please try again.");
+    }
+  };
+
+  const handleForgot = async () => {
+    if (!forgotEmail) return;
+    setForgotLoading(true);
+    try {
+      const res = await api.auth.forgotPassword(forgotEmail);
+      if (res.devResetUrl) setDevResetUrl(res.devResetUrl);
+      setForgotSent(true);
+    } catch (err) {
+      alert(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!newPass) return;
+    if (newPass !== newConfirm) { setResetError("Passwords do not match."); return; }
+    if (newPass.length < 6)     { setResetError("Password must be at least 6 characters."); return; }
+    setResetError("");
+    setResetLoading(true);
+    try {
+      await api.auth.resetPassword(resetToken, newPass);
+      setResetDone(true);
+      if (onResetDone) onResetDone();
+    } catch (err) {
+      setResetError(err.message || "Reset failed. The link may have expired.");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const inp = (field, label, placeholder, type="text") => (
+    <div className="form-group" style={{marginBottom:"1rem"}}>
+      <label style={{fontSize:"0.78rem",display:"flex",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>{label}</label>
+      <input type={type} value={form[field]} onChange={e => setForm(f=>({...f,[field]:e.target.value}))}
+        placeholder={placeholder}
+        style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
+    </div>
+  );
+
+  const pwInp = (field, label, placeholder, show, setShow) => (
+    <div className="form-group" style={{marginBottom:"1rem"}}>
+      <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.35rem"}}>{label}</label>
+      <div style={{position:"relative"}}>
+        <input
+          type={show ? "text" : "password"}
+          value={form[field]}
+          onChange={e => setForm(f => ({...f, [field]: e.target.value}))}
+          placeholder={placeholder}
+          style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",paddingRight:"3rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}}
+        />
+        <button
+          type="button"
+          onClick={() => setShow(s => !s)}
+          style={{position:"absolute",right:"0.85rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"var(--muted)",padding:"0.2rem",display:"flex",alignItems:"center",lineHeight:1}}
+          tabIndex={-1}
+        >
+          <i className={`fa-solid ${show ? "fa-eye-slash" : "fa-eye"}`} style={{fontSize:"1rem"}}/>
+        </button>
+      </div>
+    </div>
+  );
+
+  // -- Post-registration pending screen for vendors --
+  if (registered) return (
+    <div className="auth-wrap">
+      <div className="auth-card fade-in" style={{maxWidth:500}}>
+        <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
+          <div style={{fontSize:"3.5rem",marginBottom:"0.8rem"}}><i className="fa-solid fa-hourglass-half" style={{color:"var(--ocean)"}}/></div>
+          <h2 style={{marginBottom:"0.5rem"}}>Registration Submitted!</h2>
+          <p style={{color:"var(--muted)",lineHeight:1.7}}>
+            Thank you, <strong>{form.name}</strong>! Your registration is now under review.
+          </p>
+        </div>
+        <div style={{background:"#F0F9FF",borderRadius:12,padding:"1.2rem",marginBottom:"1.5rem"}}>
+          <div style={{fontSize:"0.75rem",fontWeight:700,color:"var(--ocean)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"0.8rem"}}>What happens next</div>
+          {[
+            ["fa-solid fa-magnifying-glass","Admin Review","Our team will review your registration within 24–48 hours."],
+            ["fa-solid fa-envelope","Set Your Password","Once approved, you'll receive an email with a link to set your password."],
+            ["fa-solid fa-rocket","Start Exploring","After setting your password, log in and you're ready to go!"],
+          ].map(([icon,title,desc]) => (
+            <div key={title} style={{display:"flex",gap:"0.8rem",marginBottom:"0.8rem",alignItems:"flex-start"}}>
+              <span style={{fontSize:"1.2rem",flexShrink:0,color:"var(--ocean)"}}><i className={icon}/></span>
+              <div>
+                <div style={{fontWeight:700,fontSize:"0.88rem",marginBottom:"0.15rem"}}>{title}</div>
+                <div style={{fontSize:"0.82rem",color:"var(--muted)",lineHeight:1.5}}>{desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{background:"var(--sand)",borderRadius:10,padding:"0.9rem",fontSize:"0.82rem",marginBottom:"1.2rem",textAlign:"center"}}>
+          Questions? Contact us at <strong>hello@islatravelph.com</strong> or WhatsApp <strong>+63 917 XXX XXXX</strong>
+        </div>
+        <button className="submit-btn" style={{marginTop:0}} onClick={() => goTo("home")}>
+          <i className="fa-solid fa-house"/> Back to Home
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── Forgot-password view ──────────────────────────────────────────────────
+  if (tab === "forgot") return (
+    <div className="auth-wrap">
+      <div className="auth-card fade-in" style={{maxWidth:480}}>
+        <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
+          <div style={{fontSize:"2.8rem",marginBottom:"0.75rem",color:"var(--ocean)"}}><i className="fa-solid fa-lock-open"/></div>
+          <h2 style={{margin:"0 0 0.4rem"}}>Forgot Password?</h2>
+          <p style={{color:"var(--muted)",margin:0,lineHeight:1.6}}>
+            Enter the email address on your account and we'll send you a reset link.
+          </p>
+        </div>
+
+        {forgotSent ? (
+          <div style={{textAlign:"center"}}>
+            <div style={{background:"#ECFDF5",border:"1px solid #6EE7B7",borderRadius:12,padding:"1.25rem",marginBottom:"1.25rem"}}>
+              <i className="fa-solid fa-circle-check" style={{color:"#059669",fontSize:"1.6rem",marginBottom:"0.5rem",display:"block"}}/>
+              <div style={{fontWeight:700,color:"#065F46",marginBottom:"0.3rem"}}>Check your inbox</div>
+              <div style={{fontSize:"0.85rem",color:"#047857"}}>
+                A reset link was sent to <strong>{forgotEmail}</strong>. It expires in 1 hour.
+              </div>
+            </div>
+            {devResetUrl && (
+              <div style={{background:"#FEF3C7",border:"1px solid #FCD34D",borderRadius:10,padding:"0.9rem",marginBottom:"1rem",textAlign:"left",fontSize:"0.8rem"}}>
+                <div style={{fontWeight:700,color:"#92400E",marginBottom:"0.35rem"}}>
+                  <i className="fa-solid fa-triangle-exclamation"/> Dev mode — email not configured
+                </div>
+                <div style={{color:"#78350F",marginBottom:"0.5rem"}}>Use this link to test the reset flow:</div>
+                <a href={devResetUrl} style={{color:"#0A4D68",wordBreak:"break-all",fontWeight:600}}>{devResetUrl}</a>
+              </div>
+            )}
+            <button className="submit-btn" style={{marginTop:0}} onClick={() => { setTab("login"); setForgotSent(false); setDevResetUrl(null); }}>
+              <i className="fa-solid fa-arrow-left"/> Back to Login
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="form-group" style={{marginBottom:"1rem"}}>
+              <label style={{fontSize:"0.78rem",fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.35rem"}}>
+                Email Address
+              </label>
+              <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleForgot()}
+                placeholder="you@email.com"
+                style={{border:"2px solid var(--border)",borderRadius:10,padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
+            </div>
+            <button className="submit-btn" style={{marginTop:0}} onClick={handleForgot} disabled={forgotLoading || !forgotEmail}>
+              {forgotLoading ? <><i className="fa-solid fa-spinner fa-spin"/> Sending…</> : <><i className="fa-solid fa-paper-plane"/> Send Reset Link</>}
+            </button>
+            <button type="button" onClick={() => setTab("login")}
+              style={{display:"block",width:"100%",marginTop:"0.75rem",background:"none",border:"none",color:"var(--muted)",cursor:"pointer",fontSize:"0.85rem",fontWeight:600}}>
+              <i className="fa-solid fa-arrow-left"/> Back to Login
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  // ── Reset-password view ───────────────────────────────────────────────────
+  if (tab === "reset") return (
+    <div className="auth-wrap">
+      <div className="auth-card fade-in" style={{maxWidth:480}}>
+        <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
+          <div style={{fontSize:"2.8rem",marginBottom:"0.75rem",color:"var(--ocean)"}}><i className="fa-solid fa-key"/></div>
+          <h2 style={{margin:"0 0 0.4rem"}}>Set New Password</h2>
+          <p style={{color:"var(--muted)",margin:0,lineHeight:1.6}}>Choose a strong password for your account.</p>
+        </div>
+
+        {resetDone ? (
+          <div style={{textAlign:"center"}}>
+            <div style={{background:"#ECFDF5",border:"1px solid #6EE7B7",borderRadius:12,padding:"1.25rem",marginBottom:"1.25rem"}}>
+              <i className="fa-solid fa-circle-check" style={{color:"#059669",fontSize:"1.6rem",marginBottom:"0.5rem",display:"block"}}/>
+              <div style={{fontWeight:700,color:"#065F46",marginBottom:"0.3rem"}}>Password updated!</div>
+              <div style={{fontSize:"0.85rem",color:"#047857"}}>You can now sign in with your new password.</div>
+            </div>
+            <button className="submit-btn" style={{marginTop:0}} onClick={() => setTab("login")}>
+              <i className="fa-solid fa-right-to-bracket"/> Go to Login
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="form-group" style={{marginBottom:"1rem"}}>
+              <label style={{fontSize:"0.78rem",fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.35rem"}}>
+                New Password
+              </label>
+              <div style={{position:"relative"}}>
+                <input type={showNewPass ? "text" : "password"} value={newPass} onChange={e => setNewPass(e.target.value)}
+                  placeholder="Min. 6 characters"
+                  style={{border:"2px solid var(--border)",borderRadius:10,padding:"0.75rem",paddingRight:"3rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
+                <button type="button" onClick={() => setShowNewPass(s => !s)}
+                  style={{position:"absolute",right:"0.85rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"var(--muted)"}}>
+                  <i className={`fa-solid ${showNewPass ? "fa-eye-slash" : "fa-eye"}`}/>
+                </button>
+              </div>
+            </div>
+            <div className="form-group" style={{marginBottom:"1rem"}}>
+              <label style={{fontSize:"0.78rem",fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.35rem"}}>
+                Confirm New Password
+              </label>
+              <div style={{position:"relative"}}>
+                <input type={showNewConfirm ? "text" : "password"} value={newConfirm} onChange={e => setNewConfirm(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleReset()}
+                  placeholder="Repeat your new password"
+                  style={{border:"2px solid var(--border)",borderRadius:10,padding:"0.75rem",paddingRight:"3rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
+                <button type="button" onClick={() => setShowNewConfirm(s => !s)}
+                  style={{position:"absolute",right:"0.85rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"var(--muted)"}}>
+                  <i className={`fa-solid ${showNewConfirm ? "fa-eye-slash" : "fa-eye"}`}/>
+                </button>
+              </div>
+            </div>
+            {resetError && (
+              <div style={{background:"#FEE2E2",border:"1px solid #FCA5A5",borderRadius:8,padding:"0.7rem 0.9rem",marginBottom:"1rem",fontSize:"0.85rem",color:"#991B1B"}}>
+                <i className="fa-solid fa-circle-exclamation"/> {resetError}
+              </div>
+            )}
+            <button className="submit-btn" style={{marginTop:0}} onClick={handleReset} disabled={resetLoading || !newPass}>
+              {resetLoading ? <><i className="fa-solid fa-spinner fa-spin"/> Updating…</> : <><i className="fa-solid fa-lock"/> Update Password</>}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="auth-wrap">
+      <div className="auth-card fade-in" style={{maxWidth: tab==="register" && role==="vendor" ? 520 : 600}}>
+        <h2>{tab === "login" ? "Welcome Back" : "Create Account"}</h2>
+        <p style={{color:"var(--muted)",marginBottom:"1.5rem"}}>{tab === "login" ? "Sign in to manage your bookings." : "Join CebuCarTour today."}</p>
+        <div className="auth-tabs">
+          <div className={`auth-tab ${tab==="login"?"active":""}`} onClick={() => setTab("login")}>Login</div>
+          <div className={`auth-tab ${tab==="register"?"active":""}`} onClick={() => setTab("register")}>Register</div>
+        </div>
+
+        {tab === "register" && (
+          <>
+            {/* Role picker */}
+            <div style={{marginBottom:"1rem"}}>
+              <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.5rem"}}>I am a...</label>
+              <div className="role-select">
+                {[["customer","fa-solid fa-user","Traveler / Customer"],["vendor","fa-solid fa-building","Vendor / Operator"]].map(([r,icon,label]) => (
+                  <div key={r} className={`role-opt ${role===r?"selected":""}`} onClick={() => setRole(r)}>
+                    <span className="role-icon"><i className={icon}/></span>
+                    <span className="role-name">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Common fields */}
+            {inp("name","Full Name *","Juan dela Cruz")}
+            {inp("email","Email Address *","you@email.com","email")}
+
+            {/* Vendor-only fields */}
+            {role === "vendor" && (
+              <div style={{background:"#F0F9FF",borderRadius:12,padding:"1.2rem",marginTop:"0.5rem",marginBottom:"0.5rem"}}>
+                <div style={{fontSize:"0.75rem",fontWeight:700,color:"var(--ocean)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"0.9rem"}}>
+                  <i className="fa-solid fa-building"/> Business Information
+                </div>
+                {inp("company","Business / Company Name *","e.g. Eastern Visayas Tours")}
+                <div className="form-group" style={{marginBottom:"1rem"}}>
+                  <label style={{fontSize:"0.78rem",display:"flex",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>Contact Number *</label>
+                  <input type="tel" value={form.phone} inputMode="numeric" maxLength={11}
+                    onChange={e => setForm(f=>({...f,phone:e.target.value.replace(/\D/g,'').slice(0,11)}))}
+                    placeholder="09XXXXXXXXX"
+                    style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
+                </div>
+                {inp("address","Business Address *","City, Province")}
+
+                <div className="form-group" style={{marginBottom:"1rem"}}>
+                  <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>ID / Permit Type</label>
+                  <select value={form.idType} onChange={e=>setForm(f=>({...f,idType:e.target.value}))}
+                    style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none",background:"#fff"}}>
+                    {["Business Permit","DTI Registration","SEC Registration","BIR Registration","Mayor's Permit"].map(o=><option key={o}>{o}</option>)}
+                  </select>
+                </div>
+
+                {inp("idNumber","Permit / Registration Number","e.g. BP-2025-001")}
+
+                <div className="form-group" style={{marginBottom:"1rem"}}>
+                  <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.5rem"}}>Services Offered</label>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem"}}>
+                    {SERVICE_OPTIONS.map(s => (
+                      <div key={s} onClick={() => toggleService(s)}
+                        style={{padding:"0.3rem 0.75rem",borderRadius:50,fontSize:"0.78rem",fontWeight:600,cursor:"pointer",
+                          border:"2px solid",transition:"all .15s",
+                          borderColor: form.services.includes(s) ? "var(--ocean)" : "var(--border)",
+                          background: form.services.includes(s) ? "var(--ocean)" : "#fff",
+                          color: form.services.includes(s) ? "#fff" : "var(--muted)"}}>
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-group" style={{marginBottom:"0"}}>
+                  <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>Business Bio (optional)</label>
+                  <textarea value={form.bio} onChange={e=>setForm(f=>({...f,bio:e.target.value}))}
+                    placeholder="Brief description of your business and services..."
+                    style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.88rem",resize:"vertical",minHeight:70,outline:"none"}} />
+                </div>
+
+                <div style={{marginTop:"0.9rem",background:"#FEF3C7",borderRadius:8,padding:"0.7rem 0.9rem",fontSize:"0.8rem",color:"#92400E"}}>
+                  <i className="fa-solid fa-triangle-exclamation"/> Your application will be reviewed by our admin team. Once approved, you'll receive an email with a link to set your password.
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {tab === "login" && (
+          <>
+            {inp("email","Email","you@email.com","email")}
+            {pwInp("password","Password","••••••••", showPass, setShowPass)}
+            <div style={{textAlign:"right", marginTop:"-0.5rem", marginBottom:"0.5rem"}}>
+              <button type="button" onClick={() => setTab("forgot")}
+                style={{background:"none",border:"none",color:"var(--ocean)",cursor:"pointer",fontSize:"0.82rem",fontWeight:600,padding:0}}>
+                Forgot password?
+              </button>
+            </div>
+          </>
+        )}
+
+        <button className="submit-btn" style={{marginTop:"1rem"}} onClick={tab==="login" ? handleLogin : handleRegister}>
+          {tab==="login" ? "Sign In" : role==="vendor" ? "Submit Application" : "Submit Registration"}
+        </button>
+
+        {tab === "login" && (
+          <div style={{marginTop:"1.5rem",background:"var(--sand)",borderRadius:"10px",padding:"1rem",fontSize:"0.82rem"}}>
+            <div className="log-in-user">
+              <strong>Demo Accounts:</strong><br/>
+              admin@islatravel.ph / admin123<br/>
+              vendor1@example.com / vendor123<br/>
+              maria@example.com / pass123
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

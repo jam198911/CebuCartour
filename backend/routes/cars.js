@@ -1,0 +1,148 @@
+﻿/**
+ * routes/cars.js — Full CRUD for car listings.
+ * Mounted at /api/cars in server.js.
+ */
+
+const express = require('express');
+const pool    = require('../db');
+const { verifyToken } = require('../middleware/auth');
+
+const router = express.Router();
+
+// ─── GET / ───────────────────────────────────────────────────────────────────
+
+router.get('/', async (req, res) => {
+  try {
+    const limit  = Math.min(Math.max(parseInt(req.query.limit) || 200, 1), 500);
+    const offset = req.query.offset !== undefined
+      ? Math.max(parseInt(req.query.offset) || 0, 0)
+      : (Math.max(parseInt(req.query.page) || 1, 1) - 1) * limit;
+
+    const [[countRows], [rows]] = await Promise.all([
+      pool.query('SELECT COUNT(*) AS total FROM cars'),
+      pool.query('SELECT * FROM cars ORDER BY id ASC LIMIT ? OFFSET ?', [limit, offset]),
+    ]);
+
+    const total = countRows[0].total;
+    res.json({ data: rows, total, page: Math.floor(offset / limit) + 1, limit, pages: Math.ceil(total / limit) });
+  } catch (err) {
+    console.error('get cars error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── GET /:id ────────────────────────────────────────────────────────────────
+
+router.get('/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM cars WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('get car error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── POST / ──────────────────────────────────────────────────────────────────
+
+router.post('/', verifyToken, async (req, res) => {
+  try {
+    const {
+      vendorId, name, type = '', location = '', fuel = '',
+      transmission = '', image = '', price, seats = 4,
+      mileage = 0, available = true, rating = 0, reviews = 0, description = '',
+    } = req.body;
+
+    if (!name || price === undefined) {
+      return res.status(400).json({ error: 'name and price are required' });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO cars
+         (vendorId, name, type, location, fuel, transmission, image,
+          price, seats, mileage, available, rating, reviews, description)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        vendorId || 0, name, type, location, fuel, transmission,
+        image, price, seats, mileage, available, rating, reviews, description,
+      ]
+    );
+
+    const [rows] = await pool.query('SELECT * FROM cars WHERE id = ?', [result.insertId]);
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error('create car error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── PUT /:id ────────────────────────────────────────────────────────────────
+
+router.put('/:id', verifyToken, async (req, res) => {
+  try {
+    const {
+      vendorId, name, type, location, fuel, transmission,
+      image, price, seats, mileage, available, rating, reviews, description,
+    } = req.body;
+
+    const fields = [];
+    const values = [];
+
+    const add = (col, val) => { fields.push(`\`${col}\` = ?`); values.push(val); };
+
+    if (vendorId     !== undefined) add('vendorId',     vendorId);
+    if (name         !== undefined) add('name',         name);
+    if (type         !== undefined) add('type',         type);
+    if (location     !== undefined) add('location',     location);
+    if (fuel         !== undefined) add('fuel',         fuel);
+    if (transmission !== undefined) add('transmission', transmission);
+    if (image        !== undefined) add('image',        image);
+    if (price        !== undefined) add('price',        price);
+    if (seats        !== undefined) add('seats',        seats);
+    if (mileage      !== undefined) add('mileage',      mileage);
+    if (available    !== undefined) add('available',    available);
+    if (rating       !== undefined) add('rating',       rating);
+    if (reviews      !== undefined) add('reviews',      reviews);
+    if (description  !== undefined) add('description',  description);
+
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    values.push(req.params.id);
+    const [result] = await pool.query(
+      `UPDATE cars SET ${fields.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+
+    const [rows] = await pool.query('SELECT * FROM cars WHERE id = ?', [req.params.id]);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('update car error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── DELETE /:id ─────────────────────────────────────────────────────────────
+
+router.delete('/:id', verifyToken, async (req, res) => {
+  try {
+    const [result] = await pool.query('DELETE FROM cars WHERE id = ?', [req.params.id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    res.json({ message: 'Car deleted successfully' });
+  } catch (err) {
+    console.error('delete car error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;
