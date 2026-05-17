@@ -43,6 +43,7 @@ export default function DetailModal({ item, onClose, openBooking }) {
               <div className="meta-item"><span className="meta-label">Seats</span><span className="meta-val"><i className="fa-solid fa-users"/> {item.seats}</span></div>
               <div className="meta-item"><span className="meta-label">Fuel</span><span className="meta-val"><i className="fa-solid fa-gas-pump"/> {item.fuel}</span></div>
               <div className="meta-item"><span className="meta-label">Transmission</span><span className="meta-val"><i className="fa-solid fa-gears"/> {item.transmission}</span></div>
+              {item.mileage > 0 && <div className="meta-item"><span className="meta-label">Mileage</span><span className="meta-val"><i className="fa-solid fa-road"/> {Number(item.mileage).toLocaleString()} km</span></div>}
               <div className="meta-item"><span className="meta-label">Rating</span><span className="meta-val"><Stars rating={item.rating} /></span></div>
             </> : <>
               <div className="meta-item"><span className="meta-label">Duration</span><span className="meta-val"><i className="fa-solid fa-calendar-days"/> {item.duration}</span></div>

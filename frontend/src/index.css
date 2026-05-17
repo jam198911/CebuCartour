@@ -211,7 +211,7 @@ code {
   .tag { 
   background:var(--sand); 
   color:var(--ocean); 
-  font-size:10px; 
+  font-size:10px !important; 
   font-weight:600; 
   padding:1px 10px;
   border-radius:50px; 

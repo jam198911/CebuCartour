@@ -119,6 +119,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
   const [destModal, setDestModal]     = useState(null);
   const [carouselIdx, setCarouselIdx] = useState(0);
   const intervalRef                   = useRef(null);
+  const datePickerRef                 = useRef(null);
 
   const CARDS_VISIBLE = 5;
   const maxCarouselIdx = Math.max(0, destinations.length - CARDS_VISIBLE);
@@ -236,14 +237,35 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
                   </select>
                 </div>
               </div>
-              <div className="search-input-wrap">
-                <span className="search-input-icon"><i class="fa-solid fa-calendar"></i></span>
+              <div className="search-input-wrap" style={{ cursor: "pointer", position: "relative" }}
+                onClick={() => { try { datePickerRef.current?.showPicker(); } catch { datePickerRef.current?.click(); } }}>
+                <span className="search-input-icon" style={{ color: search.date ? "var(--ocean)" : undefined }}>
+                  <i className="fa-solid fa-calendar-days"/>
+                </span>
                 <div className="search-input-inner">
                   <label>{search.type==="cars"?"Pickup Date":"Tour Date"}</label>
-                  <input type="date" value={search.date}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={e=>setSearch(s=>({...s,date:e.target.value}))} />
+                  <div style={{ display:"flex", alignItems:"center", gap:"0.4rem" }}>
+                    <span style={{ fontSize:"0.9rem", flex:1, fontWeight: search.date ? 600 : 400,
+                      color: search.date ? "var(--ink)" : "#94A3B8" }}>
+                      {search.date
+                        ? new Date(search.date+"T00:00:00").toLocaleDateString("en-PH",{weekday:"short",month:"short",day:"numeric",year:"numeric"})
+                        : "Select a date"}
+                    </span>
+                    {search.date && (
+                      <button onClick={e => { e.stopPropagation(); setSearch(s=>({...s,date:""})); }}
+                        style={{ background:"#F1F5F9", border:"none", borderRadius:50,
+                          width:20, height:20, cursor:"pointer", color:"#94A3B8",
+                          fontSize:"0.65rem", display:"flex", alignItems:"center",
+                          justifyContent:"center", flexShrink:0 }}>
+                        <i className="fa-solid fa-xmark"/>
+                      </button>
+                    )}
+                  </div>
                 </div>
+                <input ref={datePickerRef} type="date" value={search.date}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={e=>setSearch(s=>({...s,date:e.target.value}))}
+                  style={{ position:"absolute", opacity:0, pointerEvents:"none", width:1, height:1, top:0, left:0 }} />
               </div>
               <button className="search-go-btn" onClick={handleSearch}><i className="fa-solid fa-magnifying-glass"/> Search</button>
             </div>

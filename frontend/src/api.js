@@ -83,7 +83,7 @@ export const api = {
 
   // ── Users ─────────────────────────────────────────────────────────────────
   users: {
-    getAll:   ()       => apiFetch('/users').then(r => r.data),
+    getAll:   ()        => apiFetch('/users?limit=200').then(r => r.data ?? []),
     list: (params = {}) => apiFetch('/users?' + new URLSearchParams(params)),
 
     getById: (id) => apiFetch(`/users/${id}`),

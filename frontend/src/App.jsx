@@ -59,8 +59,14 @@ export default function App() {
     if (resetToken) window.history.replaceState({}, '', window.location.pathname);
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
-  const fetchAllData = () => {
-    api.users.getAll().then(setUsers).catch(() => {});
+  const fetchAllData = (forRole = user?.role) => {
+    // Admin needs all users for the management dashboard (capped at 200 per the backend limit).
+    // Every other session only needs active vendors — for displaying vendor info on cards.
+    const userParams = forRole === 'admin'
+      ? { limit: 200 }
+      : { role: 'vendor', status: 'active', limit: 100 };
+    api.users.list(userParams).then(r => setUsers(r.data ?? [])).catch(() => {});
+
     api.cars.getAll().then(setCars).catch(() => {});
     api.tours.getAll().then(setTours).catch(() => {});
     api.bookings.getAll().then(setBookings).catch(() => {});
@@ -127,6 +133,7 @@ export default function App() {
   const handleLogin = (u) => {
     setUser(u);
     localStorage.setItem("cebuCartour_user", JSON.stringify(u));
+    fetchAllData(u.role);
     if (u.role === "admin") goTo("admin");
     else if (u.role === "vendor") goTo("vendor");
     else goTo("home");

@@ -8,12 +8,23 @@
 
 require('dotenv').config();
 const express   = require('express');
+const helmet    = require('helmet');
 const cors      = require('cors');
 const path      = require('path');
 const rateLimit = require('express-rate-limit');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
+
+// ─── Security headers ─────────────────────────────────────────────────────────
+
+app.use(helmet({
+  // The API is consumed by a separate Vite frontend — no server-rendered HTML,
+  // so a strict CSP on the API itself adds no value and can break fetch preflight.
+  contentSecurityPolicy: false,
+  // Allow the Resend/upload CDN images to be embedded cross-origin.
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 // ─── Rate limiters ───────────────────────────────────────────────────────────
 

@@ -18,7 +18,8 @@ const { verifyToken } = require('../middleware/auth');
 const { sendVendorDecision, sendSetPasswordEmail, sendAdminNewRegistration, sendPasswordReset } = require('../utils/email');
 
 const router = express.Router();
-const SALT_ROUNDS = 10;
+const SALT_ROUNDS    = 10;
+const MIN_PW_LEN     = 8;
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -166,14 +167,22 @@ router.get('/me', verifyToken, async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const limit  = Math.min(Math.max(parseInt(req.query.limit) || 200, 1), 500);
+    const limit  = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 200);
     const offset = req.query.offset !== undefined
       ? Math.max(parseInt(req.query.offset) || 0, 0)
       : (Math.max(parseInt(req.query.page) || 1, 1) - 1) * limit;
 
+    // Optional filters: role, status, search (name/email prefix)
+    const conditions = [];
+    const params     = [];
+    if (req.query.role)   { conditions.push('role = ?');                      params.push(req.query.role); }
+    if (req.query.status) { conditions.push('status = ?');                    params.push(req.query.status); }
+    if (req.query.search) { conditions.push('(name LIKE ? OR email LIKE ?)'); const s = `%${req.query.search}%`; params.push(s, s); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+
     const [[countRows], [rows]] = await Promise.all([
-      pool.query('SELECT COUNT(*) AS total FROM users'),
-      pool.query('SELECT * FROM users ORDER BY id ASC LIMIT ? OFFSET ?', [limit, offset]),
+      pool.query(`SELECT COUNT(*) AS total FROM users ${where}`, params),
+      pool.query(`SELECT * FROM users ${where} ORDER BY id ASC LIMIT ? OFFSET ?`, [...params, limit, offset]),
     ]);
 
     const total = countRows[0].total;
@@ -238,6 +247,9 @@ router.put('/:id/password', verifyToken, async (req, res) => {
     const { current, newPw } = req.body;
     if (!current || !newPw) {
       return res.status(400).json({ error: 'current and newPw are required' });
+    }
+    if (newPw.length < MIN_PW_LEN) {
+      return res.status(400).json({ error: `New password must be at least ${MIN_PW_LEN} characters` });
     }
 
     const [rows] = await pool.query('SELECT password FROM users WHERE id = ?', [req.params.id]);
@@ -460,8 +472,8 @@ router.post('/reset-password', async (req, res) => {
   if (!token || !password) {
     return res.status(400).json({ error: 'Token and new password are required.' });
   }
-  if (password.length < 6) {
-    return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  if (password.length < MIN_PW_LEN) {
+    return res.status(400).json({ error: `Password must be at least ${MIN_PW_LEN} characters.` });
   }
 
   try {
