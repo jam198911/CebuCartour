@@ -1555,7 +1555,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                   <tbody>
                     {userFiltered.map((u, i) => {
                       const isSuspended = u.status === "inactive";
-                      const hasDeletionReq = u.deletionRequested;
+                      const hasDeletionReq = !!u.deletionRequested;
                       const displayStatus = isSuspended ? "inactive"
                         : u.approvalStatus === "pending" ? "pending"
                         : u.approvalStatus === "rejected" ? "cancelled"
