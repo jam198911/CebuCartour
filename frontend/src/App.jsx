@@ -292,7 +292,7 @@ export default function App() {
       {page === "booking" && <BookingPage item={bookingItem} user={user} onBook={handleBook} goTo={goTo} serviceFee={serviceFee} users={users} />}
       {page === "about" && <AboutPage />}
       {page === "contact" && <ContactPage user={user} />}
-      {page === "login" && <AuthPage onLogin={handleLogin} goTo={goTo} users={users} onRegister={u => setUsers(prev => [...prev, u])} resetToken={resetToken} onResetDone={() => setResetToken(null)} />}
+      {(page === "login" || page === "register") && <AuthPage startTab={page} onLogin={handleLogin} goTo={goTo} users={users} onRegister={u => setUsers(prev => [...prev, u])} resetToken={resetToken} onResetDone={() => setResetToken(null)} />}
       {page === "admin" && user?.role === "admin" && (
         <AdminDashboard user={user} bookings={bookings} users={users} cars={cars} tours={tours} serviceFee={serviceFee} updateServiceFee={updateServiceFee} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} approveVendor={approveVendor} rejectVendor={rejectVendor} disableUser={disableUser} deleteUser={deleteUser} deleteBooking={deleteBooking} deleteListing={deleteListing} setPdfModal={setPdfModal} updateUser={updateUser} approveDeletion={approveDeletion} declineDeletion={declineDeletion} destinations={destinations} setDestinations={setDestinations} showToast={showToast} onRefresh={fetchAllData} />
       )}

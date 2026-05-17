@@ -115,7 +115,7 @@ export default function SearchResultsPage({ cars, tours, setModal, openBooking, 
   return (
     <div style={{ minHeight:"100vh", background:"#F8FAFC" }}>
 
-      {/* â”€â”€ Hero header â”€â”€ */}
+      {/* â"€â"€ Hero header â"€â"€ */}
       <div style={{ background:"linear-gradient(135deg,#051E34 0%,#0A4D68 55%,#0891B2 100%)", padding:"3rem 2rem 2.2rem", color:"#fff" }}>
         <div style={{ maxWidth:980, margin:"0 auto" }}>
           <div style={{ fontSize:"0.72rem", fontWeight:700, opacity:.65, textTransform:"uppercase", letterSpacing:".12em", marginBottom:"0.55rem" }}>Search Results</div>
@@ -124,11 +124,11 @@ export default function SearchResultsPage({ cars, tours, setModal, openBooking, 
           </h1>
           <div style={{ display:"flex", flexWrap:"wrap", gap:"0.55rem", alignItems:"center" }}>
             {loc  && chip(<><i className="fa-solid fa-location-dot"/> {loc}</>)}
-            {date && chip(`ðŸ“… ${fmtDate(date)}`)}
+            {date && chip(<><i className="fa-solid fa-calendar-days"/> {fmtDate(date)}</>)}
             {chip(`${totalResults} result${totalResults !== 1 ? "s" : ""}`)}
             <button onClick={clearSearch}
               style={{ marginLeft:"auto", background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.28)", borderRadius:50, padding:"0.28rem 0.9rem", fontSize:"0.77rem", fontWeight:700, color:"#fff", cursor:"pointer" }}>
-              âœ• New Search
+              ✕ New Search
             </button>
           </div>
 
@@ -147,7 +147,7 @@ export default function SearchResultsPage({ cars, tours, setModal, openBooking, 
         </div>
       </div>
 
-      {/* â”€â”€ Sticky filter / sort bar â”€â”€ */}
+      {/* â"€â"€ Sticky filter / sort bar â"€â"€ */}
       <div style={{ background:"#fff", borderBottom:"1px solid #E9ECF0", position:"sticky", top:64, zIndex:10, boxShadow:"0 2px 6px rgba(0,0,0,0.05)" }}>
         <div style={{ maxWidth:980, margin:"0 auto", padding:"0 2rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"1rem", flexWrap:"wrap", minHeight:52 }}>
           <div style={{ display:"flex", gap:"0.2rem" }}>
@@ -170,14 +170,14 @@ export default function SearchResultsPage({ cars, tours, setModal, openBooking, 
             <select value={sortBy} onChange={e => setSortBy(e.target.value)}
               style={{ border:"1.5px solid #E5E7EB", borderRadius:8, padding:"0.3rem 0.65rem", fontSize:"0.8rem", fontWeight:600, color:"#374151", background:"#fff", cursor:"pointer", outline:"none" }}>
               <option value="rating">⭐ Top Rated</option>
-              <option value="price_asc">ðŸ’° Price: Low → High</option>
-              <option value="price_desc">ðŸ’° Price: High → Low</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="price_desc">Price: High → Low</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* â”€â”€ Results â”€â”€ */}
+      {/* â"€â"€ Results â"€â"€ */}
       <div style={{ maxWidth:980, margin:"0 auto", padding:"2rem" }}>
         {totalResults === 0 ? (
           <div style={{ textAlign:"center", padding:"5rem 2rem", background:"#fff", borderRadius:20, border:"1px solid #E9ECF0", boxShadow:"0 2px 8px rgba(0,0,0,0.04)" }}>

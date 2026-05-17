@@ -28,7 +28,7 @@ export default function Nav({ user, goTo, onLogout }) {
           ) : (
             <>
               <button className="nav-btn outline" onClick={() => goTo("login")}>Login</button>
-              <button className="nav-btn" onClick={() => goTo("login")}>Sign Up</button>
+              <button className="nav-btn" onClick={() => goTo("register")}>Sign Up</button>
             </>
           )}
         </div>
@@ -58,7 +58,7 @@ export default function Nav({ user, goTo, onLogout }) {
           ) : (
             <div className="nav-mobile-auth">
               <button className="nav-btn outline" onClick={() => { goTo("login"); close(); }}>Login</button>
-              <button className="nav-btn" onClick={() => { goTo("login"); close(); }}>Sign Up</button>
+              <button className="nav-btn" onClick={() => { goTo("register"); close(); }}>Sign Up</button>
             </div>
           )}
         </div>

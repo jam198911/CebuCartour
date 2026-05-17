@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { api } from "../api.js";
 
-export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetToken = null, onResetDone }) {
-  const [tab, setTab] = useState(resetToken ? "reset" : "login");
+export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetToken = null, onResetDone, startTab = "login" }) {
+  const [tab, setTab] = useState(resetToken ? "reset" : startTab);
   const [role, setRole] = useState("customer");
   const [registered, setRegistered] = useState(false);
   const [showPass, setShowPass]           = useState(false);
@@ -47,8 +47,8 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
 
   const handleRegister = async () => {
     if (!form.name || !form.email) { alert("Please fill in your name and email."); return; }
-    if (role === "vendor" && (!form.company || !form.phone || !form.address)) {
-      alert("Please fill in all vendor business details."); return;
+    if (role === "vendor" && (!form.company || !form.phone)) {
+      alert("Please fill in your business name and contact number."); return;
     }
     const userData = {
       name: form.name, email: form.email, role,
@@ -288,119 +288,118 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
     </div>
   );
 
-  return (
+  // ── Login page ────────────────────────────────────────────────────────────
+  if (tab === "login") return (
     <div className="auth-wrap">
-      <div className="auth-card fade-in" style={{maxWidth: tab==="register" && role==="vendor" ? 520 : 600}}>
-        <h2>{tab === "login" ? "Welcome Back" : "Create Account"}</h2>
-        <p style={{color:"var(--muted)",marginBottom:"1.5rem"}}>{tab === "login" ? "Sign in to manage your bookings." : "Join CebuCarTour today."}</p>
-        <div className="auth-tabs">
-          <div className={`auth-tab ${tab==="login"?"active":""}`} onClick={() => setTab("login")}>Login</div>
-          <div className={`auth-tab ${tab==="register"?"active":""}`} onClick={() => setTab("register")}>Register</div>
+      <div className="auth-card fade-in" style={{maxWidth:440}}>
+        {/* Brand header */}
+        <div style={{textAlign:"center",marginBottom:"2rem"}}>
+          <div style={{width:52,height:52,borderRadius:14,background:"var(--ocean)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 0.9rem"}}>
+            <i className="fa-solid fa-car" style={{color:"#fff",fontSize:"1.4rem"}}/>
+          </div>
+          <h2 style={{margin:"0 0 0.3rem",fontSize:"1.5rem"}}>Welcome back</h2>
+          <p style={{color:"var(--muted)",margin:0,fontSize:"0.9rem"}}>Sign in to your CebuCarTour account</p>
         </div>
 
-        {tab === "register" && (
-          <>
-            {/* Role picker */}
-            <div style={{marginBottom:"1rem"}}>
-              <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.5rem"}}>I am a...</label>
-              <div className="role-select">
-                {[["customer","fa-solid fa-user","Traveler / Customer"],["vendor","fa-solid fa-building","Vendor / Operator"]].map(([r,icon,label]) => (
-                  <div key={r} className={`role-opt ${role===r?"selected":""}`} onClick={() => setRole(r)}>
-                    <span className="role-icon"><i className={icon}/></span>
-                    <span className="role-name">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {inp("email","Email address","you@email.com","email")}
+        {pwInp("password","Password","••••••••", showPass, setShowPass)}
 
-            {/* Common fields */}
-            {inp("name","Full Name *","Juan dela Cruz")}
-            {inp("email","Email Address *","you@email.com","email")}
+        <div style={{textAlign:"right",marginTop:"-0.5rem",marginBottom:"1.25rem"}}>
+          <button type="button" onClick={() => setTab("forgot")}
+            style={{background:"none",border:"none",color:"var(--ocean)",cursor:"pointer",fontSize:"0.82rem",fontWeight:600,padding:0}}>
+            Forgot password?
+          </button>
+        </div>
 
-            {/* Vendor-only fields */}
-            {role === "vendor" && (
-              <div style={{background:"#F0F9FF",borderRadius:12,padding:"1.2rem",marginTop:"0.5rem",marginBottom:"0.5rem"}}>
-                <div style={{fontSize:"0.75rem",fontWeight:700,color:"var(--ocean)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"0.9rem"}}>
-                  <i className="fa-solid fa-building"/> Business Information
-                </div>
-                {inp("company","Business / Company Name *","e.g. Eastern Visayas Tours")}
-                <div className="form-group" style={{marginBottom:"1rem"}}>
-                  <label style={{fontSize:"0.78rem",display:"flex",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>Contact Number *</label>
-                  <input type="tel" value={form.phone} inputMode="numeric" maxLength={11}
-                    onChange={e => setForm(f=>({...f,phone:e.target.value.replace(/\D/g,'').slice(0,11)}))}
-                    placeholder="09XXXXXXXXX"
-                    style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
-                </div>
-                {inp("address","Business Address *","City, Province")}
-
-                <div className="form-group" style={{marginBottom:"1rem"}}>
-                  <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>ID / Permit Type</label>
-                  <select value={form.idType} onChange={e=>setForm(f=>({...f,idType:e.target.value}))}
-                    style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none",background:"#fff"}}>
-                    {["Business Permit","DTI Registration","SEC Registration","BIR Registration","Mayor's Permit"].map(o=><option key={o}>{o}</option>)}
-                  </select>
-                </div>
-
-                {inp("idNumber","Permit / Registration Number","e.g. BP-2025-001")}
-
-                <div className="form-group" style={{marginBottom:"1rem"}}>
-                  <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.5rem"}}>Services Offered</label>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem"}}>
-                    {SERVICE_OPTIONS.map(s => (
-                      <div key={s} onClick={() => toggleService(s)}
-                        style={{padding:"0.3rem 0.75rem",borderRadius:50,fontSize:"0.78rem",fontWeight:600,cursor:"pointer",
-                          border:"2px solid",transition:"all .15s",
-                          borderColor: form.services.includes(s) ? "var(--ocean)" : "var(--border)",
-                          background: form.services.includes(s) ? "var(--ocean)" : "#fff",
-                          color: form.services.includes(s) ? "#fff" : "var(--muted)"}}>
-                        {s}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="form-group" style={{marginBottom:"0"}}>
-                  <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>Business Bio (optional)</label>
-                  <textarea value={form.bio} onChange={e=>setForm(f=>({...f,bio:e.target.value}))}
-                    placeholder="Brief description of your business and services..."
-                    style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.88rem",resize:"vertical",minHeight:70,outline:"none"}} />
-                </div>
-
-                <div style={{marginTop:"0.9rem",background:"#FEF3C7",borderRadius:8,padding:"0.7rem 0.9rem",fontSize:"0.8rem",color:"#92400E"}}>
-                  <i className="fa-solid fa-triangle-exclamation"/> Your application will be reviewed by our admin team. Once approved, you'll receive an email with a link to set your password.
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {tab === "login" && (
-          <>
-            {inp("email","Email","you@email.com","email")}
-            {pwInp("password","Password","••••••••", showPass, setShowPass)}
-            <div style={{textAlign:"right", marginTop:"-0.5rem", marginBottom:"0.5rem"}}>
-              <button type="button" onClick={() => setTab("forgot")}
-                style={{background:"none",border:"none",color:"var(--ocean)",cursor:"pointer",fontSize:"0.82rem",fontWeight:600,padding:0}}>
-                Forgot password?
-              </button>
-            </div>
-          </>
-        )}
-
-        <button className="submit-btn" style={{marginTop:"1rem"}} onClick={tab==="login" ? handleLogin : handleRegister}>
-          {tab==="login" ? "Sign In" : role==="vendor" ? "Submit Application" : "Submit Registration"}
+        <button className="submit-btn" style={{marginTop:0}} onClick={handleLogin}>
+          <i className="fa-solid fa-right-to-bracket"/> Sign In
         </button>
 
-        {tab === "login" && (
-          <div style={{marginTop:"1.5rem",background:"var(--sand)",borderRadius:"10px",padding:"1rem",fontSize:"0.82rem"}}>
-            <div className="log-in-user">
-              <strong>Demo Accounts:</strong><br/>
-              admin@islatravel.ph / admin123<br/>
-              vendor1@example.com / vendor123<br/>
-              maria@example.com / pass123
-            </div>
+        <div style={{textAlign:"center",marginTop:"1.5rem",fontSize:"0.88rem",color:"var(--muted)"}}>
+          Don't have an account?{" "}
+          <button type="button" onClick={() => setTab("register")}
+            style={{background:"none",border:"none",color:"var(--ocean)",cursor:"pointer",fontWeight:700,fontSize:"0.88rem",padding:0}}>
+            Create one
+          </button>
+        </div>
+
+        <div style={{marginTop:"1.5rem",background:"var(--sand)",borderRadius:"10px",padding:"1rem",fontSize:"0.82rem"}}>
+          <div className="log-in-user">
+            <strong>Demo Accounts:</strong><br/>
+            admin@islatravel.ph / admin123<br/>
+            vendor1@example.com / vendor123<br/>
+            maria@example.com / pass123
           </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── Register page ─────────────────────────────────────────────────────────
+  return (
+    <div className="auth-wrap">
+      <div className="auth-card fade-in" style={{maxWidth:460}}>
+        {/* Header */}
+        <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginBottom:"1.75rem"}}>
+          <button type="button" onClick={() => setTab("login")}
+            style={{background:"var(--sand)",border:"none",borderRadius:8,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0,color:"var(--text)"}}>
+            <i className="fa-solid fa-arrow-left"/>
+          </button>
+          <div>
+            <h2 style={{margin:0,fontSize:"1.35rem"}}>Create your account</h2>
+            <p style={{margin:0,fontSize:"0.82rem",color:"var(--muted)"}}>Join CebuCarTour today — it's free</p>
+          </div>
+        </div>
+
+        {/* Role picker */}
+        <div style={{marginBottom:"1.25rem"}}>
+          <label style={{fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",display:"block",marginBottom:"0.5rem"}}>I am a...</label>
+          <div className="role-select">
+            {[["customer","fa-solid fa-user","Traveler / Customer"],["vendor","fa-solid fa-building","Vendor / Operator"]].map(([r,icon,label]) => (
+              <div key={r} className={`role-opt ${role===r?"selected":""}`} onClick={() => setRole(r)}>
+                <span className="role-icon"><i className={icon}/></span>
+                <span className="role-name">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Vendor fields: Business Name → Owner Name → Phone → Email */}
+        {role === "vendor" ? (
+          <>
+            {inp("company","Business Name *","e.g. Eastern Visayas Tours")}
+            {inp("name","Owner Name *","Juan dela Cruz")}
+            <div className="form-group" style={{marginBottom:"1rem"}}>
+              <label style={{fontSize:"0.78rem",display:"flex",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>Contact Number *</label>
+              <input type="tel" value={form.phone} inputMode="numeric" maxLength={11}
+                onChange={e => setForm(f=>({...f,phone:e.target.value.replace(/\D/g,'').slice(0,11)}))}
+                placeholder="09XXXXXXXXX"
+                style={{border:"2px solid var(--border)",borderRadius:"10px",padding:"0.75rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
+            </div>
+            {inp("email","Email Address *","you@email.com","email")}
+            <div style={{marginTop:"0.25rem",background:"#FEF3C7",borderRadius:8,padding:"0.7rem 0.9rem",fontSize:"0.8rem",color:"#92400E",marginBottom:"0.25rem"}}>
+              <i className="fa-solid fa-triangle-exclamation"/> Your application will be reviewed by our admin team. Once approved, you'll receive an email to set your password and complete your profile.
+            </div>
+          </>
+        ) : (
+          /* Customer fields */
+          <>
+            {inp("name","Full Name *","Juan dela Cruz")}
+            {inp("email","Email Address *","you@email.com","email")}
+          </>
         )}
+
+        <button className="submit-btn" style={{marginTop:"1.25rem"}} onClick={handleRegister}>
+          {role==="vendor" ? <><i className="fa-solid fa-paper-plane"/> Submit Application</> : <><i className="fa-solid fa-user-plus"/> Create Account</>}
+        </button>
+
+        <div style={{textAlign:"center",marginTop:"1.25rem",fontSize:"0.88rem",color:"var(--muted)"}}>
+          Already have an account?{" "}
+          <button type="button" onClick={() => setTab("login")}
+            style={{background:"none",border:"none",color:"var(--ocean)",cursor:"pointer",fontWeight:700,fontSize:"0.88rem",padding:0}}>
+            Sign in
+          </button>
+        </div>
       </div>
     </div>
   );

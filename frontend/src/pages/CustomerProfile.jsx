@@ -43,7 +43,7 @@ export function ImageUploader({ images = [], onChange, maxImages = 3 }) {
         {images.map((src, i) => (
           <div key={i} className="img-slot filled">
             <img src={src} alt={`Photo ${i+1}`} />
-            <button className="img-slot-remove" onClick={() => removeImage(i)}>âœ•</button>
+            <button className="img-slot-remove" onClick={() => removeImage(i)}>✕</button>
             <span className="img-slot-num">Photo {i+1}</span>
           </div>
         ))}
@@ -69,14 +69,14 @@ export function ImageUploader({ images = [], onChange, maxImages = 3 }) {
       <input ref={inputRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={handleFiles} />
       {images.length >= maxImages && (
         <div style={{fontSize:"0.78rem",color:"var(--success)",marginTop:"0.4rem",fontWeight:600}}>
-          âœ“ Maximum {maxImages} photos uploaded. Remove one to replace it.
+          ✓ Maximum {maxImages} photos uploaded. Remove one to replace it.
         </div>
       )}
     </div>
   );
 }
 
-// â”€â”€â”€ EDIT PROFILE MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ EDIT PROFILE MODAL â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 export function EditProfileModal({ user, onSave, onClose }) {
   const [form, setForm] = useState({
     name:           user.name           || "",
@@ -101,7 +101,7 @@ export function EditProfileModal({ user, onSave, onClose }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const photoInputRef = useRef(null);
 
-  const AVATARS = ["ðŸ§‘","ðŸ‘©","ðŸ§”","ðŸ‘¨â€ðŸ’¼","ðŸ‘©â€ðŸ’¼","ðŸ§‘â€ðŸ’»","ðŸ‘¨â€ðŸ³","ðŸ¤µ","ðŸ‘©â€ðŸš€","ðŸ§‘â€ðŸŽ¨"];
+  const AVATARS = ["🧑","👩","🧔","👨‍💼","👩‍💼","🧑‍💻","👨‍🍳","🤵","👩‍🚀","🧑‍🎨"];
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -132,9 +132,9 @@ export function EditProfileModal({ user, onSave, onClose }) {
             <div className="profile-photo-wrap" style={{width:64,height:64,flexShrink:0}} onClick={() => photoInputRef.current?.click()}>
               {form.profilePhoto
                 ? <img src={form.profilePhoto} alt="Profile" />
-                : <div className="profile-photo-emoji">{form.avatar || "ðŸ§‘"}</div>
+                : <div className="profile-photo-emoji">{form.avatar || <i className="fa-solid fa-user"/>}</div>
               }
-              <div className="profile-photo-overlay"><span>ðŸ“·<br/>Change</span></div>
+              <div className="profile-photo-overlay"><span><i className="fa-solid fa-camera"/><br/>Change</span></div>
             </div>
             <input ref={photoInputRef} type="file" accept="image/*" style={{display:"none"}} onChange={handlePhotoUpload} />
             <div>
@@ -145,7 +145,7 @@ export function EditProfileModal({ user, onSave, onClose }) {
           <button onClick={onClose}
             style={{ background:"rgba(255,255,255,0.2)", border:"none", borderRadius:8,
               padding:"0.4rem 0.8rem", cursor:"pointer", color:"#fff", fontWeight:700 }}>
-            âœ•
+            ✕
           </button>
         </div>
 
@@ -157,19 +157,19 @@ export function EditProfileModal({ user, onSave, onClose }) {
             <div style={{width:72,height:72,borderRadius:"50%",overflow:"hidden",flexShrink:0,border:"2px solid var(--border)"}}>
               {form.profilePhoto
                 ? <img src={form.profilePhoto} alt="Preview" style={{width:"100%",height:"100%",objectFit:"cover"}} />
-                : <div style={{width:"100%",height:"100%",background:"linear-gradient(135deg,var(--ocean),var(--teal))",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2rem"}}>{form.avatar||"ðŸ§‘"}</div>
+                : <div style={{width:"100%",height:"100%",background:"linear-gradient(135deg,var(--ocean),var(--teal))",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2rem"}}>{form.avatar||<i className="fa-solid fa-user" style={{color:"#fff"}}/>}</div>
               }
             </div>
             <div style={{flex:1}}>
               <div style={{display:"flex",gap:"0.6rem",flexWrap:"wrap"}}>
                 <button type="button" onClick={() => photoInputRef.current?.click()}
                   style={{background:"var(--ocean)",color:"#fff",border:"none",padding:"0.5rem 1rem",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:"0.85rem"}}>
-                  ðŸ“· Upload Photo
+                  <i className="fa-solid fa-camera"/> Upload Photo
                 </button>
                 {form.profilePhoto && (
                   <button type="button" onClick={() => set("profilePhoto","")}
                     style={{background:"#FEE2E2",color:"var(--danger)",border:"none",padding:"0.5rem 0.8rem",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:"0.85rem"}}>
-                    âœ• Remove
+                    ✕ Remove
                   </button>
                 )}
               </div>
@@ -274,9 +274,9 @@ export function EditProfileModal({ user, onSave, onClose }) {
           {/* Social Links */}
           <div className="profile-section-label">Social Media Links</div>
           {[
-            ["socialFacebook",  "ðŸŸ¦", "Facebook URL",  "https://facebook.com/yourpage"],
-            ["socialInstagram", "ðŸŸ£", "Instagram URL", "https://instagram.com/yourhandle"],
-            ["socialTiktok",    "â¬›", "TikTok URL",    "https://tiktok.com/@yourhandle"],
+            ["socialFacebook",  "🟦", "Facebook URL",  "https://facebook.com/yourpage"],
+            ["socialInstagram", "🟣", "Instagram URL", "https://instagram.com/yourhandle"],
+            ["socialTiktok",    "⬛", "TikTok URL",    "https://tiktok.com/@yourhandle"],
           ].map(([key, icon, label, ph]) => (
             <div key={key} className="profile-field">
               <label>{icon} {label}</label>
@@ -290,7 +290,7 @@ export function EditProfileModal({ user, onSave, onClose }) {
           <button onClick={handleSave}
             style={{ flex:2, background:"var(--ocean)", color:"#fff", border:"none",
               padding:"0.9rem", borderRadius:12, cursor:"pointer", fontWeight:700, fontSize:"0.95rem" }}>
-            ðŸ’¾ Save Changes
+            <i className="fa-solid fa-floppy-disk"/> Save Changes
           </button>
           <button onClick={onClose}
             style={{ flex:1, background:"#F3F4F6", color:"var(--ink)", border:"none",
@@ -303,7 +303,7 @@ export function EditProfileModal({ user, onSave, onClose }) {
   );
 }
 
-// â”€â”€â”€ EDIT GCASH MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ EDIT GCASH MODAL â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 export function EditGcashModal({ user, onSave, onClose }) {
   const [form, setForm] = useState({
     gcashNumber: user.gcashNumber || "",
@@ -317,12 +317,12 @@ export function EditGcashModal({ user, onSave, onClose }) {
       <div className="profile-modal" onClick={e => e.stopPropagation()} style={{maxWidth:480}}>
         <div className="profile-modal-header" style={{background:"linear-gradient(135deg,#059669,#10B981)"}}>
           <div>
-            <h2>ðŸ’š GCash Details</h2>
+            <h2><i className="fa-solid fa-credit-card"/> GCash Details</h2>
             <p style={{opacity:.8,fontSize:"0.82rem"}}>Update your GCash payment information</p>
           </div>
           <button onClick={onClose}
             style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}>
-            âœ•
+            ✕
           </button>
         </div>
         <div className="profile-modal-body">
@@ -343,7 +343,7 @@ export function EditGcashModal({ user, onSave, onClose }) {
         <div className="profile-modal-footer">
           <button onClick={handleSave}
             style={{flex:2,background:"#059669",color:"#fff",border:"none",padding:"0.9rem",borderRadius:12,cursor:"pointer",fontWeight:700,fontSize:"0.95rem"}}>
-            ðŸ’¾ Save GCash Details
+            <i className="fa-solid fa-floppy-disk"/> Save GCash Details
           </button>
           <button onClick={onClose}
             style={{flex:1,background:"#F3F4F6",color:"var(--ink)",border:"none",padding:"0.9rem",borderRadius:12,cursor:"pointer",fontWeight:700}}>
@@ -355,7 +355,7 @@ export function EditGcashModal({ user, onSave, onClose }) {
   );
 }
 
-// â”€â”€â”€ EDIT BANK MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ EDIT BANK MODAL â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 export function EditBankModal({ user, onSave, onClose }) {
   const [form, setForm] = useState({
     bankNumber:   user.bankNumber   || "",
@@ -370,12 +370,12 @@ export function EditBankModal({ user, onSave, onClose }) {
       <div className="profile-modal" onClick={e => e.stopPropagation()} style={{maxWidth:480}}>
         <div className="profile-modal-header" style={{background:"linear-gradient(135deg,#1D4ED8,#3B82F6)"}}>
           <div>
-            <h2>ðŸ¦ Bank Account Details</h2>
+            <h2><i className="fa-solid fa-building-columns"/> Bank Account Details</h2>
             <p style={{opacity:.8,fontSize:"0.82rem"}}>Update your bank transfer information</p>
           </div>
           <button onClick={onClose}
             style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}>
-            âœ•
+            ✕
           </button>
         </div>
         <div className="profile-modal-body">
@@ -403,7 +403,7 @@ export function EditBankModal({ user, onSave, onClose }) {
         <div className="profile-modal-footer">
           <button onClick={handleSave}
             style={{flex:2,background:"#1D4ED8",color:"#fff",border:"none",padding:"0.9rem",borderRadius:12,cursor:"pointer",fontWeight:700,fontSize:"0.95rem"}}>
-            ðŸ’¾ Save Bank Details
+            <i className="fa-solid fa-floppy-disk"/> Save Bank Details
           </button>
           <button onClick={onClose}
             style={{flex:1,background:"#F3F4F6",color:"var(--ink)",border:"none",padding:"0.9rem",borderRadius:12,cursor:"pointer",fontWeight:700}}>
@@ -415,7 +415,7 @@ export function EditBankModal({ user, onSave, onClose }) {
   );
 }
 
-// â”€â”€â”€ CUSTOMER PROFILE PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ CUSTOMER PROFILE PAGE â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 export default function CustomerProfile({ user, bookings, goTo, onLogout, updateUser, cars, tours, requestDeletion, users = [], deleteBooking, serviceFee = 5, submitRating }) {
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -432,7 +432,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
   const [ratingModal, setRatingModal] = useState(null); // { booking, item, hovered, stars, note }
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
 
-  // â”€â”€ Cancellation notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â"€â"€ Cancellation notifications â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
   const cancelSeenKey = `cebuCartour_cancelSeen_${user.id}`;
   const [seenCancelIds, setSeenCancelIds] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem(cancelSeenKey) || "[]")); } catch { return new Set(); }
@@ -475,7 +475,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
         />
       )}
 
-      {/* â”€â”€ Booking Detail Modal â”€â”€ */}
+      {/* â"€â"€ Booking Detail Modal â"€â"€ */}
       {viewBooking && (() => {
         const b = viewBooking;
         const listingItem = (b.type === "car" ? cars : tours).find(i => i.id === b.itemId);
@@ -500,7 +500,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
                   </span>
                   <button onClick={() => setViewBooking(null)}
                     style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:8,padding:"0.4rem 0.7rem",cursor:"pointer",color:"#fff",fontWeight:700,fontSize:"1rem",lineHeight:1}}>
-                    âœ•
+                    ✕
                   </button>
                 </div>
               </div>
@@ -570,7 +570,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
         );
       })()}
 
-      {/* â”€â”€ Delete Booking Confirm â”€â”€ */}
+      {/* â"€â"€ Delete Booking Confirm â"€â"€ */}
       {confirmDeleteId && (() => {
         const b = bookings.find(bk => bk.id === confirmDeleteId);
         return (
@@ -600,7 +600,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
         );
       })()}
 
-      {/* â”€â”€ Rating Modal â”€â”€ */}
+      {/* â"€â"€ Rating Modal â"€â"€ */}
       {ratingModal && (
         <div className="overlay" onClick={() => setRatingModal(null)} style={{ zIndex:700, background:"rgba(0,0,0,0.55)" }}>
           <div onClick={e => e.stopPropagation()} style={{ background:"#fff", borderRadius:20, width:"100%", maxWidth:460, padding:"2rem", boxShadow:"0 24px 64px rgba(0,0,0,0.22)" }}>
@@ -826,11 +826,11 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
           {/* My Bookings — tabbed */}
           <div className="cp-card" style={{ gridColumn:"1/-1" }}>
 
-            {/* â”€â”€ Cancellation notification banner â”€â”€ */}
+            {/* â"€â"€ Cancellation notification banner â"€â"€ */}
             {newCancellations.length > 0 && (
               <div style={{ background:"#FEF2F2", border:"1.5px solid #FECACA", borderRadius:12, padding:"1rem 1.2rem",
                 marginBottom:"1.2rem", display:"flex", alignItems:"flex-start", gap:"0.85rem" }}>
-                <span style={{ fontSize:"1.4rem", flexShrink:0 }}>ðŸš«</span>
+                <span style={{ fontSize:"1.4rem", flexShrink:0 }}><i className="fa-solid fa-ban" style={{color:"#EF4444"}}/></span>
                 <div style={{ flex:1 }}>
                   <div style={{ fontWeight:700, color:"#991B1B", fontSize:"0.92rem", marginBottom:"0.3rem" }}>
                     {newCancellations.length === 1
@@ -863,7 +863,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
                   </button>
                 </div>
                 <button onClick={() => markCancelsSeen(newCancellations.map(b => b.id))}
-                  style={{ background:"none", border:"none", fontSize:"1.1rem", cursor:"pointer", color:"#991B1B", flexShrink:0, lineHeight:1 }}>âœ•</button>
+                  style={{ background:"none", border:"none", fontSize:"1.1rem", cursor:"pointer", color:"#991B1B", flexShrink:0, lineHeight:1 }}>✕</button>
               </div>
             )}
 
@@ -916,7 +916,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
             {tabBookings.length === 0 ? (
               <div style={{ textAlign:"center", padding:"2.5rem 1rem", color:"var(--muted)" }}>
                 <div style={{ fontSize:"2.5rem", marginBottom:"0.8rem" }}>
-                  {bookingTab === "current" ? "ðŸ“­" : "ðŸ—‚ï¸"}
+                  {bookingTab === "current" ? <i className="fa-solid fa-calendar-xmark"/> : <i className="fa-solid fa-clock-rotate-left"/>}
                 </div>
                 <p style={{ fontWeight:600, marginBottom:"0.4rem" }}>
                   {bookingTab === "current" ? "No active bookings" : "No past bookings yet"}
@@ -1047,7 +1047,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
             </div>
           </div>
 
-          {/* â”€â”€ Change Password â”€â”€ */}
+          {/* â"€â"€ Change Password â"€â"€ */}
           <div className="cp-card" style={{ gridColumn:"1/-1" }}>
             <h3><i className="fa-solid fa-lock"/> Password &amp; Security</h3>
             {cpwSuccess && (
@@ -1085,12 +1085,12 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
               <i className="fa-solid fa-key"/> Update Password
             </button>
 
-            {/* â”€â”€ Request Account Deletion â”€â”€ */}
+            {/* â"€â"€ Request Account Deletion â"€â"€ */}
             <div style={{borderTop:"1px solid #F3F4F6",marginTop:"1.5rem",paddingTop:"1.5rem"}}>
               {user.deletionRequested ? (
                 <div className="deletion-pending">
                   <h4>â³ Deletion Request Pending</h4>
-                  <p>Your account deletion request has been submitted on <strong>{user.deletionRequestedAt}</strong>. An admin will review and respond within 1â€“2 business days.</p>
+                  <p>Your account deletion request has been submitted on <strong>{user.deletionRequestedAt}</strong>. An admin will review and respond within 1â€"2 business days.</p>
                   <div style={{ background:"#FEF3C7", borderRadius:8, padding:"0.7rem 0.9rem", fontSize:"0.83rem", color:"#92400E", marginBottom:"0.8rem" }}>
                     <strong>Your reason:</strong> {user.deletionReason}
                   </div>

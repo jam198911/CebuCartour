@@ -85,12 +85,12 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
 
   return (
     <>
-    {/* â”€â”€ Vendor Cancel Booking Modal â”€â”€ */}
+    {/* â"€â"€ Vendor Cancel Booking Modal â"€â"€ */}
     {cancelModal && (
       <div className="overlay" onClick={() => setCancelModal(null)} style={{zIndex:600,background:"rgba(0,0,0,0.5)"}}>
         <div onClick={e => e.stopPropagation()} style={{background:"#fff",borderRadius:20,width:"100%",maxWidth:440,padding:"2rem",boxShadow:"0 20px 60px rgba(0,0,0,0.25)"}}>
           <div style={{textAlign:"center",marginBottom:"1.2rem"}}>
-            <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}>ðŸš«</div>
+            <div style={{fontSize:"2.5rem",marginBottom:"0.5rem"}}><i className="fa-solid fa-ban" style={{color:"#EF4444"}}/></div>
             <h3 style={{margin:0,marginBottom:"0.4rem"}}>Cancel Booking</h3>
             <p style={{margin:0,fontSize:"0.88rem",color:"var(--muted)"}}>
               Cancelling booking <strong>{cancelModal.id}</strong> for <strong>{cancelModal.name}</strong>.<br/>
@@ -131,7 +131,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
       </div>
     )}
 
-    {/* â”€â”€ Payment Proof Lightbox â”€â”€ */}
+    {/* â"€â"€ Payment Proof Lightbox â"€â"€ */}
     {viewProof && (
       <div className="overlay" onClick={() => setViewProof(null)} style={{zIndex:500,background:"rgba(0,0,0,0.75)"}}>
         <div onClick={e => e.stopPropagation()} style={{
@@ -140,19 +140,19 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
         }}>
           <div style={{background:"linear-gradient(135deg,var(--ocean),var(--teal))",padding:"1rem 1.5rem",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div>
-              <div style={{fontWeight:700,color:"#fff",fontSize:"0.95rem"}}>ðŸ’³ Payment Screenshot</div>
+              <div style={{fontWeight:700,color:"#fff",fontSize:"0.95rem"}}><i className="fa-solid fa-credit-card"/> Payment Screenshot</div>
               <div style={{color:"rgba(255,255,255,0.75)",fontSize:"0.78rem"}}>
                 {viewProof.id} — {viewProof.name}
               </div>
             </div>
-            <button onClick={() => setViewProof(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700,fontSize:"1rem"}}>âœ•</button>
+            <button onClick={() => setViewProof(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700,fontSize:"1rem"}}>✕</button>
           </div>
           <div style={{padding:"1.5rem",textAlign:"center"}}>
             {viewProof.paymentProof?.startsWith("data:image") ? (
               <img src={viewProof.paymentProof} alt="Payment proof" style={{maxWidth:"100%",maxHeight:"60vh",borderRadius:12,border:"1px solid var(--border)",boxShadow:"0 4px 20px rgba(0,0,0,0.1)"}} />
             ) : (
               <div style={{padding:"3rem",color:"var(--muted)",fontSize:"0.9rem"}}>
-                ðŸ“„ PDF receipt uploaded — preview not available.<br/>
+                <i className="fa-solid fa-file-pdf"/> PDF receipt uploaded — preview not available.<br/>
                 <span style={{fontSize:"0.8rem"}}>Filename visible only in backend storage.</span>
               </div>
             )}
@@ -233,17 +233,17 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
           <p>Welcome, <strong>{user.name}</strong> {!user.approved && "— âš ï¸ Your account is pending admin approval."}</p>
         </div>
 
-        {/* â”€â”€ APPROVAL GATE â”€â”€ show full screen if not approved â”€â”€ */}
+        {/* â"€â"€ APPROVAL GATE â"€â"€ show full screen if not approved â"€â"€ */}
         {user.approvalStatus === "pending" && (
           <div className="pending-screen">
             <div className="pending-icon">â³</div>
             <h2>Your Application is Under Review</h2>
-            <p>Our admin team is currently reviewing your vendor profile. This typically takes <strong>24â€“48 hours</strong>. You will be notified once approved.</p>
+            <p>Our admin team is currently reviewing your vendor profile. This typically takes <strong>24â€"48 hours</strong>. You will be notified once approved.</p>
             <div className="pending-steps">
               {[["fa-solid fa-circle-check","Application Submitted","Your details have been received."],
                 ["fa-solid fa-magnifying-glass","Admin Review","Our team is verifying your information."],
-                ["ðŸ“§","Decision Notification","You'll receive an email with the outcome."],
-                ["ðŸš€","Start Posting","Once approved, add your listings here."]].map(([icon,title,desc]) => (
+                ["fa-solid fa-envelope","Decision Notification","You'll receive an email with the outcome."],
+                ["fa-solid fa-rocket","Start Posting","Once approved, add your listings here."]].map(([icon,title,desc]) => (
                 <div key={title} className="pending-step">
                   <div className="ps-icon">{icon.startsWith("fa-") ? <i className={icon}/> : icon}</div>
                   <strong style={{fontSize:"0.85rem",display:"block",marginBottom:"0.3rem"}}>{title}</strong>
@@ -271,13 +271,13 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             )}
             <div style={{display:"flex",gap:"1rem",marginTop:"1rem",flexWrap:"wrap",justifyContent:"center"}}>
-              <button className="btn-primary" onClick={() => goTo("contact")}>ðŸ“§ Contact Support</button>
+              <button className="btn-primary" onClick={() => goTo("contact")}><i className="fa-solid fa-envelope"/> Contact Support</button>
               <button style={{background:"#F3F4F6",color:"var(--ink)",border:"none",padding:"0.75rem 1.8rem",borderRadius:50,cursor:"pointer",fontWeight:700,fontSize:"0.95rem"}} onClick={() => goTo("home")}>Back to Home</button>
             </div>
           </div>
         )}
 
-        {/* â”€â”€ APPROVED VENDOR CONTENT â”€â”€ */}
+        {/* â"€â"€ APPROVED VENDOR CONTENT â"€â"€ */}
         {user.approvalStatus === "approved" && (<>
 
         {section === "overview" && (
@@ -305,7 +305,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               ))}
             </div>
 
-            {/* â”€â”€ Vendor Analytics â”€â”€ */}
+            {/* â"€â"€ Vendor Analytics â"€â"€ */}
             {(() => {
               const CARD = {background:"#fff",borderRadius:14,border:"1px solid #E9ECF0",padding:"1.25rem 1.5rem",boxShadow:"0 1px 3px rgba(0,0,0,0.06)"};
               const CTITLE = {fontSize:"0.7rem",fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"0.5rem"};
@@ -334,7 +334,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               return (
                 <>
                   <div style={{fontSize:"0.7rem",fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".1em",margin:"1.25rem 0 0.75rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
-                    ðŸ“ˆ Analytics Overview
+                    <i className="fa-solid fa-chart-line"/> Analytics Overview
                     <div style={{flex:1,height:1,background:"var(--border)"}}/>
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
@@ -393,7 +393,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
             <div className="table-wrap">
               <div className="table-header"><h3>Recent Bookings</h3></div>
               {bookings.length === 0 ? (
-                <div className="empty-state"><div className="empty-icon">ðŸ“­</div><p>No bookings yet. Add listings to get started!</p></div>
+                <div className="empty-state"><div className="empty-icon"><i className="fa-solid fa-magnifying-glass"/></div><p>No bookings yet. Add listings to get started!</p></div>
               ) : (
                 <table>
                   <thead><tr><th>ID</th><th>Customer</th><th>Type</th><th>Date</th><th>Guests</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
@@ -461,7 +461,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 style={{border:"1.5px solid var(--border)",borderRadius:8,padding:"0.4rem 0.85rem",fontSize:"0.83rem",width:230,outline:"none"}} />
             </div>
             {vbFiltered.length === 0 ? (
-              <div className="empty-state"><div className="empty-icon">ðŸ“­</div><p>No bookings match.</p></div>
+              <div className="empty-state"><div className="empty-icon"><i className="fa-solid fa-magnifying-glass"/></div><p>No bookings match.</p></div>
             ) : (
               <table>
                 <thead><tr><th>ID</th><th>Customer</th><th>Phone</th><th>Type</th><th>Listing</th><th>Date</th><th>Pickup</th><th>Notes</th><th>Total</th><th>Proof</th><th>Status</th><th>Booked On</th><th>Actions</th></tr></thead>
@@ -521,7 +521,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
           );
         })()}
 
-        {/* â”€â”€ ANALYTICS â”€â”€ */}
+        {/* â"€â"€ ANALYTICS â"€â"€ */}
         {section === "analytics" && (() => {
           const CARD  = {background:"#fff",borderRadius:14,border:"1px solid #E9ECF0",padding:"1.25rem 1.5rem",boxShadow:"0 1px 3px rgba(0,0,0,0.06)"};
           const CTITLE= {fontSize:"0.7rem",fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"0.5rem"};
@@ -572,7 +572,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
 
           return (
           <div>
-            {/* â”€â”€ Header banner â”€â”€ */}
+            {/* â"€â"€ Header banner â"€â"€ */}
             <div style={{background:"linear-gradient(135deg,var(--ocean),var(--teal))",borderRadius:16,padding:"1.8rem 2rem",color:"#fff",marginBottom:"1.5rem",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"1rem"}}>
               <div>
                 <div style={{fontSize:"0.78rem",fontWeight:700,opacity:.75,textTransform:"uppercase",letterSpacing:".1em",marginBottom:"0.4rem"}}>Booking Analytics</div>
@@ -601,7 +601,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             </div>
 
-            {/* â”€â”€ Stat cards â”€â”€ */}
+            {/* â"€â"€ Stat cards â"€â"€ */}
             <div className="stats-grid" style={{marginBottom:"1.5rem"}}>
               {[
                 {icon:"fa-solid fa-calendar",label:"Total Bookings", val:bookings.length,      sub:`${approvedBk.length} approved · ${pendingBk.length} pending`,    color:"#2563EB"},
@@ -621,7 +621,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               ))}
             </div>
 
-            {/* â”€â”€ Row 1: Revenue chart + Status donut â”€â”€ */}
+            {/* â"€â"€ Row 1: Revenue chart + Status donut â"€â"€ */}
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
               <div style={CARD}>
                 <div style={CTITLE}>Monthly Revenue (Last 6 Months)</div>
@@ -655,7 +655,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             </div>
 
-            {/* â”€â”€ Row 2: Monthly count chart (full width) â”€â”€ */}
+            {/* â"€â"€ Row 2: Monthly count chart (full width) â"€â"€ */}
             <div style={{marginBottom:"1rem"}}>
               <div style={CARD}>
                 <div style={CTITLE}>Monthly Bookings Count (Last 6 Months)</div>
@@ -665,7 +665,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             </div>
 
-            {/* â”€â”€ Row 3: Revenue by Listing Type â”€â”€ */}
+            {/* â"€â"€ Row 3: Revenue by Listing Type â"€â"€ */}
             <div style={{marginBottom:"1rem"}}>
               <div style={CARD}>
                 <div style={CTITLE}>Revenue by Listing Type</div>
@@ -706,7 +706,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             </div>
 
-            {/* â”€â”€ Earnings breakdown â”€â”€ */}
+            {/* â"€â"€ Earnings breakdown â"€â"€ */}
             <div style={{...CARD,marginBottom:"1rem"}}>
               <div style={CTITLE}>Earnings Breakdown</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1rem",marginBottom:"0.9rem"}}>
@@ -736,7 +736,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               )}
             </div>
 
-            {/* â”€â”€ Top listings â”€â”€ */}
+            {/* â"€â"€ Top listings â"€â"€ */}
             {topListings.length>0 && (
               <div style={CARD}>
                 <div style={CTITLE}>Top Listings by Revenue</div>
@@ -770,7 +770,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
         {section === "listings" && (
           <div style={{display:"grid",gap:"2rem"}}>
 
-            {/* â”€â”€ Delete listing confirm modal â”€â”€ */}
+            {/* â"€â"€ Delete listing confirm modal â"€â"€ */}
             {deleteListingConfirm && (
               <div className="overlay" onClick={() => setDeleteListingConfirm(null)} style={{zIndex:400}}>
                 <div onClick={e => e.stopPropagation()} style={{
@@ -799,7 +799,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             )}
 
-            {/* â”€â”€ Edit listing modal â”€â”€ */}
+            {/* â"€â"€ Edit listing modal â"€â"€ */}
             {editItem && (
               <div className="overlay" onClick={() => setEditItem(null)} style={{zIndex:400}}>
                 <div onClick={e => e.stopPropagation()} style={{
@@ -811,7 +811,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                       <div style={{fontWeight:700,fontSize:"1rem"}}><i className="fa-solid fa-pen"/> Edit {editItem.type === "car" ? "Car" : "Tour"}</div>
                       <div style={{fontSize:"0.82rem",opacity:.8}}>{editItem.data.name}</div>
                     </div>
-                    <button onClick={() => setEditItem(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}>âœ•</button>
+                    <button onClick={() => setEditItem(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}>✕</button>
                   </div>
                   <div style={{padding:"1.8rem"}}>
                     <div className="form-grid">
@@ -895,7 +895,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                         else updateTour(editItem.data.id, { ...editItem.data, price: +editItem.data.price, groupSize: +editItem.data.groupSize });
                         setEditItem(null);
                       }} style={{flex:2,background:"var(--ocean)",color:"#fff",border:"none",padding:"0.9rem",borderRadius:12,cursor:"pointer",fontWeight:700,fontSize:"0.95rem"}}>
-                        ðŸ’¾ Save Changes
+                        <i className="fa-solid fa-floppy-disk"/> Save Changes
                       </button>
                       <button onClick={() => setEditItem(null)}
                         style={{flex:1,background:"#F3F4F6",color:"var(--ink)",border:"none",padding:"0.9rem",borderRadius:12,cursor:"pointer",fontWeight:700}}>
@@ -907,7 +907,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             )}
 
-            {/* â”€â”€ Cars table â”€â”€ */}
+            {/* â"€â"€ Cars table â"€â"€ */}
             <div className="table-wrap">
               <div className="table-header">
                 <h3>My Cars ({cars.length})</h3>
@@ -968,7 +968,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               )}
             </div>
 
-            {/* â”€â”€ Tours table â”€â”€ */}
+            {/* â"€â"€ Tours table â"€â"€ */}
             <div className="table-wrap">
               <div className="table-header">
                 <h3>My Tours ({tours.length})</h3>
@@ -1124,7 +1124,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 <div style={{width:64,height:64,borderRadius:"50%",overflow:"hidden",flexShrink:0,border:"3px solid rgba(255,255,255,0.5)"}}>
                   {user.profilePhoto
                     ? <img src={user.profilePhoto} alt="Profile" style={{width:"100%",height:"100%",objectFit:"cover"}} />
-                    : <div style={{width:"100%",height:"100%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem"}}>{user.avatar||"ðŸ¢"}</div>
+                    : <div style={{width:"100%",height:"100%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem"}}>{user.avatar||<i className="fa-solid fa-store"/>}</div>
                   }
                 </div>
                 <div style={{flex:1}}>
@@ -1177,7 +1177,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               </div>
             </div>
 
-            {/* â”€â”€ GCash Details â”€â”€ */}
+            {/* â"€â"€ GCash Details â"€â"€ */}
             <div style={{background:"#fff",borderRadius:16,border:"1px solid #E5E7EB",padding:"1.5rem 1.8rem",marginBottom:"1rem",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.2rem"}}>
                 <h3 style={{fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:"1rem",color:"#059669",margin:0}}>
@@ -1204,7 +1204,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               )}
             </div>
 
-            {/* â”€â”€ Bank Account Details â”€â”€ */}
+            {/* â"€â"€ Bank Account Details â"€â"€ */}
             <div style={{background:"#fff",borderRadius:16,border:"1px solid #E5E7EB",padding:"1.5rem 1.8rem",marginBottom:"1rem",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.2rem"}}>
                 <h3 style={{fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:"1rem",color:"#1D4ED8",margin:0}}>
@@ -1235,7 +1235,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               )}
             </div>
 
-            {/* â”€â”€ Change Password â”€â”€ */}
+            {/* â"€â"€ Change Password â"€â"€ */}
             <div style={{background:"#fff",borderRadius:16,border:"1px solid #E5E7EB",padding:"1.5rem 1.8rem",marginBottom:"1rem",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
               <h3 style={{fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:"1rem",color:"var(--ocean)",margin:"0 0 1.2rem"}}>
                 <i className="fa-solid fa-lock" style={{marginRight:"0.5rem",fontSize:"0.9rem"}}/> Password &amp; Security
@@ -1275,12 +1275,12 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 <i className="fa-solid fa-key"/> Update Password
               </button>
 
-              {/* â”€â”€ Request Account Deletion â”€â”€ */}
+              {/* â"€â"€ Request Account Deletion â"€â"€ */}
               <div style={{borderTop:"1px solid #F3F4F6",marginTop:"1.5rem",paddingTop:"1.5rem"}}>
                 {user.deletionRequested ? (
                   <div className="deletion-pending">
                     <h4>â³ Deletion Request Pending</h4>
-                    <p>Submitted on <strong>{user.deletionRequestedAt}</strong>. An admin will review within 1â€“2 business days.</p>
+                    <p>Submitted on <strong>{user.deletionRequestedAt}</strong>. An admin will review within 1â€"2 business days.</p>
                     <div style={{background:"#FEF3C7",borderRadius:8,padding:"0.6rem 0.8rem",fontSize:"0.82rem",color:"#92400E",marginBottom:"0.8rem"}}>
                       <strong>Reason:</strong> {user.deletionReason}
                     </div>
@@ -1353,5 +1353,5 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
   );
 }
 
-// â”€â”€â”€ ABOUT PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ ABOUT PAGE â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
