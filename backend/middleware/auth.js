@@ -17,6 +17,14 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Require admin role — must be used after verifyToken
+const requireAdmin = (req, res, next) => {
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden: admin access required' });
+  }
+  next();
+};
+
 // Generate JWT token
 const generateToken = (userId, expiresIn = '7d') => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn });
@@ -24,5 +32,6 @@ const generateToken = (userId, expiresIn = '7d') => {
 
 module.exports = {
   verifyToken,
+  requireAdmin,
   generateToken,
 };

@@ -14,7 +14,7 @@ const bcrypt       = require('bcryptjs');
 const jwt          = require('jsonwebtoken');
 const crypto       = require('crypto');
 const pool         = require('../db');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 const { sendVendorDecision, sendSetPasswordEmail, sendAdminNewRegistration, sendPasswordReset } = require('../utils/email');
 
 const router = express.Router();
@@ -165,7 +165,7 @@ router.get('/me', verifyToken, async (req, res) => {
 
 // ─── GET / ───────────────────────────────────────────────────────────────────
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
     const limit  = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 200);
     const offset = req.query.offset !== undefined
@@ -195,7 +195,7 @@ router.get('/', async (req, res) => {
 
 // ─── GET /:id ────────────────────────────────────────────────────────────────
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [req.params.id]);
     if (rows.length === 0) {
@@ -210,7 +210,10 @@ router.get('/:id', async (req, res) => {
 
 // ─── PUT /:id ────────────────────────────────────────────────────────────────
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
+  if (String(req.user.userId) !== String(req.params.id) && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   try {
     const allowedFields = [
       'name', 'email', 'company', 'phone', 'address',
@@ -274,7 +277,7 @@ router.put('/:id/password', verifyToken, async (req, res) => {
 
 // ─── DELETE /:id ─────────────────────────────────────────────────────────────
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -296,7 +299,7 @@ router.delete('/:id', async (req, res) => {
 
 // ─── PUT /:id/approve ────────────────────────────────────────────────────────
 
-router.put('/:id/approve', async (req, res) => {
+router.put('/:id/approve', verifyToken, requireAdmin, async (req, res) => {
   try {
     const [result] = await pool.query(
       `UPDATE users
@@ -320,10 +323,7 @@ router.put('/:id/approve', async (req, res) => {
     sendSetPasswordEmail(rows[0], setUrl);
     console.log(`[approve] set-password link for ${rows[0].email}: ${setUrl}`);
 
-    const response = safeUser(rows[0]);
-    // Expose link in non-production so admin can copy-paste it if email doesn't arrive
-    if (process.env.NODE_ENV !== 'production') response._setUrl = setUrl;
-    res.json(response);
+    res.json(safeUser(rows[0]));
   } catch (err) {
     console.error('approve user error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -332,7 +332,7 @@ router.put('/:id/approve', async (req, res) => {
 
 // ─── PUT /:id/reject ─────────────────────────────────────────────────────────
 
-router.put('/:id/reject', async (req, res) => {
+router.put('/:id/reject', verifyToken, requireAdmin, async (req, res) => {
   try {
     const reason = req.body.reason || '';
     const [result] = await pool.query(
@@ -356,7 +356,7 @@ router.put('/:id/reject', async (req, res) => {
 
 // ─── PUT /:id/suspend ────────────────────────────────────────────────────────
 
-router.put('/:id/suspend', async (req, res) => {
+router.put('/:id/suspend', verifyToken, requireAdmin, async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT status FROM users WHERE id = ?', [req.params.id]);
     if (rows.length === 0) {
@@ -383,7 +383,10 @@ router.put('/:id/suspend', async (req, res) => {
 
 // ─── PUT /:id/deletion-request ───────────────────────────────────────────────
 
-router.put('/:id/deletion-request', async (req, res) => {
+router.put('/:id/deletion-request', verifyToken, async (req, res) => {
+  if (String(req.user.userId) !== String(req.params.id) && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   try {
     const reason = req.body.reason || '';
     const requestedAt = new Date().toISOString();
@@ -407,7 +410,10 @@ router.put('/:id/deletion-request', async (req, res) => {
 
 // ─── PUT /:id/cancel-deletion ────────────────────────────────────────────────
 
-router.put('/:id/cancel-deletion', async (req, res) => {
+router.put('/:id/cancel-deletion', verifyToken, async (req, res) => {
+  if (String(req.user.userId) !== String(req.params.id) && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   try {
     const [result] = await pool.query(
       `UPDATE users
@@ -456,9 +462,7 @@ router.post('/forgot-password', async (req, res) => {
     sendPasswordReset(email, resetUrl);
     console.log(`[password-reset] link for ${email}: ${resetUrl}`);
 
-    const response = { message: 'If that email is registered, a reset link has been sent.' };
-    if (process.env.NODE_ENV !== 'production') response.devResetUrl = resetUrl;
-    res.json(response);
+    res.json({ message: 'If that email is registered, a reset link has been sent.' });
   } catch (err) {
     console.error('forgot-password error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });

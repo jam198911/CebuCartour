@@ -34,6 +34,7 @@ export default function DetailModal({ item, onClose, openBooking }) {
             <div style={{textAlign:"right"}}>
               <div className="card-price" style={{fontSize:"1.8rem"}}>{fmtPeso(item.price)}</div>
               <div style={{color:"var(--muted)",fontSize:"0.85rem"}}>{item.itemType === "car" ? "per day" : "per person"}</div>
+              <div style={{marginTop:"0.35rem",display:"flex",justifyContent:"flex-end"}}><Stars rating={item.rating} /></div>
             </div>
           </div>
 
@@ -44,21 +45,28 @@ export default function DetailModal({ item, onClose, openBooking }) {
               <div className="meta-item"><span className="meta-label">Fuel</span><span className="meta-val"><i className="fa-solid fa-gas-pump"/> {item.fuel}</span></div>
               <div className="meta-item"><span className="meta-label">Transmission</span><span className="meta-val"><i className="fa-solid fa-gears"/> {item.transmission}</span></div>
               {item.mileage > 0 && <div className="meta-item"><span className="meta-label">Mileage</span><span className="meta-val"><i className="fa-solid fa-road"/> {Number(item.mileage).toLocaleString()} km</span></div>}
-              <div className="meta-item"><span className="meta-label">Rating</span><span className="meta-val"><Stars rating={item.rating} /></span></div>
             </> : <>
               <div className="meta-item"><span className="meta-label">Duration</span><span className="meta-val"><i className="fa-solid fa-calendar-days"/> {item.duration}</span></div>
               <div className="meta-item"><span className="meta-label">Group Size</span><span className="meta-val"><i className="fa-solid fa-users"/> Max {item.groupSize}</span></div>
-              <div className="meta-item"><span className="meta-label">Rating</span><span className="meta-val"><Stars rating={item.rating} /></span></div>
             </>}
           </div>
 
           <p style={{color:"var(--muted)",lineHeight:"1.8",marginTop:"1rem"}}>{item.description}</p>
 
-          {item.includes && (
+          {Array.isArray(item.features) && item.features.length > 0 && (
+            <div className="modal-includes">
+              <h4>Package Details</h4>
+              <div className="include-list">
+                {item.features.map((f,i) => <span key={i} className="include-tag"><i className="fa-solid fa-check"/> {f}</span>)}
+              </div>
+            </div>
+          )}
+
+          {Array.isArray(item.includes) && item.includes.length > 0 && (
             <div className="modal-includes">
               <h4>What's Included</h4>
               <div className="include-list">
-                {item.includes.map(i => <span key={i} className="include-tag"><i className="fa-solid fa-check"/> {i}</span>)}
+                {item.includes.map((inc,i) => <span key={i} className="include-tag"><i className="fa-solid fa-check"/> {inc}</span>)}
               </div>
             </div>
           )}

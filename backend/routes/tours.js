@@ -21,7 +21,7 @@ function parseJson(val) {
 
 function formatTour(t) {
   if (!t) return null;
-  return { ...t, includes: parseJson(t.includes) };
+  return { ...t, includes: parseJson(t.includes), images: parseJson(t.images) };
 }
 
 // ─── GET / ───────────────────────────────────────────────────────────────────
@@ -69,6 +69,7 @@ router.post('/', verifyToken, async (req, res) => {
       vendorId, name, location, image = '', category = '',
       duration = '', groupSize = 0, price, available = true,
       rating = 0, reviews = 0, includes = [], description = '',
+      meetingPoint = '', images = [],
     } = req.body;
 
     if (!name || price === undefined) {
@@ -78,12 +79,14 @@ router.post('/', verifyToken, async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO tours
          (vendorId, name, location, image, category, duration, groupSize,
-          price, available, rating, reviews, includes, description)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          price, available, rating, reviews, includes, description,
+          meetingPoint, images)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         vendorId || 0, name, location || '', image, category,
         duration, groupSize, price, available,
         rating, reviews, JSON.stringify(includes), description,
+        meetingPoint, JSON.stringify(images),
       ]
     );
 
@@ -102,6 +105,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     const {
       vendorId, name, location, image, category, duration,
       groupSize, price, available, rating, reviews, includes, description,
+      meetingPoint, images,
     } = req.body;
 
     const fields = [];
@@ -109,19 +113,21 @@ router.put('/:id', verifyToken, async (req, res) => {
 
     const add = (col, val) => { fields.push(`\`${col}\` = ?`); values.push(val); };
 
-    if (vendorId   !== undefined) add('vendorId',   vendorId);
-    if (name       !== undefined) add('name',       name);
-    if (location   !== undefined) add('location',   location);
-    if (image      !== undefined) add('image',      image);
-    if (category   !== undefined) add('category',   category);
-    if (duration   !== undefined) add('duration',   duration);
-    if (groupSize  !== undefined) add('groupSize',  groupSize);
-    if (price      !== undefined) add('price',      price);
-    if (available  !== undefined) add('available',  available);
-    if (rating     !== undefined) add('rating',     rating);
-    if (reviews    !== undefined) add('reviews',    reviews);
-    if (includes   !== undefined) add('includes',   JSON.stringify(includes));
-    if (description !== undefined) add('description', description);
+    if (vendorId     !== undefined) add('vendorId',     vendorId);
+    if (name         !== undefined) add('name',         name);
+    if (location     !== undefined) add('location',     location);
+    if (image        !== undefined) add('image',        image);
+    if (category     !== undefined) add('category',     category);
+    if (duration     !== undefined) add('duration',     duration);
+    if (groupSize    !== undefined) add('groupSize',    groupSize);
+    if (price        !== undefined) add('price',        price);
+    if (available    !== undefined) add('available',    available);
+    if (rating       !== undefined) add('rating',       rating);
+    if (reviews      !== undefined) add('reviews',      reviews);
+    if (includes     !== undefined) add('includes',     JSON.stringify(includes));
+    if (description  !== undefined) add('description',  description);
+    if (meetingPoint !== undefined) add('meetingPoint', meetingPoint);
+    if (images       !== undefined) add('images',       JSON.stringify(images));
 
     if (fields.length === 0) {
       return res.status(400).json({ error: 'No valid fields to update' });

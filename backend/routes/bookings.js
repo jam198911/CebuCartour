@@ -13,7 +13,7 @@ const router = express.Router();
 
 // ─── GET / ───────────────────────────────────────────────────────────────────
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
     const limit  = Math.min(Math.max(parseInt(req.query.limit) || 100, 1), 500);
     const offset = req.query.offset !== undefined
@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
 
 // ─── GET /:id ────────────────────────────────────────────────────────────────
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM bookings WHERE id = ?', [req.params.id]);
     if (rows.length === 0) {

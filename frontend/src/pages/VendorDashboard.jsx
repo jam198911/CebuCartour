@@ -25,8 +25,12 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
   const [pwForm, setPwForm]                   = useState({ current:"", newPw:"", confirm:"" });
   const [pwError, setPwError]                 = useState("");
   const [pwSuccess, setPwSuccess]             = useState(false);
-  const [newCar, setNewCar]   = useState({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",description:"",images:[] });
-  const [newTour, setNewTour] = useState({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",description:"",images:[] });
+  const [newCar, setNewCar]   = useState({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",color:"",year:"",withDriver:false,features:[],description:"",images:[] });
+  const [newTour, setNewTour] = useState({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",meetingPoint:"",includes:[],description:"",images:[] });
+  const [carFeatureInput, setCarFeatureInput]       = useState("");
+  const [tourIncludeInput, setTourIncludeInput]     = useState("");
+  const [editCarFeatureInput, setEditCarFeatureInput]   = useState("");
+  const [editTourIncludeInput, setEditTourIncludeInput] = useState("");
 
   const seenKey = `cebuCartour_seenBk_${user.id}`;
   const [seenIds, setSeenIds] = useState(() => {
@@ -46,11 +50,12 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
     if (!newCar.name || !newCar.location || !newCar.price) { alert("Fill required fields."); return; }
     const images = newCar.images || [];
     const image  = images[0] || "";
-    const carData = { ...newCar, vendorId: user.id, price: +newCar.price, seats: +newCar.seats, mileage: +newCar.mileage || 0, available: true, rating: 5.0, reviews: 0, image };
+    const carData = { ...newCar, vendorId: user.id, price: +newCar.price, seats: +newCar.seats, mileage: +newCar.mileage || 0, year: +newCar.year || null, available: true, rating: 5.0, reviews: 0, image };
     try {
       const created = await api.cars.create(carData);
       setCars(prev => [...prev, created]);
-      setNewCar({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",description:"",images:[] });
+      setNewCar({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",color:"",year:"",withDriver:false,features:[],description:"",images:[] });
+      setCarFeatureInput("");
       showToast("Car listing added!");
     } catch (e) {
       console.error(e);
@@ -66,7 +71,8 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
     try {
       const created = await api.tours.create(tourData);
       setTours(prev => [...prev, created]);
-      setNewTour({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",description:"",images:[] });
+      setNewTour({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",meetingPoint:"",includes:[],description:"",images:[] });
+      setTourIncludeInput("");
       showToast("Tour listing added!");
     } catch (e) {
       console.error(e);
@@ -841,11 +847,62 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                           </select>
                         </div>
                         <div className="form-group">
+                          <label>Color</label>
+                          <input value={editItem.data.color||""} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,color:e.target.value}}))} placeholder="e.g. Pearl White" />
+                        </div>
+                        <div className="form-group">
+                          <label>Year</label>
+                          <input type="number" min="1990" max="2030" value={editItem.data.year||""} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,year:e.target.value}}))} placeholder="e.g. 2022" />
+                        </div>
+                        <div className="form-group">
+                          <label>With Driver</label>
+                          <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginTop:"0.35rem"}}>
+                            <button type="button"
+                              onClick={()=>setEditItem(ei=>({...ei,data:{...ei.data,withDriver:!ei.data.withDriver}}))}
+                              style={{width:44,height:24,borderRadius:12,border:"none",cursor:"pointer",background:editItem.data.withDriver?"var(--ocean)":"#D1D5DB",position:"relative",transition:"background 0.2s",flexShrink:0}}>
+                              <span style={{position:"absolute",top:2,left:editItem.data.withDriver?22:2,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left 0.2s",boxShadow:"0 1px 3px rgba(0,0,0,0.2)"}}/>
+                            </button>
+                            <span style={{fontSize:"0.88rem",color:editItem.data.withDriver?"var(--ocean)":"var(--muted)",fontWeight:600}}>
+                              {editItem.data.withDriver?"Yes — driver included":"No — self-drive"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="form-group">
                           <label>Availability</label>
                           <select value={editItem.data.available?"available":"unavailable"} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,available:e.target.value==="available"}}))}>
                             <option value="available">Available</option>
                             <option value="unavailable">Unavailable</option>
                           </select>
+                        </div>
+                        <div className="form-group full">
+                          <label>Package Details</label>
+                          <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                            <input value={editCarFeatureInput} onChange={e=>setEditCarFeatureInput(e.target.value)}
+                              onKeyDown={e=>{if(e.key==="Enter"&&editCarFeatureInput.trim()){e.preventDefault();setEditItem(ei=>({...ei,data:{...ei.data,features:[...(ei.data.features||[]),editCarFeatureInput.trim()]}}));setEditCarFeatureInput("");}}}
+                              placeholder="e.g. Free Fuel, Toll Fees Included"
+                              style={{flex:1,border:"1.5px solid #E5E7EB",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none"}} />
+                            <button type="button"
+                              onClick={()=>{if(editCarFeatureInput.trim()){setEditItem(ei=>({...ei,data:{...ei.data,features:[...(ei.data.features||[]),editCarFeatureInput.trim()]}}));setEditCarFeatureInput("");}}}
+                              style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"0.45rem 1rem",cursor:"pointer",fontWeight:700,fontSize:"0.85rem",whiteSpace:"nowrap"}}>
+                              <i className="fa-solid fa-plus"/> Add
+                            </button>
+                          </div>
+                          {(editItem.data.features||[]).length > 0 && (
+                            <ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+                              {(editItem.data.features||[]).map((f,i) => (
+                                <li key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.88rem"}}>
+                                  <span style={{display:"flex",alignItems:"center",gap:"0.5rem",color:"#166534"}}>
+                                    <i className="fa-solid fa-circle-dot" style={{fontSize:"0.5rem",color:"#059669"}}/>
+                                    {f}
+                                  </span>
+                                  <button type="button" onClick={()=>setEditItem(ei=>({...ei,data:{...ei.data,features:ei.data.features.filter((_,j)=>j!==i)}}))}
+                                    style={{background:"none",border:"none",cursor:"pointer",color:"#86EFAC",fontSize:"0.8rem",padding:"0 0.2rem",lineHeight:1}}>
+                                    <i className="fa-solid fa-xmark"/>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                         <div className="form-group full">
                           <ImageUploader images={editItem.data.images||[]} onChange={imgs=>setEditItem(ei=>({...ei,data:{...ei.data,images:imgs,image:imgs[0]||""}}))} maxImages={3} />
@@ -881,6 +938,40 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                           </select>
                         </div>
                         <div className="form-group full">
+                          <label>Meeting Point</label>
+                          <input value={editItem.data.meetingPoint||""} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,meetingPoint:e.target.value}}))} placeholder="e.g. SM City Cebu Parking, North Bus Terminal" />
+                        </div>
+                        <div className="form-group full">
+                          <label>What's Included</label>
+                          <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                            <input value={editTourIncludeInput} onChange={e=>setEditTourIncludeInput(e.target.value)}
+                              onKeyDown={e=>{if(e.key==="Enter"&&editTourIncludeInput.trim()){e.preventDefault();setEditItem(ei=>({...ei,data:{...ei.data,includes:[...(ei.data.includes||[]),editTourIncludeInput.trim()]}}));setEditTourIncludeInput("");}}}
+                              placeholder="e.g. Tour Guide, Meals, Snorkel Gear"
+                              style={{flex:1,border:"1.5px solid #E5E7EB",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none"}} />
+                            <button type="button"
+                              onClick={()=>{if(editTourIncludeInput.trim()){setEditItem(ei=>({...ei,data:{...ei.data,includes:[...(ei.data.includes||[]),editTourIncludeInput.trim()]}}));setEditTourIncludeInput("");}}}
+                              style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"0.45rem 1rem",cursor:"pointer",fontWeight:700,fontSize:"0.85rem",whiteSpace:"nowrap"}}>
+                              <i className="fa-solid fa-plus"/> Add
+                            </button>
+                          </div>
+                          {(editItem.data.includes||[]).length > 0 && (
+                            <ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+                              {(editItem.data.includes||[]).map((inc,i) => (
+                                <li key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.88rem"}}>
+                                  <span style={{display:"flex",alignItems:"center",gap:"0.5rem",color:"#166534"}}>
+                                    <i className="fa-solid fa-circle-dot" style={{fontSize:"0.5rem",color:"#059669"}}/>
+                                    {inc}
+                                  </span>
+                                  <button type="button" onClick={()=>setEditItem(ei=>({...ei,data:{...ei.data,includes:ei.data.includes.filter((_,j)=>j!==i)}}))}
+                                    style={{background:"none",border:"none",cursor:"pointer",color:"#86EFAC",fontSize:"0.8rem",padding:"0 0.2rem",lineHeight:1}}>
+                                    <i className="fa-solid fa-xmark"/>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                        <div className="form-group full">
                           <ImageUploader images={editItem.data.images||[]} onChange={imgs=>setEditItem(ei=>({...ei,data:{...ei.data,images:imgs,image:imgs[0]||""}}))} maxImages={3} />
                         </div>
                         <div className="form-group full">
@@ -891,7 +982,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                     </div>
                     <div style={{display:"flex",gap:"0.8rem",marginTop:"1.5rem"}}>
                       <button onClick={() => {
-                        if (editItem.type==="car") updateCar(editItem.data.id, { ...editItem.data, price: +editItem.data.price, seats: +editItem.data.seats });
+                        if (editItem.type==="car") updateCar(editItem.data.id, { ...editItem.data, price: +editItem.data.price, seats: +editItem.data.seats, year: +editItem.data.year || null });
                         else updateTour(editItem.data.id, { ...editItem.data, price: +editItem.data.price, groupSize: +editItem.data.groupSize });
                         setEditItem(null);
                       }} style={{flex:2,background:"var(--ocean)",color:"#fff",border:"none",padding:"0.9rem",borderRadius:12,cursor:"pointer",fontWeight:700,fontSize:"0.95rem"}}>
@@ -1042,7 +1133,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               <div className="add-listing-form">
                 <h3>Add New Car Listing</h3>
                 <div className="form-grid">
-                  {[["name","Vehicle Name *","Toyota HiAce"],["location","Location *","Tacloban City"],["price","Price per Day (₱) *","2500"],["seats","Seats *","8"]].map(([k,label,ph]) => (
+                  {[["name","Vehicle Name *","Toyota HiAce"],["location","Location *","Cebu City"],["price","Price per Day (₱) *","2500"],["seats","Seats *","8"]].map(([k,label,ph]) => (
                     <div key={k} className="form-group">
                       <label>{label}</label>
                       <input value={newCar[k]} onChange={e => setNewCar({...newCar,[k]:e.target.value})} placeholder={ph} />
@@ -1070,12 +1161,71 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                     <label>Mileage (km)</label>
                     <input value={newCar.mileage} onChange={e => setNewCar({...newCar,mileage:e.target.value})} placeholder="e.g. 45000" type="number" min="0" />
                   </div>
+                  <div className="form-group">
+                    <label>Color</label>
+                    <input value={newCar.color} onChange={e => setNewCar({...newCar,color:e.target.value})} placeholder="e.g. Pearl White" />
+                  </div>
+                  <div className="form-group">
+                    <label>Year</label>
+                    <input value={newCar.year} onChange={e => setNewCar({...newCar,year:e.target.value})} placeholder="e.g. 2022" type="number" min="1990" max="2030" />
+                  </div>
+                  <div className="form-group">
+                    <label>With Driver</label>
+                    <div style={{display:"flex",alignItems:"center",gap:"0.75rem",marginTop:"0.35rem"}}>
+                      <button type="button"
+                        onClick={() => setNewCar({...newCar,withDriver:!newCar.withDriver})}
+                        style={{
+                          width:44, height:24, borderRadius:12, border:"none", cursor:"pointer",
+                          background: newCar.withDriver ? "var(--ocean)" : "#D1D5DB",
+                          position:"relative", transition:"background 0.2s", flexShrink:0,
+                        }}>
+                        <span style={{
+                          position:"absolute", top:2, left: newCar.withDriver ? 22 : 2,
+                          width:20, height:20, borderRadius:"50%", background:"#fff",
+                          transition:"left 0.2s", boxShadow:"0 1px 3px rgba(0,0,0,0.2)",
+                        }}/>
+                      </button>
+                      <span style={{fontSize:"0.88rem",color: newCar.withDriver ? "var(--ocean)" : "var(--muted)",fontWeight:600}}>
+                        {newCar.withDriver ? "Yes — driver included" : "No — self-drive"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group full">
+                    <label>Package Details</label>
+                    <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                      <input value={carFeatureInput} onChange={e=>setCarFeatureInput(e.target.value)}
+                        onKeyDown={e=>{if(e.key==="Enter"&&carFeatureInput.trim()){e.preventDefault();setNewCar({...newCar,features:[...(newCar.features||[]),carFeatureInput.trim()]});setCarFeatureInput("");}}}
+                        placeholder="e.g. Free Fuel, Toll Fees Included"
+                        style={{flex:1,border:"1.5px solid #E5E7EB",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none"}} />
+                      <button type="button"
+                        onClick={()=>{if(carFeatureInput.trim()){setNewCar({...newCar,features:[...(newCar.features||[]),carFeatureInput.trim()]});setCarFeatureInput("");}}}
+                        style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"0.45rem 1rem",cursor:"pointer",fontWeight:700,fontSize:"0.85rem",whiteSpace:"nowrap"}}>
+                        <i className="fa-solid fa-plus"/> Add
+                      </button>
+                    </div>
+                    {(newCar.features||[]).length > 0 && (
+                      <ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+                        {(newCar.features||[]).map((f,i) => (
+                          <li key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.88rem"}}>
+                            <span style={{display:"flex",alignItems:"center",gap:"0.5rem",color:"#166534"}}>
+                              <i className="fa-solid fa-circle-dot" style={{fontSize:"0.5rem",color:"#059669"}}/>
+                              {f}
+                            </span>
+                            <button type="button" onClick={() => setNewCar({...newCar,features:newCar.features.filter((_,j)=>j!==i)})}
+                              style={{background:"none",border:"none",cursor:"pointer",color:"#86EFAC",fontSize:"0.8rem",padding:"0 0.2rem",lineHeight:1}}>
+                              <i className="fa-solid fa-xmark"/>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                   <div className="form-group full">
                     <ImageUploader images={newCar.images||[]} onChange={imgs=>setNewCar({...newCar,images:imgs})} maxImages={3} />
                   </div>
                   <div className="form-group full">
                     <label>Description</label>
-                    <textarea value={newCar.description} onChange={e => setNewCar({...newCar,description:e.target.value})} placeholder="Describe the vehicle..." />
+                    <textarea value={newCar.description} onChange={e => setNewCar({...newCar,description:e.target.value})} placeholder="Describe the vehicle, condition, pickup instructions..." />
                   </div>
                 </div>
                 <button className="submit-btn" onClick={handleAddCar}><i className="fa-solid fa-plus"/> Add Car Listing</button>
@@ -1086,7 +1236,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               <div className="add-listing-form">
                 <h3>Add New Tour Package</h3>
                 <div className="form-grid">
-                  {[["name","Tour Name *","Kalanggaman Island Tour"],["location","Location *","Palompon, Leyte"],["price","Price per Person (₱) *","1500"],["groupSize","Max Group Size *","15"]].map(([k,label,ph]) => (
+                  {[["name","Tour Name *","Kalanggaman Island Tour"],["location","Location *","Palompon, Cebu"],["price","Price per Person (₱) *","1500"],["groupSize","Max Group Size *","15"]].map(([k,label,ph]) => (
                     <div key={k} className="form-group">
                       <label>{label}</label>
                       <input value={newTour[k]} onChange={e => setNewTour({...newTour,[k]:e.target.value})} placeholder={ph} />
@@ -1095,7 +1245,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                   <div className="form-group">
                     <label>Category</label>
                     <select value={newTour.category} onChange={e => setNewTour({...newTour,category:e.target.value})}>
-                      {["Island Tour","Cultural Tour","Adventure Tour","Trekking","Food Tour"].map(c => <option key={c}>{c}</option>)}
+                      {["Island Tour","Cultural Tour","Adventure Tour","Trekking","Food Tour","City Tour","Diving"].map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
@@ -1105,11 +1255,45 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                     </select>
                   </div>
                   <div className="form-group full">
+                    <label>Meeting Point</label>
+                    <input value={newTour.meetingPoint} onChange={e => setNewTour({...newTour,meetingPoint:e.target.value})} placeholder="e.g. SM City Cebu Parking, North Bus Terminal" />
+                  </div>
+                  <div className="form-group full">
+                    <label>What's Included</label>
+                    <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                      <input value={tourIncludeInput} onChange={e=>setTourIncludeInput(e.target.value)}
+                        onKeyDown={e=>{if(e.key==="Enter"&&tourIncludeInput.trim()){e.preventDefault();setNewTour({...newTour,includes:[...(newTour.includes||[]),tourIncludeInput.trim()]});setTourIncludeInput("");}}}
+                        placeholder="e.g. Tour Guide, Meals, Snorkel Gear"
+                        style={{flex:1,border:"1.5px solid #E5E7EB",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none"}} />
+                      <button type="button"
+                        onClick={()=>{if(tourIncludeInput.trim()){setNewTour({...newTour,includes:[...(newTour.includes||[]),tourIncludeInput.trim()]});setTourIncludeInput("");}}}
+                        style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"0.45rem 1rem",cursor:"pointer",fontWeight:700,fontSize:"0.85rem",whiteSpace:"nowrap"}}>
+                        <i className="fa-solid fa-plus"/> Add
+                      </button>
+                    </div>
+                    {(newTour.includes||[]).length > 0 && (
+                      <ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:"0.3rem"}}>
+                        {(newTour.includes||[]).map((inc,i) => (
+                          <li key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.88rem"}}>
+                            <span style={{display:"flex",alignItems:"center",gap:"0.5rem",color:"#166534"}}>
+                              <i className="fa-solid fa-circle-dot" style={{fontSize:"0.5rem",color:"#059669"}}/>
+                              {inc}
+                            </span>
+                            <button type="button" onClick={() => setNewTour({...newTour,includes:newTour.includes.filter((_,j)=>j!==i)})}
+                              style={{background:"none",border:"none",cursor:"pointer",color:"#86EFAC",fontSize:"0.8rem",padding:"0 0.2rem",lineHeight:1}}>
+                              <i className="fa-solid fa-xmark"/>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div className="form-group full">
                     <ImageUploader images={newTour.images||[]} onChange={imgs=>setNewTour({...newTour,images:imgs})} maxImages={3} />
                   </div>
                   <div className="form-group full">
                     <label>Description</label>
-                    <textarea value={newTour.description} onChange={e => setNewTour({...newTour,description:e.target.value})} placeholder="Describe the tour experience..." />
+                    <textarea value={newTour.description} onChange={e => setNewTour({...newTour,description:e.target.value})} placeholder="Describe the tour experience, highlights, what to bring..." />
                   </div>
                 </div>
                 <button className="submit-btn" onClick={handleAddTour}><i className="fa-solid fa-plus"/> Add Tour Listing</button>

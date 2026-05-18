@@ -5,7 +5,7 @@
  * Throws an Error (with the server's error message) on non-2xx responses.
  */
 
-const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api';
+const BASE = import.meta.env.VITE_API_URL + '/api';
 
 const TOKEN_KEY = 'cebuCartour_token';
 
