@@ -22,9 +22,11 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
   const [vbSearch, setVbSearch]               = useState("");
   const [cancelModal, setCancelModal]         = useState(null); // { id, name }
   const [cancelReason, setCancelReason]       = useState("");
-  const [pwForm, setPwForm]                   = useState({ current:"", newPw:"", confirm:"" });
-  const [pwError, setPwError]                 = useState("");
-  const [pwSuccess, setPwSuccess]             = useState(false);
+
+  const [pwForm, setPwForm]     = useState({ newPw:"", confirm:"" });
+  const [pwError, setPwError]   = useState("");
+  const [pwSuccess, setPwSuccess] = useState(false);
+
   const [newCar, setNewCar]   = useState({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",color:"",year:"",withDriver:false,features:[],description:"",images:[] });
   const [newTour, setNewTour] = useState({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",meetingPoint:"",includes:[],description:"",images:[] });
   const [carFeatureInput, setCarFeatureInput]       = useState("");
@@ -1434,8 +1436,8 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                   <i className="fa-solid fa-circle-xmark"/> {pwError}
                 </div>
               )}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"1rem",marginBottom:"1.2rem"}}>
-                {[["Current Password","current","Enter current password"],["New Password","newPw","Min. 8 characters"],["Confirm Password","confirm","Repeat new password"]].map(([label,key,ph]) => (
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.2rem"}}>
+                {[["Create New Password","newPw","Min. 8 characters"],["Confirm Password","confirm","Repeat new password"]].map(([label,key,ph]) => (
                   <div key={key}>
                     <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.4rem"}}>{label}</div>
                     <input type="password" placeholder={ph} value={pwForm[key]}
@@ -1446,17 +1448,16 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 ))}
               </div>
               <button onClick={async () => {
-                if (!pwForm.current) { setPwError("Please enter your current password."); return; }
-                if (pwForm.newPw.length < 8) { setPwError("New password must be at least 8 characters."); return; }
-                if (pwForm.newPw !== pwForm.confirm) { setPwError("New passwords do not match."); return; }
+                if (pwForm.newPw.length < 8) { setPwError("Password must be at least 8 characters."); return; }
+                if (pwForm.newPw !== pwForm.confirm) { setPwError("Passwords do not match."); return; }
                 try {
-                  await api.users.changePassword(user.id, pwForm.current, pwForm.newPw);
-                  setPwForm({ current:"", newPw:"", confirm:"" });
+                  await api.users.setPassword(user.id, pwForm.newPw);
+                  setPwForm({ newPw:"", confirm:"" });
                   setPwSuccess(true); setTimeout(() => setPwSuccess(false), 4000);
                 } catch (err) { setPwError(err.message || "Failed to update password."); }
               }}
                 style={{background:"var(--ocean)",color:"#fff",border:"none",padding:"0.6rem 1.8rem",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:"0.88rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
-                <i className="fa-solid fa-key"/> Update Password
+                <i className="fa-solid fa-key"/> Set Password
               </button>
 
               {/* â"€â"€ Request Account Deletion â"€â"€ */}

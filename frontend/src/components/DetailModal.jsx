@@ -45,6 +45,14 @@ export default function DetailModal({ item, onClose, openBooking }) {
               <div className="meta-item"><span className="meta-label">Fuel</span><span className="meta-val"><i className="fa-solid fa-gas-pump"/> {item.fuel}</span></div>
               <div className="meta-item"><span className="meta-label">Transmission</span><span className="meta-val"><i className="fa-solid fa-gears"/> {item.transmission}</span></div>
               {item.mileage > 0 && <div className="meta-item"><span className="meta-label">Mileage</span><span className="meta-val"><i className="fa-solid fa-road"/> {Number(item.mileage).toLocaleString()} km</span></div>}
+              <div className="meta-item">
+                <span className="meta-label">Driver</span>
+                <span className="meta-val">
+                  {item.withDriver
+                    ? <span style={{color:"#059669",fontWeight:700}}><i className="fa-solid fa-circle-check"/> Included</span>
+                    : <span style={{color:"var(--muted)"}}><i className="fa-solid fa-circle-xmark"/> Self-drive</span>}
+                </span>
+              </div>
             </> : <>
               <div className="meta-item"><span className="meta-label">Duration</span><span className="meta-val"><i className="fa-solid fa-calendar-days"/> {item.duration}</span></div>
               <div className="meta-item"><span className="meta-label">Group Size</span><span className="meta-val"><i className="fa-solid fa-users"/> Max {item.groupSize}</span></div>

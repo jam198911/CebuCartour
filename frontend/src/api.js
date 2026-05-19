@@ -27,6 +27,14 @@ const apiFetch = async (path, options = {}) => {
 
   const data = await res.json().catch(() => ({ error: res.statusText }));
 
+  if (res.status === 401 && getToken()) {
+    // Token present but server rejected it — session expired or invalidated.
+    // Clear credentials and notify the app to redirect to login.
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('cebuCartour_user');
+    window.dispatchEvent(new CustomEvent('auth:expired'));
+  }
+
   if (!res.ok) {
     throw new Error(data.error || `Request failed (${res.status})`);
   }
@@ -98,6 +106,12 @@ export const api = {
       apiFetch(`/users/${id}/password`, {
         method: 'PUT',
         body: JSON.stringify({ current, newPw }),
+      }),
+
+    setPassword: (id, newPw) =>
+      apiFetch(`/users/${id}/set-password`, {
+        method: 'PUT',
+        body: JSON.stringify({ newPw }),
       }),
 
     delete: (id) => apiFetch(`/users/${id}`, { method: 'DELETE' }),

@@ -426,9 +426,11 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
   const [cpTypeFilter, setCpTypeFilter] = useState("all");
   const [viewBooking, setViewBooking] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-  const [cpwForm, setCpwForm]   = useState({ current:"", newPw:"", confirm:"" });
-  const [cpwError, setCpwError] = useState("");
+
+  const [cpwForm, setCpwForm]     = useState({ newPw:"", confirm:"" });
+  const [cpwError, setCpwError]   = useState("");
   const [cpwSuccess, setCpwSuccess] = useState(false);
+
   const [ratingModal, setRatingModal] = useState(null); // { booking, item, hovered, stars, note }
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
 
@@ -1060,8 +1062,8 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
                 <i className="fa-solid fa-circle-xmark"/> {cpwError}
               </div>
             )}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1rem",marginBottom:"1.2rem"}}>
-              {[["Current Password","current","Enter current password"],["New Password","newPw","Min. 8 characters"],["Confirm Password","confirm","Repeat new password"]].map(([label,key,ph]) => (
+            <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"1rem",marginBottom:"1.2rem"}}>
+              {[["Create New Password","newPw","Min. 8 characters"],["Confirm Password","confirm","Repeat new password"]].map(([label,key,ph]) => (
                 <div key={key}>
                   <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.4rem"}}>{label}</div>
                   <input type="password" placeholder={ph} value={cpwForm[key]}
@@ -1072,17 +1074,16 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
               ))}
             </div>
             <button onClick={async () => {
-              if (!cpwForm.current) { setCpwError("Please enter your current password."); return; }
-              if (cpwForm.newPw.length < 8) { setCpwError("New password must be at least 8 characters."); return; }
-              if (cpwForm.newPw !== cpwForm.confirm) { setCpwError("New passwords do not match."); return; }
+              if (cpwForm.newPw.length < 8) { setCpwError("Password must be at least 8 characters."); return; }
+              if (cpwForm.newPw !== cpwForm.confirm) { setCpwError("Passwords do not match."); return; }
               try {
-                await api.users.changePassword(user.id, cpwForm.current, cpwForm.newPw);
-                setCpwForm({ current:"", newPw:"", confirm:"" });
+                await api.users.setPassword(user.id, cpwForm.newPw);
+                setCpwForm({ newPw:"", confirm:"" });
                 setCpwSuccess(true); setTimeout(() => setCpwSuccess(false), 4000);
               } catch (err) { setCpwError(err.message || "Failed to update password."); }
             }}
               style={{background:"var(--ocean)",color:"#fff",border:"none",padding:"0.65rem 1.8rem",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:"0.88rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
-              <i className="fa-solid fa-key"/> Update Password
+              <i className="fa-solid fa-key"/> Set Password
             </button>
 
             {/* â"€â"€ Request Account Deletion â"€â"€ */}

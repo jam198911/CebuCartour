@@ -218,6 +218,9 @@ router.put('/:id', verifyToken, async (req, res) => {
     const allowedFields = [
       'name', 'email', 'company', 'phone', 'address',
       'idType', 'idNumber', 'bio', 'dob', 'country', 'city', 'postalCode',
+      'profilePhoto',
+      'gcashNumber', 'gcashName',
+      'bankNumber', 'bankName', 'bankProvider',
     ];
 
     const { sets, values } = buildUpdate(allowedFields, req.body);
@@ -271,6 +274,37 @@ router.put('/:id/password', verifyToken, async (req, res) => {
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
     console.error('change password error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── PUT /:id/set-password ───────────────────────────────────────────────────
+
+router.put('/:id/set-password', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && String(req.user.userId) !== String(req.params.id)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const { newPw } = req.body;
+    if (!newPw) {
+      return res.status(400).json({ error: 'newPw is required' });
+    }
+    if (newPw.length < MIN_PW_LEN) {
+      return res.status(400).json({ error: `Password must be at least ${MIN_PW_LEN} characters` });
+    }
+
+    const [rows] = await pool.query('SELECT id FROM users WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const hashed = await bcrypt.hash(newPw, SALT_ROUNDS);
+    await pool.query('UPDATE users SET password = ? WHERE id = ?', [hashed, req.params.id]);
+
+    res.json({ message: 'Password set successfully' });
+  } catch (err) {
+    console.error('set password error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

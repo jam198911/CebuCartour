@@ -34,10 +34,11 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
   const [showSearch, setShowSearch]           = useState(false);
   const [showNotifs, setShowNotifs]           = useState(false);
   const [globalQ, setGlobalQ]                 = useState("");
-  const [pwForm, setPwForm]                   = useState({ current:"", newPw:"", confirm:"" });
-  const [pwError, setPwError]                 = useState("");
-  const [pwSuccess, setPwSuccess]             = useState(false);
+
   const [setPasswordLink, setSetPasswordLink] = useState(null);
+  const [pwForm, setPwForm]     = useState({ newPw:"", confirm:"" });
+  const [pwError, setPwError]   = useState("");
+  const [pwSuccess, setPwSuccess] = useState(false);
   const handleApprove = (uid) => approveVendor(uid).then(url => { if (url) setSetPasswordLink(url); });
 
   const totalRevenue       = bookings.filter(b => b.status === "approved").reduce((s, b) => s + (+b.total), 0);
@@ -2592,9 +2593,9 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
               ["Postal Code", user.postalCode || "—"],
             ])}
 
-            {/* â"€â"€ Change Password â"€â"€ */}
+            {/* ── Password & Security ── */}
             <div style={{background:"#fff",borderRadius:16,border:"1px solid #E5E7EB",padding:"1.5rem 1.8rem",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.4rem"}}>
+              <div style={{marginBottom:"1.4rem"}}>
                 <h3 style={{fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:"1rem",color:"var(--ocean)",margin:0}}>
                   <i className="fa-solid fa-lock" style={{marginRight:"0.5rem",fontSize:"0.9rem"}}/> Password &amp; Security
                 </h3>
@@ -2609,11 +2610,10 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                   <i className="fa-solid fa-circle-xmark"/> {pwError}
                 </div>
               )}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1rem",marginBottom:"1.2rem"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.2rem"}}>
                 {[
-                  ["Current Password", "current", "Enter current password"],
-                  ["New Password",     "newPw",   "Min. 8 characters"],
-                  ["Confirm Password", "confirm", "Repeat new password"],
+                  ["Create New Password", "newPw",   "Min. 8 characters"],
+                  ["Confirm Password",    "confirm", "Repeat new password"],
                 ].map(([label, key, ph]) => (
                   <div key={key}>
                     <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.4rem",letterSpacing:".02em"}}>{label}</div>
@@ -2627,12 +2627,11 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                 ))}
               </div>
               <button onClick={async () => {
-                if (!pwForm.current) { setPwError("Please enter your current password."); return; }
-                if (pwForm.newPw.length < 8) { setPwError("New password must be at least 8 characters."); return; }
-                if (pwForm.newPw !== pwForm.confirm) { setPwError("New passwords do not match."); return; }
+                if (pwForm.newPw.length < 8) { setPwError("Password must be at least 8 characters."); return; }
+                if (pwForm.newPw !== pwForm.confirm) { setPwError("Passwords do not match."); return; }
                 try {
-                  await api.users.changePassword(user.id, pwForm.current, pwForm.newPw);
-                  setPwForm({ current:"", newPw:"", confirm:"" });
+                  await api.users.setPassword(user.id, pwForm.newPw);
+                  setPwForm({ newPw:"", confirm:"" });
                   setPwSuccess(true);
                   setTimeout(() => setPwSuccess(false), 4000);
                 } catch (err) {
@@ -2640,7 +2639,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                 }
               }}
                 style={{background:"var(--ocean)",color:"#fff",border:"none",padding:"0.6rem 1.8rem",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:"0.88rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
-                <i className="fa-solid fa-key"/> Update Password
+                <i className="fa-solid fa-key"/> Set Password
               </button>
             </div>
 

@@ -59,6 +59,16 @@ export default function App() {
     if (resetToken) window.history.replaceState({}, '', window.location.pathname);
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    const handler = () => {
+      setUser(null);
+      setPage('login');
+      setToast('Your session has expired. Please log in again.');
+    };
+    window.addEventListener('auth:expired', handler);
+    return () => window.removeEventListener('auth:expired', handler);
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+
   const fetchAllData = (forRole = user?.role) => {
     // Admin needs all users for the management dashboard (capped at 200 per the backend limit).
     // Every other session only needs active vendors — for displaying vendor info on cards.
@@ -106,14 +116,24 @@ export default function App() {
   };
 
   const updateCar = async (id, data) => {
-    try { await api.cars.update(id, data); } catch (e) { console.error(e); }
-    setCars(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
-    showToast("Car listing updated!");
+    try {
+      const updated = await api.cars.update(id, data);
+      setCars(prev => prev.map(c => c.id === id ? updated : c));
+      showToast("Car listing updated!");
+    } catch (e) {
+      console.error(e);
+      showToast("Failed to update car: " + (e.message || "Server error"));
+    }
   };
   const updateTour = async (id, data) => {
-    try { await api.tours.update(id, data); } catch (e) { console.error(e); }
-    setTours(prev => prev.map(t => t.id === id ? { ...t, ...data } : t));
-    showToast("Tour listing updated!");
+    try {
+      const updated = await api.tours.update(id, data);
+      setTours(prev => prev.map(t => t.id === id ? updated : t));
+      showToast("Tour listing updated!");
+    } catch (e) {
+      console.error(e);
+      showToast("Failed to update tour: " + (e.message || "Server error"));
+    }
   };
   const deleteCar = async (id) => {
     try { await api.cars.delete(id); } catch (e) { console.error(e); }

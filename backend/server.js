@@ -52,6 +52,33 @@ const forgotLimiter = rateLimit({
   message: { error: 'Too many password reset requests. Please try again in 1 hour.' },
 });
 
+// General API limiter — broad protection against enumeration on all /api/* routes
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please slow down and try again shortly.' },
+});
+
+// Booking write limiter — tighter cap on booking creation/mutation
+const bookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many booking requests. Please try again in 15 minutes.' },
+});
+
+// Upload limiter — prevent upload abuse
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many upload requests. Please try again in 15 minutes.' },
+});
+
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
 app.use(cors({
@@ -93,12 +120,14 @@ app.use('/api/auth', usersRouter);
 // User-management: /api/users/  /api/users/:id  /api/users/:id/approve  …
 app.use('/api/users', usersRouter);
 
-app.use('/api/upload',       require('./routes/upload'));
-app.use('/api/cars',         require('./routes/cars'));
-app.use('/api/tours',        require('./routes/tours'));
-app.use('/api/bookings',     require('./routes/bookings'));
-app.use('/api/destinations', require('./routes/destinations'));
-app.use('/api/settings',     require('./routes/settings'));
+app.use('/api', apiLimiter);
+
+app.use('/api/upload',       uploadLimiter,  require('./routes/upload'));
+app.use('/api/cars',                         require('./routes/cars'));
+app.use('/api/tours',                        require('./routes/tours'));
+app.use('/api/bookings',     bookingLimiter, require('./routes/bookings'));
+app.use('/api/destinations',                 require('./routes/destinations'));
+app.use('/api/settings',                     require('./routes/settings'));
 
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 

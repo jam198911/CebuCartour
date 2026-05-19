@@ -103,6 +103,12 @@ router.post('/', verifyToken, async (req, res) => {
 
 router.put('/:id', verifyToken, async (req, res) => {
   try {
+    const [existing] = await pool.query('SELECT vendorId FROM cars WHERE id = ?', [req.params.id]);
+    if (existing.length === 0) return res.status(404).json({ error: 'Car not found' });
+    if (req.user.role !== 'admin' && String(existing[0].vendorId) !== String(req.user.userId)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     const {
       vendorId, name, type, location, fuel, transmission,
       image, price, seats, mileage, available, rating, reviews, description,
@@ -114,7 +120,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
     const add = (col, val) => { fields.push(`\`${col}\` = ?`); values.push(val); };
 
-    if (vendorId     !== undefined) add('vendorId',     vendorId);
+    if (vendorId !== undefined && req.user.role === 'admin') add('vendorId', vendorId);
     if (name         !== undefined) add('name',         name);
     if (type         !== undefined) add('type',         type);
     if (location     !== undefined) add('location',     location);
@@ -160,6 +166,12 @@ router.put('/:id', verifyToken, async (req, res) => {
 
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
+    const [existing] = await pool.query('SELECT vendorId FROM cars WHERE id = ?', [req.params.id]);
+    if (existing.length === 0) return res.status(404).json({ error: 'Car not found' });
+    if (req.user.role !== 'admin' && String(existing[0].vendorId) !== String(req.user.userId)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     const [result] = await pool.query('DELETE FROM cars WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Car not found' });

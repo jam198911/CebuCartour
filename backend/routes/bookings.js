@@ -50,7 +50,7 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 // ─── POST / ──────────────────────────────────────────────────────────────────
 
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const {
       userId, vendorId, itemId, type,
