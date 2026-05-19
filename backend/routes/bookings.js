@@ -20,9 +20,20 @@ router.get('/', verifyToken, async (req, res) => {
       ? Math.max(parseInt(req.query.offset) || 0, 0)
       : (Math.max(parseInt(req.query.page) || 1, 1) - 1) * limit;
 
+    // Scope bookings by role: customers see only their own; vendors see only theirs
+    let where  = '';
+    let params = [];
+    if (req.user.role === 'customer') {
+      where  = 'WHERE userId = ?';
+      params = [req.user.userId];
+    } else if (req.user.role === 'vendor') {
+      where  = 'WHERE vendorId = ?';
+      params = [req.user.userId];
+    }
+
     const [[countRows], [rows]] = await Promise.all([
-      pool.query('SELECT COUNT(*) AS total FROM bookings'),
-      pool.query('SELECT * FROM bookings ORDER BY createdAt DESC LIMIT ? OFFSET ?', [limit, offset]),
+      pool.query(`SELECT COUNT(*) AS total FROM bookings ${where}`, params),
+      pool.query(`SELECT * FROM bookings ${where} ORDER BY createdAt DESC LIMIT ? OFFSET ?`, [...params, limit, offset]),
     ]);
 
     const total = countRows[0].total;

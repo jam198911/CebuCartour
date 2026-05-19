@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import './styles/app.css';
 import { api } from "./api.js";
 import { usePageMeta } from "./utils/seo.js";
-import { CARS, TOURS, BOOKINGS_INIT, USERS_INIT } from "./data/mockData.js";
+import { CARS, TOURS, USERS_INIT } from "./data/mockData.js";
 import { ErrorBoundary, PageErrorBoundary } from "./components/ErrorBoundaries.jsx";
 import { Toast } from "./components/SharedUI.jsx";
 import BookingSummaryModal from "./components/BookingSummaryModal.jsx";
@@ -45,7 +45,7 @@ export default function App() {
   const [modal, setModal] = useState(null);
   const [bookingItem, setBookingItem] = useState(null);
   const [toast, setToast] = useState(null);
-  const [bookings, setBookings] = useState(BOOKINGS_INIT);
+  const [bookings, setBookings] = useState([]);
   const [users, setUsers] = useState(USERS_INIT);
   const [cars, setCars] = useState(CARS);
   const [tours, setTours] = useState(TOURS);

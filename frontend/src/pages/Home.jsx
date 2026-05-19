@@ -212,7 +212,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
                   </button>
                 ))}
               </div>
-              <div style={{display:"flex",gap:"0.45rem",flexWrap:"wrap"}}>
+              <div className="search-chips-row">
                 {["Island Tour","Adventure Tour","SUV","Van","Cultural Tour","Trekking"].map(chip => (
                   <button key={chip}
                     onClick={() => goTo(["SUV","Van"].includes(chip)?"cars":"tours")}
@@ -276,8 +276,8 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
       </section>
 
       {/* â”€â”€ CEBU DESTINATIONS SHOWCASE â”€â”€ */}
-      <div style={{background:"#FFFBF5",padding:"4.5rem 0 3.5rem"}}>
-        <div style={{textAlign:"center",marginBottom:"2.2rem",padding:"0 2rem"}}>
+      <div className="dest-section">
+        <div className="dest-section-header">
           <div className="section-tag">Top Destinations</div>
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(1.9rem,3.5vw,2.6rem)",color:"var(--ink)",marginBottom:"0.6rem",marginTop:"0.3rem"}}>
             Discover Cebu's Finest
@@ -317,19 +317,14 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
           )}
 
           {/* Sliding track */}
-          <div style={{overflow:"hidden",padding:"0.5rem 3.5rem"}}>
+          <div className="dest-carousel-track">
             <div style={{
               display:"flex",gap:"1.2rem",
               transform:`translateX(calc(-${carouselIdx} * (195px + 1.2rem)))`,
               transition:"transform 0.42s cubic-bezier(0.4,0,0.2,1)",
             }}>
               {destinations.map(d => (
-                <div key={d.name} onClick={() => setDestModal(d)}
-                  style={{flexShrink:0,width:195,height:285,borderRadius:22,overflow:"hidden",
-                    position:"relative",cursor:"pointer",
-                    boxShadow:"0 8px 30px rgba(0,0,0,0.13)",transition:"transform 0.24s, box-shadow 0.24s"}}
-                  onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-9px) scale(1.02)";e.currentTarget.style.boxShadow="0 22px 55px rgba(0,0,0,0.22)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0) scale(1)";e.currentTarget.style.boxShadow="0 8px 30px rgba(0,0,0,0.13)";}}>
+                <div key={d.name} className="dest-card" onClick={() => setDestModal(d)}>
                   <img src={d.img||"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400"} alt={d.name}
                     onError={e=>{e.target.src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400";}}
                     style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
@@ -403,7 +398,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
             </div>
 
             {/* Blog body */}
-            <div style={{padding:"1.8rem 2rem 2rem"}}>
+            <div className="dest-modal-body">
 
               {/* Tag */}
               <div style={{marginBottom:"1.2rem"}}>
@@ -484,8 +479,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
       )}
 
       {/* â”€â”€ STATS STRIP â”€â”€ */}
-      <div style={{background:"var(--ocean)",padding:"2.2rem 2rem",
-        display:"flex",justifyContent:"center",gap:"3.5rem",flexWrap:"wrap"}}>
+      <div className="stats-strip">
         {[
           {n:"200+",l:"Happy Travelers",icon:"fa-solid fa-face-smile",dest:"tours"},
           {n:"50+", l:"Car Options",    icon:"fa-solid fa-car",        dest:"cars"},
@@ -583,7 +577,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
           backgroundImage:"url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1400&q=20')",
           backgroundSize:"cover",backgroundPosition:"center",opacity:0.07}} />
 
-        <div style={{position:"relative",zIndex:1,padding:"5rem 2rem",maxWidth:1100,margin:"0 auto"}}>
+        <div className="why-inner">
           {/* Section header */}
           <div style={{textAlign:"center",marginBottom:"3.5rem"}}>
             <div style={{display:"inline-block",
