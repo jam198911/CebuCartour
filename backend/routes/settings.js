@@ -46,8 +46,8 @@ router.put('/service-fee', verifyToken, async (req, res) => {
     await pool.query(
       `INSERT INTO app_settings (name, value)
          VALUES ('serviceFee', ?)
-       ON DUPLICATE KEY UPDATE value = ?`,
-      [String(numFee), String(numFee)]
+       ON DUPLICATE KEY UPDATE value = VALUES(value)`,
+      [String(numFee)]
     );
 
     res.json({ fee: numFee });

@@ -86,7 +86,7 @@ router.post('/', verifyToken, async (req, res) => {
       [
         vendorId || 0, name, type, location, fuel, transmission,
         image, price, seats, mileage, available, rating, reviews, description,
-        color, year, withDriver ? 1 : 0,
+        color, year, withDriver ? true : false,
         JSON.stringify(features), JSON.stringify(images),
       ]
     );

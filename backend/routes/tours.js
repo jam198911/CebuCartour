@@ -79,14 +79,12 @@ router.post('/', verifyToken, async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO tours
          (vendorId, name, location, image, category, duration, groupSize,
-          price, available, rating, reviews, includes, description,
-          meetingPoint, images)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          price, available, rating, reviews, includes, description)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         vendorId || 0, name, location || '', image, category,
         duration, groupSize, price, available,
         rating, reviews, JSON.stringify(includes), description,
-        meetingPoint, JSON.stringify(images),
       ]
     );
 

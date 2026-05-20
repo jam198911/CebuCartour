@@ -169,7 +169,7 @@ router.put('/:id', async (req, res) => {
     const fields = [];
     const values = [];
 
-    const add = (col, val) => { fields.push(`\`${col}\` = ?`); values.push(val); };
+    const add = (col, val) => { fields.push(`"${col}" = ?`); values.push(val); };
 
     if (status        !== undefined) add('status',        status);
     if (vendorStatus  !== undefined) add('vendorStatus',  vendorStatus);
