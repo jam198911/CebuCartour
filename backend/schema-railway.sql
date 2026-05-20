@@ -1,7 +1,8 @@
--- CebuCarTour — Railway-compatible schema
--- Run against Railway's MySQL (no CREATE DATABASE / USE needed)
+-- CebuCarTour — CloudPanel/Railway-compatible schema
+-- Run against an existing database (no CREATE DATABASE / USE needed)
 
 SET FOREIGN_KEY_CHECKS = 0;
+SET SESSION sql_mode = '';
 
 CREATE TABLE IF NOT EXISTS users (
   id                    INT             NOT NULL AUTO_INCREMENT,
@@ -14,18 +15,18 @@ CREATE TABLE IF NOT EXISTS users (
   approved              BOOLEAN         NOT NULL DEFAULT TRUE,
   company               VARCHAR(255)    NOT NULL DEFAULT '',
   phone                 VARCHAR(50)     NOT NULL DEFAULT '',
-  address               TEXT            NOT NULL DEFAULT '',
+  address               TEXT            NULL,
   idType                VARCHAR(100)    NOT NULL DEFAULT '',
   idNumber              VARCHAR(100)    NOT NULL DEFAULT '',
   services              JSON,
-  bio                   TEXT            NOT NULL DEFAULT '',
-  rejectionReason       TEXT            NOT NULL DEFAULT '',
+  bio                   TEXT            NULL,
+  rejectionReason       TEXT            NULL,
   dob                   VARCHAR(50)     NOT NULL DEFAULT '',
   country               VARCHAR(100)    NOT NULL DEFAULT '',
   city                  VARCHAR(100)    NOT NULL DEFAULT '',
   postalCode            VARCHAR(20)     NOT NULL DEFAULT '',
   deletionRequested     BOOLEAN         NOT NULL DEFAULT FALSE,
-  deletionReason        TEXT            NOT NULL DEFAULT '',
+  deletionReason        TEXT            NULL,
   deletionRequestedAt   VARCHAR(50)     NOT NULL DEFAULT '',
   joined                VARCHAR(20)     NOT NULL DEFAULT '',
   createdAt             TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -49,7 +50,7 @@ CREATE TABLE IF NOT EXISTS cars (
   mileage         INT             NOT NULL DEFAULT 0,
   rating          DECIMAL(3,1)    NOT NULL DEFAULT 0.0,
   reviews         INT             NOT NULL DEFAULT 0,
-  description     TEXT,
+  description     TEXT            NULL,
   createdAt       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS tours (
   rating          DECIMAL(3,1)    NOT NULL DEFAULT 0.0,
   reviews         INT             NOT NULL DEFAULT 0,
   includes        JSON,
-  description     TEXT,
+  description     TEXT            NULL,
   createdAt       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -92,7 +93,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   phone           VARCHAR(50)     NOT NULL DEFAULT '',
   guests          INT             NOT NULL DEFAULT 1,
   total           DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
-  notes           TEXT,
+  notes           TEXT            NULL,
   paymentMethod   VARCHAR(100)    NOT NULL DEFAULT '',
   paid            BOOLEAN         NOT NULL DEFAULT FALSE,
   rating          TINYINT         NULL DEFAULT NULL,
@@ -112,7 +113,7 @@ CREATE TABLE IF NOT EXISTS destinations (
   duration        VARCHAR(100)    NOT NULL DEFAULT '',
   difficulty      VARCHAR(50)     NOT NULL DEFAULT '',
   distance        VARCHAR(100)    NOT NULL DEFAULT '',
-  description     TEXT,
+  description     TEXT            NULL,
   highlights      JSON,
   createdAt       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
@@ -120,7 +121,7 @@ CREATE TABLE IF NOT EXISTS destinations (
 
 CREATE TABLE IF NOT EXISTS app_settings (
   name        VARCHAR(100)    NOT NULL,
-  value       TEXT,
+  value       TEXT            NULL,
   updatedAt   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
