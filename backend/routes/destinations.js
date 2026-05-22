@@ -5,7 +5,7 @@
 
 const express = require('express');
 const pool    = require('../db');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -65,7 +65,7 @@ router.get('/:id', async (req, res) => {
 
 // ─── POST / ──────────────────────────────────────────────────────────────────
 
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     const {
       name, tag = '', tagColor = '', img = '', location = '',
@@ -100,7 +100,7 @@ router.post('/', verifyToken, async (req, res) => {
 
 // ─── PUT /:id ────────────────────────────────────────────────────────────────
 
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const {
       name, tag, tagColor, img, location, bestTime,
@@ -150,7 +150,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
 // ─── DELETE /:id ─────────────────────────────────────────────────────────────
 
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const [result] = await pool.query(
       'DELETE FROM destinations WHERE id = ?', [req.params.id]

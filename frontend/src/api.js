@@ -126,6 +126,8 @@ export const api = {
 
     suspend: (id) => apiFetch(`/users/${id}/suspend`, { method: 'PUT' }),
 
+    resendInvite: (id) => apiFetch(`/users/${id}/resend-invite`, { method: 'POST' }),
+
     requestDeletion: (id, reason) =>
       apiFetch(`/users/${id}/deletion-request`, {
         method: 'PUT',

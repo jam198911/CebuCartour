@@ -249,6 +249,9 @@ router.put('/:id', verifyToken, async (req, res) => {
 // ─── PUT /:id/password ───────────────────────────────────────────────────────
 
 router.put('/:id/password', verifyToken, async (req, res) => {
+  if (String(req.user.userId) !== String(req.params.id) && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   try {
     const { current, newPw } = req.body;
     if (!current || !newPw) {
@@ -355,11 +358,43 @@ router.put('/:id/approve', verifyToken, requireAdmin, async (req, res) => {
     );
     const setUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/?reset=${token}`;
     sendSetPasswordEmail(rows[0], setUrl);
-    console.log(`[approve] set-password link for ${rows[0].email}: ${setUrl}`);
+    if (process.env.NODE_ENV !== 'production') console.log(`[approve] set-password link for ${rows[0].email}: ${setUrl}`);
 
     res.json(safeUser(rows[0]));
   } catch (err) {
     console.error('approve user error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── POST /:id/resend-invite ─────────────────────────────────────────────────
+
+router.post('/:id/resend-invite', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+    const user = rows[0];
+    if (user.approvalStatus !== 'approved') {
+      return res.status(400).json({ error: 'User is not approved yet' });
+    }
+
+    // Invalidate old tokens and generate a fresh 24-hour one
+    await pool.query('DELETE FROM password_resets WHERE email = ?', [user.email]);
+    const token   = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await pool.query(
+      'INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)',
+      [user.email, token, expires]
+    );
+
+    const setUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/?reset=${token}`;
+    sendSetPasswordEmail(user, setUrl);
+    if (process.env.NODE_ENV !== 'production') console.log(`[resend-invite] set-password link for ${user.email}: ${setUrl}`);
+
+    res.json({ message: 'Invite resent', setUrl });
+  } catch (err) {
+    console.error('resend-invite error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -494,7 +529,7 @@ router.post('/forgot-password', async (req, res) => {
     const resetUrl    = `${frontendUrl}/?reset=${token}`;
 
     sendPasswordReset(email, resetUrl);
-    console.log(`[password-reset] link for ${email}: ${resetUrl}`);
+    if (process.env.NODE_ENV !== 'production') console.log(`[password-reset] link for ${email}: ${resetUrl}`);
 
     res.json({ message: 'If that email is registered, a reset link has been sent.' });
   } catch (err) {

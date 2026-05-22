@@ -430,6 +430,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
   const [cpwForm, setCpwForm]     = useState({ newPw:"", confirm:"" });
   const [cpwError, setCpwError]   = useState("");
   const [cpwSuccess, setCpwSuccess] = useState(false);
+  const [cpwShow, setCpwShow]     = useState({ newPw: false, confirm: false });
 
   const [ratingModal, setRatingModal] = useState(null); // { booking, item, hovered, stars, note }
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
@@ -1066,10 +1067,16 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
               {[["Create New Password","newPw","Min. 8 characters"],["Confirm Password","confirm","Repeat new password"]].map(([label,key,ph]) => (
                 <div key={key}>
                   <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.4rem"}}>{label}</div>
-                  <input type="password" placeholder={ph} value={cpwForm[key]}
-                    onChange={e => { setCpwForm(f=>({...f,[key]:e.target.value})); setCpwError(""); setCpwSuccess(false); }}
-                    style={{width:"100%",border:"1.5px solid #E5E7EB",borderRadius:9,padding:"0.6rem 0.9rem",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
-                    onFocus={e=>e.target.style.borderColor="var(--teal)"} onBlur={e=>e.target.style.borderColor="#E5E7EB"} />
+                  <div style={{position:"relative"}}>
+                    <input type={cpwShow[key] ? "text" : "password"} placeholder={ph} value={cpwForm[key]}
+                      onChange={e => { setCpwForm(f=>({...f,[key]:e.target.value})); setCpwError(""); setCpwSuccess(false); }}
+                      style={{width:"100%",border:"1.5px solid #E5E7EB",borderRadius:9,padding:"0.6rem 2.4rem 0.6rem 0.9rem",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box",background:"#fff",color:"#111"}}
+                      onFocus={e=>e.target.style.borderColor="var(--teal)"} onBlur={e=>e.target.style.borderColor="#E5E7EB"} />
+                    <button type="button" onClick={() => setCpwShow(s=>({...s,[key]:!s[key]}))}
+                      style={{position:"absolute",right:"0.6rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#9CA3AF",padding:"0.2rem",fontSize:"0.95rem"}}>
+                      <i className={cpwShow[key] ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}/>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

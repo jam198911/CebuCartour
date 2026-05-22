@@ -128,7 +128,8 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
   const canNextSchedule = startDate && pickTime;
   const maxGuests = item.groupSize || 20;
   const guestsOverLimit = !isCar && form.guests > maxGuests;
-  const canNextDetails = form.name && form.email && form.phone && form.pickup && !guestsOverLimit;
+  const phoneValid = /^09\d{9}$/.test(form.phone);
+  const canNextDetails = form.name && form.email && phoneValid && form.pickup && !guestsOverLimit;
   const canNextPayment = proofFile || payMethod === "cash";
 
   const handleFinalSubmit = async () => {
@@ -289,6 +290,7 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
             inputMode="numeric"
             maxLength={11}
             autoComplete="tel"
+            style={form.phone && !phoneValid ? {borderColor:"#EF4444"} : {}}
           />
         </div>
         <div className="form-group full">
@@ -342,9 +344,12 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
       </div>
 
       {/* Live validation hints */}
-      {(!form.name || !form.phone || !form.email || !form.pickup) && (
+      {(!form.name || !form.email || !form.pickup || !form.phone || (form.phone && !phoneValid)) && (
         <div style={{background:"#FEF3C7",border:"1px solid #FCD34D",borderRadius:"10px",padding:"0.8rem 1rem",marginTop:"1rem",fontSize:"0.83rem",color:"#92400E"}}>
-          <i className="fa-solid fa-triangle-exclamation"/> Please fill in all required fields marked with * to continue.
+          <i className="fa-solid fa-triangle-exclamation"/>
+          {form.phone && !phoneValid
+            ? " Phone number must be 11 digits and start with 09 (e.g. 09XXXXXXXXX)."
+            : " Please fill in all required fields marked with * to continue."}
         </div>
       )}
 

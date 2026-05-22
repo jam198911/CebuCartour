@@ -157,55 +157,79 @@ router.post('/', verifyToken, async (req, res) => {
 
 // ─── PUT /:id ────────────────────────────────────────────────────────────────
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
   try {
-    const {
-      status, vendorStatus, paid,
-      date, returnDate, pickTime, dropTime, pickup, dropoff,
-      name, email, phone, guests, total,
-      notes, paymentMethod,
-    } = req.body;
+    const [existing] = await pool.query('SELECT * FROM bookings WHERE id = ?', [req.params.id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    const booking = existing[0];
+    const { role, userId } = req.user;
 
+    // Ownership check for non-admins
+    if (role === 'customer' && String(booking.userId) !== String(userId)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    if (role === 'vendor' && String(booking.vendorId) !== String(userId)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const body = req.body;
     const fields = [];
     const values = [];
+    const add = (col, val) => { fields.push(`\`${col}\` = ?`); values.push(val); };
 
-    const add = (col, val) => { fields.push(`"${col}" = ?`); values.push(val); };
-
-    if (status        !== undefined) add('status',        status);
-    if (vendorStatus  !== undefined) add('vendorStatus',  vendorStatus);
-    if (paid          !== undefined) add('paid',          paid);
-    if (date          !== undefined) add('date',          date);
-    if (returnDate    !== undefined) add('returnDate',    returnDate);
-    if (pickTime      !== undefined) add('pickTime',      pickTime);
-    if (dropTime      !== undefined) add('dropTime',      dropTime);
-    if (pickup        !== undefined) add('pickup',        pickup);
-    if (dropoff       !== undefined) add('dropoff',       dropoff);
-    if (name          !== undefined) add('name',          name);
-    if (email         !== undefined) add('email',         email);
-    if (phone         !== undefined) add('phone',         phone);
-    if (guests        !== undefined) add('guests',        guests);
-    if (total         !== undefined) add('total',         total);
-    if (notes         !== undefined) add('notes',         notes);
-    if (paymentMethod        !== undefined) add('paymentMethod', paymentMethod);
-    if (req.body.rating     !== undefined) add('rating',        req.body.rating);
-    if (req.body.ratingNote !== undefined) add('ratingNote',    req.body.ratingNote);
+    if (role === 'admin') {
+      // Admin can update any field
+      if (body.status        !== undefined) add('status',        body.status);
+      if (body.vendorStatus  !== undefined) add('vendorStatus',  body.vendorStatus);
+      if (body.paid          !== undefined) add('paid',          body.paid);
+      if (body.date          !== undefined) add('date',          body.date);
+      if (body.returnDate    !== undefined) add('returnDate',    body.returnDate);
+      if (body.pickTime      !== undefined) add('pickTime',      body.pickTime);
+      if (body.dropTime      !== undefined) add('dropTime',      body.dropTime);
+      if (body.pickup        !== undefined) add('pickup',        body.pickup);
+      if (body.dropoff       !== undefined) add('dropoff',       body.dropoff);
+      if (body.name          !== undefined) add('name',          body.name);
+      if (body.email         !== undefined) add('email',         body.email);
+      if (body.phone         !== undefined) add('phone',         body.phone);
+      if (body.guests        !== undefined) add('guests',        body.guests);
+      if (body.total         !== undefined) add('total',         body.total);
+      if (body.notes         !== undefined) add('notes',         body.notes);
+      if (body.paymentMethod !== undefined) add('paymentMethod', body.paymentMethod);
+      if (body.rating        !== undefined) add('rating',        body.rating);
+      if (body.ratingNote    !== undefined) add('ratingNote',    body.ratingNote);
+    } else if (role === 'vendor') {
+      // Vendors can only update their side of the booking
+      if (body.vendorStatus !== undefined) add('vendorStatus', body.vendorStatus);
+      if (body.dropTime     !== undefined) add('dropTime',     body.dropTime);
+      if (body.dropoff      !== undefined) add('dropoff',      body.dropoff);
+    } else if (role === 'customer') {
+      // Customers can cancel their own booking, edit contact details, and leave a rating
+      if (body.status !== undefined) {
+        if (body.status !== 'cancelled') {
+          return res.status(403).json({ error: 'Customers can only cancel bookings' });
+        }
+        add('status', body.status);
+      }
+      if (body.notes      !== undefined) add('notes',      body.notes);
+      if (body.name       !== undefined) add('name',       body.name);
+      if (body.email      !== undefined) add('email',      body.email);
+      if (body.phone      !== undefined) add('phone',      body.phone);
+      if (body.pickup     !== undefined) add('pickup',     body.pickup);
+      if (body.rating     !== undefined) add('rating',     body.rating);
+      if (body.ratingNote !== undefined) add('ratingNote', body.ratingNote);
+    }
 
     if (fields.length === 0) {
       return res.status(400).json({ error: 'No valid fields to update' });
     }
 
     values.push(req.params.id);
-    const [result] = await pool.query(
-      `UPDATE bookings SET ${fields.join(', ')} WHERE id = ?`,
-      values
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Booking not found' });
-    }
+    await pool.query(`UPDATE bookings SET ${fields.join(', ')} WHERE id = ?`, values);
 
     const [rows] = await pool.query('SELECT * FROM bookings WHERE id = ?', [req.params.id]);
-    if (status !== undefined) sendBookingStatusUpdate(rows[0], status);
+    if (body.status !== undefined) sendBookingStatusUpdate(rows[0], body.status);
     res.json(rows[0]);
   } catch (err) {
     console.error('update booking error:', err);
@@ -215,8 +239,13 @@ router.put('/:id', async (req, res) => {
 
 // ─── DELETE /:id ─────────────────────────────────────────────────────────────
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
+    // Only admins can hard-delete bookings
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     const [result] = await pool.query('DELETE FROM bookings WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Booking not found' });

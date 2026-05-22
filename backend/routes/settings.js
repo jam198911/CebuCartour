@@ -5,7 +5,7 @@
 
 const express = require('express');
 const pool    = require('../db');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.get('/service-fee', async (req, res) => {
 
 // ─── PUT /service-fee ────────────────────────────────────────────────────────
 
-router.put('/service-fee', verifyToken, async (req, res) => {
+router.put('/service-fee', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { fee } = req.body;
 

@@ -331,8 +331,19 @@ code {
 }
 
 
-input{
-  color:var(--muted)
+input, select, textarea {
+  background: #fff !important;
+  color: #111827 !important;
+  color-scheme: light;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 999px #fff inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  caret-color: #111827;
 }
 /* mobile responsive styles */
 

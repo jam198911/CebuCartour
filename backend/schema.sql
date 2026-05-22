@@ -156,3 +156,12 @@ CREATE TABLE IF NOT EXISTS app_settings (
   updatedAt   TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─────────────────────────────────────────────
+-- Indexes
+-- ─────────────────────────────────────────────
+CREATE INDEX idx_bookings_userId   ON bookings (userId);
+CREATE INDEX idx_bookings_vendorId ON bookings (vendorId);
+CREATE INDEX idx_bookings_itemId   ON bookings (itemId);
+CREATE INDEX idx_cars_vendorId     ON cars     (vendorId);
+CREATE INDEX idx_tours_vendorId    ON tours    (vendorId);

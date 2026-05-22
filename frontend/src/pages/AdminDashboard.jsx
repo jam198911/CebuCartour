@@ -39,7 +39,9 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
   const [pwForm, setPwForm]     = useState({ newPw:"", confirm:"" });
   const [pwError, setPwError]   = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
+  const [pwShow, setPwShow]     = useState({ newPw: false, confirm: false });
   const handleApprove = (uid) => approveVendor(uid).then(url => { if (url) setSetPasswordLink(url); });
+  const handleResendInvite = (uid) => api.users.resendInvite(uid).then(d => { if (d?.setUrl) setSetPasswordLink(d.setUrl); showToast("Invite resent!"); }).catch(() => showToast("Failed to resend invite."));
 
   const totalRevenue       = bookings.filter(b => b.status === "approved").reduce((s, b) => s + (+b.total), 0);
   // Commission = service fee portion of each approved booking
@@ -71,12 +73,12 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
   const totalPendingApps   = pendingVendors + pendingCustomers.length;
   const approvedVendors    = users.filter(u => u.role === "vendor" && u.approvalStatus === "approved");
   const rejectedVendors    = users.filter(u => u.role === "vendor" && u.approvalStatus === "rejected");
-  const suspendedVendors   = users.filter(u => u.role === "vendor" && u.status === "inactive");
-  const suspendedCustomers = users.filter(u => u.role === "customer" && u.status === "inactive");
+  const suspendedVendors   = users.filter(u => u.role === "vendor" && u.approvalStatus === "suspended");
+  const suspendedCustomers = users.filter(u => u.role === "customer" && u.approvalStatus === "suspended");
   const vendors            = users.filter(u => u.role === "vendor");
   const customers          = users.filter(u => u.role === "customer");
   const deletionRequests   = users.filter(u => u.deletionRequested);
-  const suspendedUsers     = users.filter(u => u.status === "inactive" && u.role !== "admin");
+  const suspendedUsers     = users.filter(u => u.approvalStatus === "suspended" && u.role !== "admin");
   const deletionVendors    = deletionRequests.filter(u => u.role === "vendor");
   const deletionCustomers  = deletionRequests.filter(u => u.role === "customer");
 
@@ -357,7 +359,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                 <i className="fa-solid fa-circle-check" style={{color:"var(--success)",fontSize:"1.1rem"}}/>
               </div>
               <div>
-                <div style={{fontWeight:700,fontSize:"1rem",color:"var(--ink)"}}>User Approved</div>
+                <div style={{fontWeight:700,fontSize:"1rem",color:"var(--ink)"}}>Set-Password Link</div>
                 <div style={{fontSize:"0.82rem",color:"var(--muted)"}}>A set-password email was sent. If it doesn't arrive, share this link directly:</div>
               </div>
             </div>
@@ -599,7 +601,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                 ];
                 return (
                   <>
-                    <div style={{position:"fixed",inset:0,zIndex:399}} onClick={() => setShowNotifs(false)} />
+                    <div style={{position:"fixed",inset:0,zIndex:399}} onClick={e => { e.stopPropagation(); setShowNotifs(false); }} />
                     <div className="notif-dropdown" onClick={e => e.stopPropagation()}>
                       <div className="notif-header">Notifications</div>
                       {notifItems.every(n=>n.count===0) && <div className="notif-empty"><i className="fa-solid fa-circle-check"/> All clear — nothing needs your attention.</div>}
@@ -1288,6 +1290,11 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                               onClick={() => { setViewVendor(v); setRejectReason(""); }}
                               style={{background:"var(--ocean)",color:"#fff",border:"none",padding:"0.35rem 0.7rem",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:"0.78rem"}}>
                                <i className="fa-solid fa-eye"/>
+                            </button>
+                            <button data-tip="Resend Invite"
+                              onClick={() => handleResendInvite(v.id)}
+                              style={{background:"#EDE9FE",color:"#7C3AED",border:"none",padding:"0.35rem 0.7rem",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:"0.78rem"}}>
+                               <i className="fa-solid fa-envelope"/>
                             </button>
                             <button data-tip="Suspend"
                               onClick={() => rejectVendor(v.id, "Suspended by admin.")}
@@ -2523,9 +2530,6 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
 
         {/* â"€â"€ MY PROFILE â"€â"€ */}
         {section === "profile" && (() => {
-          const nameParts = (user.name || "").split(" ");
-          const firstName = nameParts[0] || "—";
-          const lastName  = nameParts.slice(1).join(" ") || "—";
           const fieldCard = (title, editColor, fields) => (
             <div style={{background:"#fff",borderRadius:16,border:"1px solid #E5E7EB",padding:"1.5rem 1.8rem",marginBottom:"1rem",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.4rem"}}>
@@ -2578,8 +2582,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
 
             {/* â"€â"€ Personal Information â"€â"€ */}
             {fieldCard("Personal Information", "filled", [
-              ["First Name",   firstName],
-              ["Last Name",    lastName],
+              ["Full Name",     user.name || "—"],
               ["Date of Birth", user.dob || "—"],
               ["Email Address", user.email],
               ["Phone Number",  user.phone || "—"],
@@ -2617,12 +2620,18 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                 ].map(([label, key, ph]) => (
                   <div key={key}>
                     <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.4rem",letterSpacing:".02em"}}>{label}</div>
-                    <input type="password" placeholder={ph} value={pwForm[key]}
-                      onChange={e => { setPwForm(f=>({...f,[key]:e.target.value})); setPwError(""); setPwSuccess(false); }}
-                      style={{width:"100%",border:"1.5px solid #E5E7EB",borderRadius:9,padding:"0.55rem 0.85rem",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
-                      onFocus={e=>e.target.style.borderColor="var(--teal)"}
-                      onBlur={e=>e.target.style.borderColor="#E5E7EB"}
-                    />
+                    <div style={{position:"relative"}}>
+                      <input type={pwShow[key] ? "text" : "password"} placeholder={ph} value={pwForm[key]}
+                        onChange={e => { setPwForm(f=>({...f,[key]:e.target.value})); setPwError(""); setPwSuccess(false); }}
+                        style={{width:"100%",border:"1.5px solid #E5E7EB",borderRadius:9,padding:"0.55rem 2.4rem 0.55rem 0.85rem",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box",background:"#fff",color:"#111"}}
+                        onFocus={e=>e.target.style.borderColor="var(--teal)"}
+                        onBlur={e=>e.target.style.borderColor="#E5E7EB"}
+                      />
+                      <button type="button" onClick={() => setPwShow(s=>({...s,[key]:!s[key]}))}
+                        style={{position:"absolute",right:"0.6rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#9CA3AF",padding:"0.2rem",fontSize:"0.95rem"}}>
+                        <i className={pwShow[key] ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}/>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

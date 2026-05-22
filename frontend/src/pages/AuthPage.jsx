@@ -81,7 +81,7 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
   const handleReset = async () => {
     if (!newPass) return;
     if (newPass !== newConfirm) { setResetError("Passwords do not match."); return; }
-    if (newPass.length < 6)     { setResetError("Password must be at least 6 characters."); return; }
+    if (newPass.length < 8)     { setResetError("Password must be at least 8 characters."); return; }
     setResetError("");
     setResetLoading(true);
     try {
@@ -251,7 +251,7 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
               </label>
               <div style={{position:"relative"}}>
                 <input type={showNewPass ? "text" : "password"} value={newPass} onChange={e => setNewPass(e.target.value)}
-                  placeholder="Min. 6 characters"
+                  placeholder="Min. 8 characters"
                   style={{border:"2px solid var(--border)",borderRadius:10,padding:"0.75rem",paddingRight:"3rem",width:"100%",fontFamily:"inherit",fontSize:"0.95rem",outline:"none"}} />
                 <button type="button" onClick={() => setShowNewPass(s => !s)}
                   style={{position:"absolute",right:"0.85rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"var(--muted)"}}>

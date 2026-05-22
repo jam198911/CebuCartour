@@ -26,6 +26,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
   const [pwForm, setPwForm]     = useState({ newPw:"", confirm:"" });
   const [pwError, setPwError]   = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
+  const [pwShow, setPwShow]     = useState({ newPw: false, confirm: false });
 
   const [newCar, setNewCar]   = useState({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",color:"",year:"",withDriver:false,features:[],description:"",images:[] });
   const [newTour, setNewTour] = useState({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",meetingPoint:"",includes:[],description:"",images:[] });
@@ -1440,10 +1441,16 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 {[["Create New Password","newPw","Min. 8 characters"],["Confirm Password","confirm","Repeat new password"]].map(([label,key,ph]) => (
                   <div key={key}>
                     <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.4rem"}}>{label}</div>
-                    <input type="password" placeholder={ph} value={pwForm[key]}
-                      onChange={e => { setPwForm(f=>({...f,[key]:e.target.value})); setPwError(""); setPwSuccess(false); }}
-                      style={{width:"100%",border:"1.5px solid #E5E7EB",borderRadius:9,padding:"0.55rem 0.85rem",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}
-                      onFocus={e=>e.target.style.borderColor="var(--teal)"} onBlur={e=>e.target.style.borderColor="#E5E7EB"} />
+                    <div style={{position:"relative"}}>
+                      <input type={pwShow[key] ? "text" : "password"} placeholder={ph} value={pwForm[key]}
+                        onChange={e => { setPwForm(f=>({...f,[key]:e.target.value})); setPwError(""); setPwSuccess(false); }}
+                        style={{width:"100%",border:"1.5px solid #E5E7EB",borderRadius:9,padding:"0.55rem 2.4rem 0.55rem 0.85rem",fontSize:"0.88rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box",background:"#fff",color:"#111"}}
+                        onFocus={e=>e.target.style.borderColor="var(--teal)"} onBlur={e=>e.target.style.borderColor="#E5E7EB"} />
+                      <button type="button" onClick={() => setPwShow(s=>({...s,[key]:!s[key]}))}
+                        style={{position:"absolute",right:"0.6rem",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#9CA3AF",padding:"0.2rem",fontSize:"0.95rem"}}>
+                        <i className={pwShow[key] ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}/>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
