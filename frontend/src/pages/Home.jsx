@@ -2,13 +2,14 @@
 import CarCard from "../components/CarCard.jsx";
 import TourCard from "../components/TourCard.jsx";
 import { Footer } from "./AboutPage.jsx";
+import { api } from "../api.js";
 
 export const HERO_SLIDES = [
-  { img:"https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=1600&q=80", label:"Bantayan Island, Cebu" },
-  { img:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80", label:"Malapascua Island, Cebu" },
-  { img:"https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1600&q=80", label:"Camotes Island, Cebu" },
-  { img:"https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=1600&q=80", label:"Kawasan Falls, Cebu" },
-  { img:"https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=1600&q=80", label:"Eastern Samar Coastline" },
+  { img:"https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=1600&q=80", label:"Kawasan Falls, Badian — Cebu" },
+  { img:"https://images.unsplash.com/photo-1559628233-100c798642d4?w=1600&q=80", label:"Whale Shark Watching, Oslob — Cebu" },
+  { img:"https://images.unsplash.com/photo-1551632811-561732d1e306?w=1600&q=80", label:"Osmena Peak, Dalaguete — Cebu" },
+  { img:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80", label:"Malapascua Island — Cebu" },
+  { img:"https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1600&q=80", label:"Moalboal Sardine Run — Cebu" },
 ];
 
 export const CEBU_DESTINATIONS = [
@@ -118,6 +119,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
   const [paused, setPaused]           = useState(false);
   const [destModal, setDestModal]     = useState(null);
   const [carouselIdx, setCarouselIdx] = useState(0);
+  const [slides, setSlides]           = useState(HERO_SLIDES);
   const intervalRef                   = useRef(null);
   const datePickerRef                 = useRef(null);
 
@@ -126,13 +128,19 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
 
   const INTERVAL = 3000;
 
-  const goSlide = (idx) => setSlide((idx + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const goSlide = (idx) => setSlide((idx + slides.length) % slides.length);
+
+  useEffect(() => {
+    api.settings.getHeroSlides()
+      .then(d => { if (d?.slides?.length === 5) setSlides(d.slides); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (paused) { clearInterval(intervalRef.current); return; }
-    intervalRef.current = setInterval(() => setSlide(s => (s + 1) % HERO_SLIDES.length), INTERVAL);
+    intervalRef.current = setInterval(() => setSlide(s => (s + 1) % slides.length), INTERVAL);
     return () => clearInterval(intervalRef.current);
-  }, [paused]);
+  }, [paused, slides.length]);
 
   const activeVendorIds = new Set(
     users.filter(u => u.role === "vendor" && u.status === "active" && u.approvalStatus === "approved").map(u => u.id)
@@ -158,7 +166,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
         onMouseLeave={() => setPaused(false)}>
 
         {/* Carousel background slides */}
-        {HERO_SLIDES.map((s, i) => (
+        {slides.map((s, i) => (
           <div key={i} className="hero-slide" style={{
             backgroundImage: `linear-gradient(160deg,rgba(5,30,52,0.85) 0%,rgba(10,77,104,0.50) 55%,rgba(5,30,52,0.78) 100%), url('${s.img}')`,
             opacity: i === slide ? 1 : 0,
@@ -168,7 +176,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
 
         {/* Slide dots */}
         <div className="hero-dots">
-          {HERO_SLIDES.map((_, i) => (
+          {slides.map((_, i) => (
             <button key={i}
               className={`hero-dot${i === slide ? " active" : ""}`}
               onClick={() => { goSlide(i); setPaused(true); setTimeout(()=>setPaused(false), 8000); }} />
@@ -176,7 +184,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
         </div>
 
         {/* Location caption */}
-        <div className="hero-caption"><i class="fa-solid fa-magnifying-glass"></i> {HERO_SLIDES[slide].label}</div>
+        <div className="hero-caption"><i className="fa-solid fa-location-dot"></i> {slides[slide]?.label}</div>
 
         <div className="hero-content">
           <div className="hero-badge"><i className="fa-solid fa-umbrella-beach"/> Cebu &amp; Eastern Visayas</div>

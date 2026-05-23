@@ -361,8 +361,13 @@
   [data-tip]:hover::after, [data-tip]:hover::before { opacity:1; transform:translateX(-50%) translateY(0); }
 
   /* VENDOR FORM */
-  .add-listing-form { background:#fff; border-radius:16px; padding:2rem; border:1px solid var(--border); max-width:700px; }
+  .add-listing-form { background:#fff; border-radius:16px; padding:2rem; border:1px solid var(--border); max-width:700px; width:100%; box-sizing:border-box; }
   .add-listing-form h3 { font-size:1.4rem; margin-bottom:1.5rem; }
+  .add-section-wrap { padding:10px; }
+  .add-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .add-row > input { flex:1 1 140px; min-width:0; border:1.5px solid #E5E7EB; border-radius:8px; padding:0.45rem 0.75rem; font-size:0.9rem; font-family:inherit; outline:none; background:#fff; }
+  .add-row > input:focus { border-color:var(--teal); }
+  .add-row > button { flex-shrink:0; background:#059669; color:#fff; border:none; border-radius:8px; padding:0.45rem 1rem; cursor:pointer; font-weight:700; font-size:0.85rem; white-space:nowrap; }
 
   /* ABOUT / CONTACT */
   .about-hero { background:linear-gradient(135deg, var(--ocean), var(--teal)); padding:8rem 2rem 5rem; text-align:center; color:#fff; }
@@ -425,6 +430,22 @@
   .why-inner { position:relative; z-index:1; padding:5rem 2rem; max-width:1100px; margin:0 auto; }
   .dest-modal-body { padding:1.8rem 2rem 2rem; }
 
+  /* ── MOBILE DASHBOARD BAR (base — hidden by default, shown via media query below) ── */
+  .dash-mobile-bar { display:none; background:#111827; padding:0.8rem 1rem; align-items:center; gap:0.75rem; position:sticky; top:0; z-index:45; }
+  .dash-mobile-bar-title { color:#fff; font-weight:700; font-size:0.9rem; flex:1; font-family:'DM Sans',sans-serif; }
+  .mobile-hamburger { background:none; border:none; color:rgba(255,255,255,0.8); font-size:1.15rem; cursor:pointer; padding:0.3rem; line-height:1; display:flex; align-items:center; }
+  .mobile-hamburger:hover { color:#fff; }
+  .sidebar-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:49; }
+  .sidebar-close { display:none; align-items:center; justify-content:flex-end; padding:0.6rem 0.75rem 0; }
+  .sidebar-close button { background:none; border:none; color:rgba(255,255,255,0.55); font-size:1.1rem; cursor:pointer; padding:0.4rem; line-height:1; }
+  .sidebar-footer { margin-top:auto; padding:0.75rem; border-top:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; gap:0.5rem; }
+  .sidebar-toggle-btn { background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.6); cursor:pointer; border-radius:8px; padding:0.5rem 0.75rem; width:100%; font-size:0.85rem; font-family:'DM Sans',sans-serif; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+  .sidebar-toggle-btn:hover { background:rgba(255,255,255,0.15); color:#fff; }
+  .sidebar-slider { width:100%; accent-color:#2563EB; cursor:ew-resize; }
+  .sidebar-show-btn { position:fixed; left:0; top:50%; transform:translateY(-50%); z-index:55; background:#111827; border:none; border-right:1px solid rgba(255,255,255,0.1); border-radius:0 8px 8px 0; color:rgba(255,255,255,0.7); padding:0.75rem 0.45rem; cursor:pointer; font-size:0.9rem; box-shadow:3px 0 12px rgba(0,0,0,0.4); transition:background .15s; }
+  .sidebar-show-btn:hover { background:#1f2937; color:#fff; }
+  .sidebar-collapsed .sidebar-item { justify-content:center; padding:0.75rem 0; }
+
   /* RESPONSIVE */
   @media (max-width: 768px) {
     .form-grid { grid-template-columns:1fr; }
@@ -435,9 +456,23 @@
     .nav-mobile { display:flex; flex-direction:column; position:fixed; top:64px; left:0; right:0; background:var(--ocean); padding:1.2rem 2rem 1.5rem; z-index:99; border-top:1px solid rgba(255,255,255,0.15); box-shadow:0 8px 24px rgba(0,0,0,0.2); }
     .nav-mobile .nav-link { padding:0.85rem 0; font-size:1rem; border-bottom:1px solid rgba(255,255,255,0.1); border-right:none; display:block; }
 
-    .sidebar { transform:translateX(-100%); }
-    .dash-content { margin-left:0; }
+    .dash-main { padding:1rem; }
+    .dash-header { padding:0 1rem; }
     .modal { border-radius:0; max-height:100vh; }
+
+    /* Dashboard tables — horizontal scroll on mobile */
+    .table-wrap { overflow-x:auto; border-radius:14px; }
+    .table-wrap table { min-width:560px; }
+
+    /* Customer profile */
+    .cp-grid { grid-template-columns:1fr; }
+    .cp-body { padding:0 1rem 2rem; }
+    .cp-hero { padding:2rem 1rem 4rem; }
+    .cp-hero-info h1 { font-size:1.4rem; }
+
+    /* Dashboard analytics grids — stack on mobile */
+    .dash-grid-2col { grid-template-columns:1fr !important; }
+    .dash-grid-3col { grid-template-columns:1fr !important; }
 
     /* Hero */
     .hero { padding-bottom:220px; }
@@ -634,8 +669,8 @@
 
   /* ── DASHBOARD LAYOUT ── */
   .dash-layout { display:flex; min-height:100vh; background:#F3F4F6; }
-  .sidebar { width:var(--sidebar-w); background:#111827; min-height:100vh; position:fixed; top:0; left:0; overflow-y:auto; z-index:50; padding-top:1rem; display:flex; flex-direction:column; }
-  .dash-content { margin-left:var(--sidebar-w); flex:1; min-height:100vh; background:#F3F4F6; overflow-x:hidden; }
+  .sidebar { background:#111827; min-height:100vh; position:fixed; top:0; left:0; z-index:50; padding-top:1rem; display:flex; flex-direction:column; overflow:hidden; transition:width .18s ease, margin-left .18s ease; }
+  .dash-content { flex:1; min-height:100vh; background:#F3F4F6; overflow-x:hidden; transition:margin-left .18s ease; }
   .dash-topbar { background:#fff; border-bottom:1px solid #E5E7EB; padding:0.85rem 1.75rem; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:40; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
 
   /* ── SEARCH INPUT WRAP ── */

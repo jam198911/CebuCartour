@@ -23,12 +23,6 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError]     = useState("");
 
-  const DEMO = [
-    { id: 99, name: "Admin User",        email: "admin@islatravel.ph",    password: "admin123",  role: "admin" },
-    { id: 2,  name: "TravelEastern PH",  email: "vendor1@example.com",    password: "vendor123", role: "vendor", approved: true,  approvalStatus:"approved", company:"TravelEastern PH",  phone:"09171234567", address:"Tacloban City, Leyte" },
-    { id: 1,  name: "Maria Santos",      email: "maria@example.com",      password: "pass123",   role: "customer" },
-  ];
-
   const SERVICE_OPTIONS = ["Car Rental","Tour Packages","Island Tours","Adventure Tours","Cultural Tours","Trekking","Airport Transfer"];
 
   const toggleService = (s) => setForm(f => ({
@@ -41,7 +35,7 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
       localStorage.setItem("cebuCartour_token", token);
       onLogin(user);
     } catch (err) {
-      alert(err.message || "Invalid credentials. Try:\nadmin@islatravel.ph / admin123\nvendor1@example.com / vendor123\nmaria@example.com / pass123");
+      alert(err.message || "Invalid email or password.");
     }
   };
 

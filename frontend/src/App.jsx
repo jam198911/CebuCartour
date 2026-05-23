@@ -70,18 +70,22 @@ export default function App() {
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchAllData = (forRole = user?.role) => {
-    // Admin needs all users for the management dashboard (capped at 200 per the backend limit).
-    // Every other session only needs active vendors — for displaying vendor info on cards.
-    const userParams = forRole === 'admin'
-      ? { limit: 200 }
-      : { role: 'vendor', status: 'active', limit: 100 };
-    api.users.list(userParams).then(r => setUsers(r.data ?? [])).catch(() => {});
+    const token = localStorage.getItem('cebuCartour_token');
 
+    // Public data — no auth required
     api.cars.getAll().then(setCars).catch(() => {});
     api.tours.getAll().then(setTours).catch(() => {});
-    api.bookings.getAll().then(setBookings).catch(() => {});
     api.destinations.getAll().then(setDestinations).catch(() => {});
     api.settings.getServiceFee().then(f => setServiceFee(f.fee ?? 5)).catch(() => {});
+
+    // Protected data — only fetch when a session is active
+    if (token) {
+      const userParams = forRole === 'admin'
+        ? { limit: 200 }
+        : { role: 'vendor', status: 'active', limit: 100 };
+      api.users.list(userParams).then(r => setUsers(r.data ?? [])).catch(() => {});
+      api.bookings.getAll().then(setBookings).catch(() => {});
+    }
   };
 
   useEffect(() => {

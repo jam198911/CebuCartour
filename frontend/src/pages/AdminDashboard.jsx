@@ -43,6 +43,57 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
   const handleApprove = (uid) => approveVendor(uid).then(url => { if (url) setSetPasswordLink(url); });
   const handleResendInvite = (uid) => api.users.resendInvite(uid).then(d => { if (d?.setUrl) setSetPasswordLink(d.setUrl); showToast("Invite resent!"); }).catch(() => showToast("Failed to resend invite."));
 
+  const DEFAULT_SLIDES = [
+    { img:"https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=1600&q=80", label:"Kawasan Falls, Badian — Cebu" },
+    { img:"https://images.unsplash.com/photo-1559628233-100c798642d4?w=1600&q=80", label:"Whale Shark Watching, Oslob — Cebu" },
+    { img:"https://images.unsplash.com/photo-1551632811-561732d1e306?w=1600&q=80", label:"Osmena Peak, Dalaguete — Cebu" },
+    { img:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80", label:"Malapascua Island — Cebu" },
+    { img:"https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1600&q=80", label:"Moalboal Sardine Run — Cebu" },
+  ];
+  const [heroSlides, setHeroSlides] = useState(DEFAULT_SLIDES);
+  const [heroSaving, setHeroSaving] = useState(false);
+  const [heroUploading, setHeroUploading] = useState(Array(5).fill(false));
+
+  const handleHeroUpload = async (idx, file) => {
+    if (!file) return;
+    setHeroUploading(u => u.map((v, i) => i === idx ? true : v));
+    try {
+      const data = await api.upload(file);
+      setHeroSlides(prev => prev.map((s, i) => i === idx ? { ...s, img: data.url } : s));
+      showToast("Image uploaded!");
+    } catch (e) {
+      showToast(e.message || "Upload failed");
+    } finally {
+      setHeroUploading(u => u.map((v, i) => i === idx ? false : v));
+    }
+  };
+
+  const handleHeroLabelChange = (idx, val) =>
+    setHeroSlides(prev => prev.map((s, i) => i === idx ? { ...s, label: val } : s));
+
+  const handleHeroSave = async () => {
+    setHeroSaving(true);
+    try {
+      await api.settings.updateHeroSlides(heroSlides);
+      showToast("Hero slides saved!");
+    } catch {
+      showToast("Failed to save slides.");
+    } finally {
+      setHeroSaving(false);
+    }
+  };
+
+  // Load saved hero slides on settings tab open
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const loadHeroSlides = async () => {
+    if (heroLoaded) return;
+    try {
+      const data = await api.settings.getHeroSlides();
+      if (data?.slides?.length === 5) setHeroSlides(data.slides);
+    } catch {}
+    setHeroLoaded(true);
+  };
+
   const totalRevenue       = bookings.filter(b => b.status === "approved").reduce((s, b) => s + (+b.total), 0);
   // Commission = service fee portion of each approved booking
   const commissionFromBooking = (b) => Math.round((b.total || 0) - (b.total || 0) / (1 + serviceFee / 100));
@@ -2217,8 +2268,71 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
         )}
 
         {/* â"€â"€ SETTINGS â"€â"€ */}
-        {section === "settings" && (
+        {section === "settings" && (loadHeroSlides(), true) && (
           <div style={{maxWidth:680}}>
+
+            {/* Hero Slides Card */}
+            <div style={{background:"#fff",borderRadius:16,border:"1px solid var(--border)",overflow:"hidden",marginBottom:"1.5rem"}}>
+              <div style={{background:"linear-gradient(135deg,#0A4D68,#0D9488)",padding:"1.2rem 1.5rem",color:"#fff"}}>
+                <div style={{fontWeight:700,fontSize:"1rem",marginBottom:"0.2rem"}}><i className="fa-solid fa-images"/> Hero Slider Photos</div>
+                <div style={{fontSize:"0.82rem",opacity:.85}}>Upload 5 photos shown in the homepage hero carousel. Landscape images (1600×900) work best.</div>
+              </div>
+              <div style={{padding:"1.5rem"}}>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:"1rem",marginBottom:"1.2rem"}}>
+                  {heroSlides.map((slide, idx) => (
+                    <div key={idx} style={{border:"2px solid var(--border)",borderRadius:12,overflow:"hidden",background:"#F9FAFB"}}>
+                      {/* Preview */}
+                      <div style={{position:"relative",height:110,background:"#e5e7eb",overflow:"hidden"}}>
+                        {slide.img && (
+                          <img src={slide.img} alt={`Slide ${idx+1}`}
+                            style={{width:"100%",height:"100%",objectFit:"cover"}} />
+                        )}
+                        <div style={{position:"absolute",top:6,left:8,background:"rgba(0,0,0,0.55)",
+                          color:"#fff",fontSize:"0.7rem",fontWeight:700,padding:"2px 8px",borderRadius:20}}>
+                          Slide {idx + 1}
+                        </div>
+                        {heroUploading[idx] && (
+                          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.5)",
+                            display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.85rem",fontWeight:700}}>
+                            Uploading…
+                          </div>
+                        )}
+                      </div>
+                      {/* Controls */}
+                      <div style={{padding:"0.7rem"}}>
+                        <input
+                          type="text"
+                          value={slide.label}
+                          onChange={e => handleHeroLabelChange(idx, e.target.value)}
+                          placeholder="Caption label…"
+                          style={{width:"100%",border:"1px solid var(--border)",borderRadius:8,padding:"0.4rem 0.6rem",
+                            fontSize:"0.78rem",marginBottom:"0.5rem",boxSizing:"border-box",fontFamily:"inherit"}}
+                        />
+                        <label style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem",
+                          background:"var(--ocean)",color:"#fff",borderRadius:8,padding:"0.45rem",
+                          cursor:"pointer",fontSize:"0.78rem",fontWeight:700}}>
+                          <i className="fa-solid fa-upload"/>
+                          {heroUploading[idx] ? "Uploading…" : "Upload Photo"}
+                          <input type="file" accept="image/*" style={{display:"none"}}
+                            onChange={e => handleHeroUpload(idx, e.target.files[0])}
+                            disabled={heroUploading[idx]} />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={handleHeroSave}
+                  disabled={heroSaving}
+                  style={{background:"var(--ocean)",color:"#fff",border:"none",padding:"0.85rem 2rem",
+                    borderRadius:12,cursor:"pointer",fontWeight:700,fontSize:"0.95rem",opacity:heroSaving?.7:1}}>
+                  <i className="fa-solid fa-floppy-disk"/> {heroSaving ? "Saving…" : "Save Slides"}
+                </button>
+                <div style={{fontSize:"0.8rem",color:"var(--muted)",marginTop:"0.8rem"}}>
+                  Changes go live on the homepage immediately after saving.
+                </div>
+              </div>
+            </div>
 
             {/* Service Fee Card */}
             <div style={{background:"#fff",borderRadius:16,border:"1px solid var(--border)",overflow:"hidden",marginBottom:"1.5rem"}}>

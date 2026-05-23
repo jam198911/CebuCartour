@@ -44,12 +44,37 @@ const apiFetch = async (path, options = {}) => {
 
 // ─── public API object ────────────────────────────────────────────────────────
 
+// Compress image client-side before upload (max 1600px, 82% JPEG quality)
+const compressImage = (file, maxPx = 1600, quality = 0.82) =>
+  new Promise((resolve) => {
+    if (!file.type.startsWith('image/')) { resolve(file); return; }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > maxPx || height > maxPx) {
+        if (width >= height) { height = Math.round(height * maxPx / width); width = maxPx; }
+        else                 { width  = Math.round(width  * maxPx / height); height = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width  = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => resolve(new File([blob], file.name, { type: 'image/jpeg' })),
+        'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+
 export const api = {
   // ── Upload ────────────────────────────────────────────────────────────────
   upload: async (file) => {
-    const token = getToken();
-    const form  = new FormData();
-    form.append('file', file);
+    const token      = getToken();
+    const compressed = await compressImage(file);
+    const form       = new FormData();
+    form.append('file', compressed);
     const res = await fetch(`${BASE}/upload`, {
       method:  'POST',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -234,6 +259,14 @@ export const api = {
       apiFetch('/settings/service-fee', {
         method: 'PUT',
         body: JSON.stringify({ fee }),
+      }),
+
+    getHeroSlides: () => apiFetch('/settings/hero-slides'),
+
+    updateHeroSlides: (slides) =>
+      apiFetch('/settings/hero-slides', {
+        method: 'PUT',
+        body: JSON.stringify({ slides }),
       }),
   },
 };

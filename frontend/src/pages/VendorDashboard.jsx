@@ -28,6 +28,10 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
   const [pwSuccess, setPwSuccess] = useState(false);
   const [pwShow, setPwShow]     = useState({ newPw: false, confirm: false });
 
+  const [sidebarWidth, setSidebarWidth]     = useState(() => window.innerWidth < 768 ? 56 : 240);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const showLabels = sidebarWidth >= 120;
+
   const [newCar, setNewCar]   = useState({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",color:"",year:"",withDriver:false,features:[],description:"",images:[] });
   const [newTour, setNewTour] = useState({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",meetingPoint:"",includes:[],description:"",images:[] });
   const [carFeatureInput, setCarFeatureInput]       = useState("");
@@ -209,17 +213,15 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
     {showEditProfile && <EditProfileModal user={user} onSave={updateUser} onClose={() => setShowEditProfile(false)} />}
     {showEditGcash && <EditGcashModal user={user} onSave={updateUser} onClose={() => setShowEditGcash(false)} />}
     {showEditBank  && <EditBankModal  user={user} onSave={updateUser} onClose={() => setShowEditBank(false)} />}
+    {!sidebarVisible && <button className="sidebar-show-btn" onClick={() => setSidebarVisible(true)} title="Show sidebar"><i className="fa-solid fa-chevron-right"/></button>}
     <div className="dash-layout">
-      <div className="sidebar">
-        <div className="sidebar-logo">
-          <i className="fa-solid fa-store" style={{fontSize:"1.2rem"}}/>
-          <div>Vendor Portal<span>CebuCarTour</span></div>
-        </div>
+      <div className={`sidebar${!showLabels ? ' sidebar-collapsed' : ''}`} style={{width:sidebarVisible?sidebarWidth:0,minWidth:0,overflow:'hidden'}}>
+        {showLabels && <div className="sidebar-logo"><i className="fa-solid fa-store" style={{fontSize:"1.2rem"}}/><div>Vendor Portal<span>CebuCarTour</span></div></div>}
         {sidebarItems.map(([id,icon,label]) => (
           <div key={id} className={`sidebar-item ${section === id ? "active" : ""}`}
             onClick={() => { setSection(id); if (id === "bookings") markBookingsSeen(); }}>
             <span className="sidebar-icon" data-tip={label}>{icon}</span>
-            <span style={{flex:1}}>{label}</span>
+{showLabels && <span className="sidebar-label">{label}</span>}
             {id === "bookings" && newBookingCount > 0 && (
               <span style={{
                 background: section === "bookings" ? "rgba(255,255,255,0.3)" : "#EF4444",
@@ -232,11 +234,18 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
             )}
           </div>
         ))}
-        <div className="sidebar-item" onClick={() => goTo("home")}><span className="sidebar-icon" data-tip="Go to Main Site"><i className="fa-solid fa-globe"/></span>View Site</div>
-        <div className="sidebar-item" onClick={onLogout}><span className="sidebar-icon" data-tip="Sign Out"><i className="fa-solid fa-right-from-bracket"/></span>Logout</div>
+        <div className="sidebar-item" onClick={() => goTo("home")}><span className="sidebar-icon" data-tip="Go to Main Site"><i className="fa-solid fa-globe"/></span>{showLabels && <span className="sidebar-label">View Site</span>}</div>
+        <div className="sidebar-item" onClick={() => onLogout()}><span className="sidebar-icon" data-tip="Sign Out"><i className="fa-solid fa-right-from-bracket"/></span>{showLabels && <span className="sidebar-label">Logout</span>}</div>
+        <div className="sidebar-footer">
+          <button className="sidebar-toggle-btn" onClick={() => setSidebarVisible(false)} title="Hide sidebar">
+            <i className="fa-solid fa-chevron-left"/>
+            {showLabels && <span style={{marginLeft:"0.4rem",fontSize:"0.8rem"}}>Hide</span>}
+          </button>
+          <input type="range" className="sidebar-slider" min={48} max={300} value={sidebarWidth} onChange={e => setSidebarWidth(+e.target.value)} title={`Width: ${sidebarWidth}px`}/>
+        </div>
       </div>
 
-      <div className="dash-content fade-in">
+      <div className="dash-content fade-in" style={{marginLeft:sidebarVisible?sidebarWidth:0}}>
         <div className="dash-header">
           <h1>{section === "overview" ? "Dashboard" : section === "add" ? "Add Listing" : section === "profile" ? "My Profile" : section.charAt(0).toUpperCase() + section.slice(1)}</h1>
           <p>Welcome, <strong>{user.name}</strong> {!user.approved && "— âš ï¸ Your account is pending admin approval."}</p>
@@ -346,7 +355,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                     <i className="fa-solid fa-chart-line"/> Analytics Overview
                     <div style={{flex:1,height:1,background:"var(--border)"}}/>
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
+                  <div className="dash-grid-2col" style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
                     <div style={CARD}>
                       <div style={CTITLE}>Monthly Revenue (Last 6 Months)</div>
                       <div style={{fontSize:"1.5rem",fontWeight:800,color:"#111827",marginBottom:"0.3rem"}}>{fmtMoney(vLast6Rev)}</div>
@@ -631,7 +640,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
             </div>
 
             {/* â"€â"€ Row 1: Revenue chart + Status donut â"€â"€ */}
-            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
+            <div className="dash-grid-2col" style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
               <div style={CARD}>
                 <div style={CTITLE}>Monthly Revenue (Last 6 Months)</div>
                 <div style={{fontSize:"1.4rem",fontWeight:800,color:"#111827",marginBottom:"0.2rem"}}>{fmtMoney(vLast6Rev)}</div>
@@ -718,7 +727,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
             {/* â"€â"€ Earnings breakdown â"€â"€ */}
             <div style={{...CARD,marginBottom:"1rem"}}>
               <div style={CTITLE}>Earnings Breakdown</div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1rem",marginBottom:"0.9rem"}}>
+              <div className="dash-grid-3col" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1rem",marginBottom:"0.9rem"}}>
                 {[
                   ["Gross Revenue",  totalRev,    "#2563EB", "Total charged to customers"],
                   ["Platform Fee",   platformFee, "#DC2626", `${serviceFee}% deducted by platform`],
@@ -1126,7 +1135,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
         )}
 
         {section === "add" && (
-          <div>
+          <div className="add-section-wrap">
             <div className="tabs">
               <div className={`tab ${addType === "car" ? "active" : ""}`} onClick={() => setAddType("car")}><i className="fa-solid fa-car"/> Add Car</div>
               <div className={`tab ${addType === "tour" ? "active" : ""}`} onClick={() => setAddType("tour")}><i className="fa-solid fa-map"/> Add Tour</div>
@@ -1195,14 +1204,13 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                   </div>
                   <div className="form-group full">
                     <label>Package Details</label>
-                    <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                    <div className="add-row" style={{marginBottom:"0.5rem"}}>
                       <input value={carFeatureInput} onChange={e=>setCarFeatureInput(e.target.value)}
                         onKeyDown={e=>{if(e.key==="Enter"&&carFeatureInput.trim()){e.preventDefault();setNewCar({...newCar,features:[...(newCar.features||[]),carFeatureInput.trim()]});setCarFeatureInput("");}}}
-                        placeholder="e.g. Free Fuel, Toll Fees Included"
-                        style={{flex:1,border:"1.5px solid #E5E7EB",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none"}} />
+                        placeholder="e.g. Free Fuel, Toll Fees Included" />
                       <button type="button"
                         onClick={()=>{if(carFeatureInput.trim()){setNewCar({...newCar,features:[...(newCar.features||[]),carFeatureInput.trim()]});setCarFeatureInput("");}}}
-                        style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"0.45rem 1rem",cursor:"pointer",fontWeight:700,fontSize:"0.85rem",whiteSpace:"nowrap"}}>
+>
                         <i className="fa-solid fa-plus"/> Add
                       </button>
                     </div>
@@ -1263,14 +1271,13 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                   </div>
                   <div className="form-group full">
                     <label>What's Included</label>
-                    <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                    <div className="add-row" style={{marginBottom:"0.5rem"}}>
                       <input value={tourIncludeInput} onChange={e=>setTourIncludeInput(e.target.value)}
                         onKeyDown={e=>{if(e.key==="Enter"&&tourIncludeInput.trim()){e.preventDefault();setNewTour({...newTour,includes:[...(newTour.includes||[]),tourIncludeInput.trim()]});setTourIncludeInput("");}}}
-                        placeholder="e.g. Tour Guide, Meals, Snorkel Gear"
-                        style={{flex:1,border:"1.5px solid #E5E7EB",borderRadius:8,padding:"0.45rem 0.75rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none"}} />
+                        placeholder="e.g. Tour Guide, Meals, Snorkel Gear" />
                       <button type="button"
                         onClick={()=>{if(tourIncludeInput.trim()){setNewTour({...newTour,includes:[...(newTour.includes||[]),tourIncludeInput.trim()]});setTourIncludeInput("");}}}
-                        style={{background:"#059669",color:"#fff",border:"none",borderRadius:8,padding:"0.45rem 1rem",cursor:"pointer",fontWeight:700,fontSize:"0.85rem",whiteSpace:"nowrap"}}>
+>
                         <i className="fa-solid fa-plus"/> Add
                       </button>
                     </div>

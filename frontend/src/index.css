@@ -315,11 +315,13 @@ code {
 .dash-content { 
   margin-left:var(--sidebar-w); 
   flex:1; 
-  padding:30px; 
+  padding:10px; 
   display:flex; 
   flex-direction:column; 
   min-height:calc(100vh - 64px); 
 }
+
+
 
 .form-group label { 
   display: flex !important;
