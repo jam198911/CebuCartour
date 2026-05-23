@@ -323,14 +323,6 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
           </button>
         </div>
 
-        <div style={{marginTop:"1.5rem",background:"var(--sand)",borderRadius:"10px",padding:"1rem",fontSize:"0.82rem"}}>
-          <div className="log-in-user">
-            <strong>Demo Accounts:</strong><br/>
-            admin@islatravel.ph / admin123<br/>
-            vendor1@example.com / vendor123<br/>
-            maria@example.com / pass123
-          </div>
-        </div>
       </div>
     </div>
   );
