@@ -131,6 +131,16 @@ app.use('/api/bookings',     bookingLimiter, require('./routes/bookings'));
 app.use('/api/destinations',                 require('./routes/destinations'));
 app.use('/api/settings',                     require('./routes/settings'));
 
+// ─── Serve frontend (production) ─────────────────────────────────────────────
+
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '..', 'public_html');
+  app.use(express.static(frontendPath));
+  app.get('/{*path}', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 
 app.use((req, res) => {
