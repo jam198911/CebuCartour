@@ -41,8 +41,8 @@ export function ContactPage({ user }) {
   const [sent, setSent] = useState(false);
   const [focused, setFocused] = useState(null);
 
-  const contactEmail   = user?.email   || "hello@cebuCartour.com";
-  const contactPhone   = user?.phone   || "+63 917 XXX XXXX";
+  const contactEmail   = user?.email   || "marketing@cebucartour.com";
+  const contactPhone   = user?.phone   || "+63 935 9891 1171";
   const contactAddress = user?.address || "Cebu City, Philippines";
 
   const inputStyle = (field) => ({
@@ -153,7 +153,7 @@ export function ContactPage({ user }) {
               Your trusted partner for car rentals and tours across Cebu and Central Visayas.
             </p>
             <div style={{display:"flex",flexDirection:"column",gap:"1rem"}}>
-              {[[<i className="fa-solid fa-location-dot"/>,contactAddress],[<i className="fa-solid fa-envelope"/>,contactEmail],[<i className="fa-solid fa-mobile-screen"/>,contactPhone],[<i className="fa-solid fa-globe"/>,"cebuCartour.com"]].map(([icon,val])=>(
+              {[[<i className="fa-solid fa-location-dot"/>,contactAddress],[<i className="fa-solid fa-envelope"/>,contactEmail],[<i className="fa-solid fa-mobile-screen"/>,contactPhone],[<i className="fa-solid fa-globe"/>,"www.cebucartour.com"]].map(([icon,val])=>(
                 <div key={val} style={{display:"flex",alignItems:"center",gap:"0.75rem"}}>
                   <span style={{width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.15)",
                     display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem",flexShrink:0}}>
@@ -337,7 +337,7 @@ export function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        © 2025 CebuCarTour. All rights reserved. Made with <i className="fa-solid fa-heart" style={{color:"#E85D04"}}/> in Cebu, Philippines.
+        © 2026 CebuCarTour. All rights reserved DecodeTech. Made with <i className="fa-solid fa-heart" style={{color:"#E85D04"}}/> in Cebu, Philippines.
       </div>
     </footer>
   );

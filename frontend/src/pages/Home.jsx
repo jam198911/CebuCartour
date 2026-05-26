@@ -475,10 +475,10 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
       {/* â”€â”€ STATS STRIP â”€â”€ */}
       <div className="stats-strip">
         {[
-          {n:"200+",l:"Happy Travelers",icon:"fa-solid fa-face-smile",dest:"tours"},
-          {n:"50+", l:"Car Options",    icon:"fa-solid fa-car",        dest:"cars"},
-          {n:"30+", l:"Tour Packages",  icon:"fa-solid fa-map",        dest:"tours"},
-          {n:"15+", l:"Local Vendors",  icon:"fa-solid fa-handshake",  dest:"about"},
+          {n:"0",l:"Happy Travelers",icon:"fa-solid fa-face-smile",dest:"tours"},
+          {n:"0", l:"Car Options",    icon:"fa-solid fa-car",        dest:"cars"},
+          {n:"0", l:"Tour Packages",  icon:"fa-solid fa-map",        dest:"tours"},
+          {n:"0", l:"Local Vendors",  icon:"fa-solid fa-handshake",  dest:"about"},
         ].map(s => (
           <div key={s.l} onClick={() => goTo(s.dest)}
             style={{textAlign:"center",color:"#fff",cursor:"pointer",

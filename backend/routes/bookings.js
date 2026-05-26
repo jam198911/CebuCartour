@@ -7,7 +7,7 @@ const express              = require('express');
 const { randomUUID }       = require('crypto');
 const pool                 = require('../db');
 const { verifyToken } = require('../middleware/auth');
-const { sendBookingCreated, sendBookingStatusUpdate } = require('../utils/email');
+const { sendBookingCreated, sendBookingStatusUpdate, sendVendorNewBooking } = require('../utils/email');
 
 const router = express.Router();
 
@@ -147,8 +147,20 @@ router.post('/', verifyToken, async (req, res) => {
     );
 
     const [rows] = await pool.query('SELECT * FROM bookings WHERE id = ?', [bookingId]);
-    sendBookingCreated(rows[0]);
-    res.status(201).json(rows[0]);
+    const booking = rows[0];
+    sendBookingCreated(booking);
+
+    // Notify vendor
+    if (vendorId) {
+      const table = type === 'car' ? 'cars' : 'tours';
+      const [[vendorRows], [itemRows]] = await Promise.all([
+        pool.query('SELECT name, email FROM users WHERE id = ? LIMIT 1', [vendorId]),
+        pool.query(`SELECT name FROM ${table} WHERE id = ? LIMIT 1`, [itemId]),
+      ]);
+      sendVendorNewBooking(booking, vendorRows[0]?.email, vendorRows[0]?.name, itemRows[0]?.name);
+    }
+
+    res.status(201).json(booking);
   } catch (err) {
     console.error('create booking error:', err);
     res.status(500).json({ error: 'Internal server error' });

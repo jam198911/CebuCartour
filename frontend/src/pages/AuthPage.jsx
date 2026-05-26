@@ -149,7 +149,7 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
           ))}
         </div>
         <div style={{background:"var(--sand)",borderRadius:10,padding:"0.9rem",fontSize:"0.82rem",marginBottom:"1.2rem",textAlign:"center"}}>
-          Questions? Contact us at <strong>hello@islatravelph.com</strong> or WhatsApp <strong>+63 917 XXX XXXX</strong>
+          Questions? Contact us at <strong>marketing@cebucartour.com</strong> or WhatsApp <strong>+63 935 9891 1171</strong>
         </div>
         <button className="submit-btn" style={{marginTop:0}} onClick={() => goTo("home")}>
           <i className="fa-solid fa-house"/> Back to Home

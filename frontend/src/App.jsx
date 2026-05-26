@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import './styles/app.css';
 import { api } from "./api.js";
 import { usePageMeta } from "./utils/seo.js";
@@ -58,6 +58,22 @@ export default function App() {
     // Strip ?reset=... from the URL so it doesn't persist on refresh
     if (resetToken) window.history.replaceState({}, '', window.location.pathname);
   }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+
+  const deepLinkHandled = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandled.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type');
+    const id = Number(params.get('id'));
+    if (!type || !id) return;
+    const list = type === 'car' ? cars : tours;
+    if (list.length === 0) return;
+    const item = list.find(i => i.id === id);
+    if (!item) return;
+    deepLinkHandled.current = true;
+    window.history.replaceState({}, '', window.location.pathname);
+    setModal({ ...item, itemType: type });
+  }, [cars, tours]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handler = () => {

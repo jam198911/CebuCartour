@@ -224,7 +224,7 @@ export default function BookingSummaryModal({ booking, itemName, item = null, on
       reg(); sz(7.5); ink("#9CA3AF");
       pdf.text("CebuCarTour  |  Cebu City, Cebu, Philippines", W/2, y, { align:"center" });
       y += 4.5;
-      pdf.text("hello@cebuCartour.com  |  +63 917 XXX XXXX  |  cebuCartour.com", W/2, y, { align:"center" });
+      pdf.text("marketing@cebucartour.com  |  +63 935 9891 1171  |  cebuCartour.com", W/2, y, { align:"center" });
       y += 5;
       bold(); sz(7); ink("#6B7280");
       pdf.text("This document is your official booking summary. Please keep it for your records.", W/2, y, { align:"center" });
@@ -423,7 +423,7 @@ export default function BookingSummaryModal({ booking, itemName, item = null, on
                 color:"#9CA3AF", lineHeight:1.8, padding:"0.9rem 1rem",
                 background:"#F9FAFB", borderRadius:10, border:"1px solid #E5E7EB" }}>
                 <strong style={{ color:"#6B7280" }}>CebuCarTour</strong> · Cebu City, Cebu, Philippines<br/>
-                <i className="fa-solid fa-envelope"/> hello@cebuCartour.com · <i className="fa-solid fa-mobile-screen"/> +63 917 XXX XXXX · <i className="fa-solid fa-globe"/> cebuCartour.com<br/>
+                <i className="fa-solid fa-envelope"/> marketing@cebucartour.com · <i className="fa-solid fa-mobile-screen"/> +63 935 9891 1171 · <i className="fa-solid fa-globe"/> cebuCartour.com<br/>
                 This document serves as your official booking summary. Keep it for your records.
               </div>
             </div>

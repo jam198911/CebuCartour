@@ -52,7 +52,7 @@ export default function TourCard({ tour, onClick, onBook, vendor }) {
           </div>
           <div style={{ textAlign: "right", flexShrink: 0, whiteSpace: "nowrap" }}>
             <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--ocean)" }}>{fmtPeso(tour.price)}</span>
-            <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "var(--muted)" }}>/person</span>
+            <span style={{ fontSize: "0.78rem", fontWeight: 500, color: "var(--muted)" }}>{tour.pricingType === "per_van" ? "/group" : "/person"}</span>
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default function TourCard({ tour, onClick, onBook, vendor }) {
             </button>
           )}
           <ShareButton
-            url={`${window.location.origin}/tours`}
+            url={`${window.location.origin}/?type=tour&id=${tour.id}`}
             title={tour.name}
             text={`Check out ${tour.name} — ${fmtPeso(tour.price)}/person in ${tour.location}! Book on Cebu Car Tour.`}
           />

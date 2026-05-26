@@ -120,7 +120,7 @@ export default function CarCard({ car, onClick, onBook, vendor }) {
             </button>
           )}
           <ShareButton
-            url={`${window.location.origin}/cars`}
+            url={`${window.location.origin}/?type=car&id=${car.id}`}
             title={car.name}
             text={`Check out ${car.name} — ${fmtPeso(car.price)}/day in ${car.location}! Book on Cebu Car Tour.`}
           />

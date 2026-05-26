@@ -108,7 +108,7 @@
 
   .modal-hero-img { width:100%; height:300px; object-fit:cover; }
   .modal-body { padding:2rem; }
-  .modal-title { font-size:2rem; margin-bottom:0.5rem; }
+  .modal-title { font-size:2rem; margin-bottom:0.5rem; text-align:left; }
   .modal-meta { display:flex; gap:2rem; flex-wrap:wrap; margin:1rem 0; }
   .meta-item { display:flex; flex-direction:column; gap:0.2rem; }
   .meta-label { font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
@@ -677,7 +677,7 @@
   .vp-hero-avatar { width:100%; height:100%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:2.4rem; }
   .vp-hero-name { font-size:1.6rem; font-weight:800; margin:0 0 0.4rem; font-family:'Playfair Display',serif; letter-spacing:-0.02em; }
   .vp-hero-sub { opacity:0.8; font-size:0.85rem; margin:0; }
-  .vp-info { padding:10px; }
+  .vp-info { padding:30px; }
   .vp-section-title { font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; text-align:center; margin:0.5rem 0 0.75rem; }
   .vp-row { display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid #F3F4F6; font-size:0.9rem; gap:1rem; }
   .vp-label { color:var(--muted); }

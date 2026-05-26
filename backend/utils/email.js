@@ -280,4 +280,35 @@ function sendPasswordReset(to, resetUrl) {
   return send(to, 'Reset Your CebuCarTour Password', layout('Reset Your Password', body));
 }
 
-module.exports = { sendBookingCreated, sendBookingStatusUpdate, sendVendorDecision, sendSetPasswordEmail, sendAdminNewRegistration, sendPasswordReset };
+// ─── Vendor: new booking notification ────────────────────────────────────────
+
+function sendVendorNewBooking(b, vendorEmail, vendorName, itemName) {
+  if (!vendorEmail) return Promise.resolve();
+  const typeLabel = b.type === 'car' ? 'Car Rental' : 'Tour';
+  const body = `
+    <p style="margin:0 0 20px;font-size:15px;color:#475569">
+      Hi <strong>${vendorName || 'there'}</strong>, you have a new booking request waiting for your review.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:8px;padding:16px 20px;margin-bottom:20px">
+      <tbody>
+        ${row('Booking ID',   b.id)}
+        ${row('Type',         typeLabel)}
+        ${row('Listing',      itemName || '—')}
+        ${row('Customer',     b.name  || '—')}
+        ${row('Phone',        b.phone || '—')}
+        ${row('Date',         b.date + (b.returnDate && b.returnDate !== b.date ? ` → ${b.returnDate}` : ''))}
+        ${b.pickTime ? row('Pick-up time', b.pickTime) : ''}
+        ${b.pickup   ? row('Pick-up point', b.pickup)  : ''}
+        ${b.guests > 1 ? row('Guests', b.guests) : ''}
+        ${row('Total',        `&#8369;${Number(b.total).toLocaleString()}`)}
+        ${b.paymentMethod ? row('Payment', b.paymentMethod) : ''}
+        ${row('Status',       pill('#f59e0b', 'Pending — action required'))}
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:#64748b;margin:0">
+      Log in to your <strong>Vendor Dashboard</strong> to confirm or decline this booking.
+    </p>`;
+  return send(vendorEmail, `New Booking Request — ${itemName || b.id}`, layout('New Booking Request', body));
+}
+
+module.exports = { sendBookingCreated, sendBookingStatusUpdate, sendVendorDecision, sendSetPasswordEmail, sendAdminNewRegistration, sendPasswordReset, sendVendorNewBooking };

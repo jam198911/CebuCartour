@@ -33,7 +33,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
   const showLabels = sidebarWidth >= 120;
 
   const [newCar, setNewCar]   = useState({ name:"",type:"Van",location:"",price:"",seats:"",fuel:"Diesel",transmission:"Manual",mileage:"",color:"",year:"",withDriver:false,features:[],description:"",images:[] });
-  const [newTour, setNewTour] = useState({ name:"",category:"Island Tour",location:"",price:"",duration:"1 Day",groupSize:"",meetingPoint:"",includes:[],description:"",images:[] });
+  const [newTour, setNewTour] = useState({ name:"",category:"Island Tour",location:"",price:"",pricingType:"per_pax",duration:"1 Day",groupSize:"",meetingPoint:"",includes:[],description:"",images:[] });
   const [carFeatureInput, setCarFeatureInput]       = useState("");
   const [tourIncludeInput, setTourIncludeInput]     = useState("");
   const [editCarFeatureInput, setEditCarFeatureInput]   = useState("");
@@ -270,7 +270,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               ))}
             </div>
             <div style={{marginTop:"1.5rem",background:"var(--sand)",borderRadius:12,padding:"1rem 1.5rem",fontSize:"0.85rem",textAlign:"center"}}>
-              Questions? Email us at <strong>hello@islatravelph.com</strong> or WhatsApp <strong>+63 917 XXX XXXX</strong>
+              Questions? Email us at <strong>marketing@cebucartour.com</strong> or WhatsApp <strong>+63 935 9891 1171</strong>
             </div>
           </div>
         )}
@@ -924,12 +924,37 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                           <textarea value={editItem.data.description||""} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,description:e.target.value}}))} />
                         </div>
                       </>) : (<>
-                        {[["name","Tour Name *"],["location","Location *"],["price","Price per Person (₱) *"],["groupSize","Max Group Size"]].map(([k,lbl]) => (
+                        {[["name","Tour Name *"],["location","Location *"]].map(([k,lbl]) => (
                           <div key={k} className="form-group">
                             <label>{lbl}</label>
                             <input value={editItem.data[k]||""} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,[k]:e.target.value}}))} />
                           </div>
                         ))}
+                        {/* Pricing Type */}
+                        <div className="form-group">
+                          <label>Pricing Type</label>
+                          <div style={{display:"flex",gap:"0.5rem",marginTop:"0.3rem"}}>
+                            {[["per_pax","Per Person","fa-solid fa-user"],["per_van","Per Van / Group","fa-solid fa-van-shuttle"]].map(([val,lbl,icon]) => (
+                              <button key={val} type="button"
+                                onClick={() => setEditItem(ei=>({...ei,data:{...ei.data,pricingType:val}}))}
+                                style={{flex:1,padding:"0.55rem 0.5rem",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:"0.8rem",
+                                  border:(editItem.data.pricingType||"per_pax")===val?"2px solid var(--ocean)":"2px solid #E5E7EB",
+                                  background:(editItem.data.pricingType||"per_pax")===val?"#EFF6FF":"#F9FAFB",
+                                  color:(editItem.data.pricingType||"per_pax")===val?"var(--ocean)":"#6B7280",
+                                  display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem",transition:"all .15s"}}>
+                                <i className={icon}/> {lbl}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="form-group">
+                          <label>{(editItem.data.pricingType||"per_pax")==="per_van"?"Price per Van/Group (₱) *":"Price per Person (₱) *"}</label>
+                          <input value={editItem.data.price||""} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,price:e.target.value}}))} />
+                        </div>
+                        <div className="form-group">
+                          <label>Max Group Size</label>
+                          <input value={editItem.data.groupSize||""} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,groupSize:e.target.value}}))} />
+                        </div>
                         <div className="form-group">
                           <label>Category</label>
                           <select value={editItem.data.category||"Island Tour"} onChange={e=>setEditItem(ei=>({...ei,data:{...ei.data,category:e.target.value}}))}>
@@ -1081,7 +1106,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 <div className="empty-state"><div className="empty-icon"><i className="fa-solid fa-map"/></div><p>No tours listed yet.</p></div>
               ) : (
                 <table>
-                  <thead><tr><th>Name</th><th>Category</th><th>Location</th><th>Price/pax</th><th>Duration</th><th>Max</th><th>Availability</th><th>Actions</th></tr></thead>
+                  <thead><tr><th>Name</th><th>Category</th><th>Location</th><th>Price</th><th>Pricing</th><th>Duration</th><th>Max</th><th>Availability</th><th>Actions</th></tr></thead>
                   <tbody>
                     {tours.map(t => (
                       <tr key={t.id}>
@@ -1089,6 +1114,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                         <td><span className="tag" style={{fontSize:"0.72rem"}}>{t.category}</span></td>
                         <td style={{fontSize:"0.85rem"}}>{t.location}</td>
                         <td><strong>{fmtPeso(t.price)}</strong></td>
+                        <td><span style={{fontSize:"0.75rem",fontWeight:700,color:t.pricingType==="per_van"?"#7C3AED":"#0891B2"}}>{t.pricingType==="per_van"?"Per Van":"Per Pax"}</span></td>
                         <td style={{fontSize:"0.85rem"}}>{t.duration}</td>
                         <td>{t.groupSize}</td>
                         <td>
@@ -1247,12 +1273,39 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
               <div className="add-listing-form">
                 <h3>Add New Tour Package</h3>
                 <div className="form-grid">
-                  {[["name","Tour Name *","Kalanggaman Island Tour"],["location","Location *","Palompon, Cebu"],["price","Price per Person (₱) *","1500"],["groupSize","Max Group Size *","15"]].map(([k,label,ph]) => (
+                  {[["name","Tour Name *","Kalanggaman Island Tour"],["location","Location *","Palompon, Cebu"]].map(([k,label,ph]) => (
                     <div key={k} className="form-group">
                       <label>{label}</label>
                       <input value={newTour[k]} onChange={e => setNewTour({...newTour,[k]:e.target.value})} placeholder={ph} />
                     </div>
                   ))}
+                  {/* Pricing Type */}
+                  <div className="form-group">
+                    <label>Pricing Type</label>
+                    <div style={{display:"flex",gap:"0.5rem",marginTop:"0.3rem"}}>
+                      {[["per_pax","Per Person","fa-solid fa-user"],["per_van","Per Van / Group","fa-solid fa-van-shuttle"]].map(([val,lbl,icon]) => (
+                        <button key={val} type="button"
+                          onClick={() => setNewTour({...newTour, pricingType:val})}
+                          style={{flex:1,padding:"0.55rem 0.5rem",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:"0.8rem",
+                            border: newTour.pricingType===val ? "2px solid var(--ocean)" : "2px solid #E5E7EB",
+                            background: newTour.pricingType===val ? "#EFF6FF" : "#F9FAFB",
+                            color: newTour.pricingType===val ? "var(--ocean)" : "#6B7280",
+                            display:"flex",alignItems:"center",justifyContent:"center",gap:"0.4rem",transition:"all .15s"}}>
+                          <i className={icon}/> {lbl}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Price field */}
+                  <div className="form-group">
+                    <label>{newTour.pricingType === "per_van" ? "Price per Van/Group (₱) *" : "Price per Person (₱) *"}</label>
+                    <input value={newTour.price} onChange={e => setNewTour({...newTour,price:e.target.value})} placeholder={newTour.pricingType === "per_van" ? "e.g. 5000" : "1500"} />
+                  </div>
+                  {/* Group size */}
+                  <div className="form-group">
+                    <label>Max Group Size *</label>
+                    <input value={newTour.groupSize} onChange={e => setNewTour({...newTour,groupSize:e.target.value})} placeholder="15" />
+                  </div>
                   <div className="form-group">
                     <label>Category</label>
                     <select value={newTour.category} onChange={e => setNewTour({...newTour,category:e.target.value})}>
