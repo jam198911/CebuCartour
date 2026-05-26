@@ -2,7 +2,7 @@
 import { fmtMoney, fmtPeso } from "../utils/helpers.js";
 import { StatusBadge } from "../components/SharedUI.jsx";
 import { BarChart, DonutChart, AreaSparkline } from "../components/Charts.jsx";
-import { EditProfileModal } from "./CustomerProfile.jsx";
+import { EditProfileModal, ImageUploader } from "./CustomerProfile.jsx";
 import { api } from "../api.js";
 
 export default function AdminDashboard({ user, bookings, users, cars, tours, serviceFee, updateServiceFee, onLogout, goTo, updateBookingStatus, approveVendor, rejectVendor, disableUser, deleteUser, deleteBooking, deleteListing, setPdfModal, updateUser, approveDeletion, declineDeletion, destinations = [], setDestinations, showToast = () => {}, onRefresh = () => {} }) {

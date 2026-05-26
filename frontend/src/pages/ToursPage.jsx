@@ -12,14 +12,10 @@ export default function ToursPage({ tours, setModal, openBooking, users = [], se
     if (searchFilters.location) { setFilters(f => ({ ...f, location: searchFilters.location })); setPage(1); }
   }, [searchFilters.location]);
 
-  const activeVendorIds = new Set(
-    users.filter(u => u.role === "vendor" && u.status === "active" && u.approvalStatus === "approved").map(u => u.id)
-  );
-  const activeTours = tours.filter(t => activeVendorIds.has(t.vendorId));
-  const categories  = [...new Set(activeTours.map(t => t.category))];
-  const durations   = [...new Set(activeTours.map(t => t.duration))];
-  const tourLocations = [...new Set(activeTours.map(t => t.location))];
-  const filtered = activeTours
+  const categories  = [...new Set(tours.map(t => t.category))];
+  const durations   = [...new Set(tours.map(t => t.duration))];
+  const tourLocations = [...new Set(tours.map(t => t.location))];
+  const filtered = tours
     .filter(t => filters.category === "all" || t.category === filters.category)
     .filter(t => filters.location === "all" || t.location.includes(filters.location))
     .filter(t => filters.duration === "all" || t.duration === filters.duration)
@@ -34,7 +30,7 @@ export default function ToursPage({ tours, setModal, openBooking, users = [], se
     <div className="listing-page">
       <div className="page-header">
         <h1>Tour Packages</h1>
-        <p>Explore {activeTours.length} handcrafted experiences in Eastern Visayas.</p>
+        <p>Explore {tours.length} handcrafted experiences in Central Visayas.</p>
       </div>
       {searchFilters.location && (
         <div style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.6rem 1.5rem",background:"#EFF6FF",borderBottom:"1px solid #BFDBFE"}}>

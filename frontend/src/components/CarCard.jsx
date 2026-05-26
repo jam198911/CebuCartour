@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { fmtPeso } from "../utils/helpers.js";
-import { Stars } from "./SharedUI.jsx";
+import { Stars, ShareButton } from "./SharedUI.jsx";
 
 export default function CarCard({ car, onClick, onBook, vendor }) {
   const [imgErr, setImgErr] = useState(false);
@@ -105,19 +105,26 @@ export default function CarCard({ car, onClick, onBook, vendor }) {
           <span className="tag"><i className="fa-solid fa-users"/> {car.seats} seats</span>
         </div>
 
-        {/* Row 6: Book button */}
-        {car.available ? (
-          <button className="book-now-btn" style={{ margin: 0, padding: "0.7rem" }}
-            onClick={e => { e.stopPropagation(); onBook(); }}>
-            <i className="fa-solid fa-calendar-check"/> Book This Car
-          </button>
-        ) : (
-          <button style={{ width: "100%", background: "#F3F4F6", color: "#9CA3AF",
-            border: "none", borderRadius: 10, padding: "0.7rem",
-            cursor: "default", fontWeight: 700, fontSize: "0.88rem" }}>
-            Unavailable
-          </button>
-        )}
+        {/* Row 6: Book + Share */}
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          {car.available ? (
+            <button className="book-now-btn" style={{ margin: 0, padding: "0.7rem", flex: 1 }}
+              onClick={e => { e.stopPropagation(); onBook(); }}>
+              <i className="fa-solid fa-calendar-check"/> Book This Car
+            </button>
+          ) : (
+            <button style={{ flex: 1, background: "#F3F4F6", color: "#9CA3AF",
+              border: "none", borderRadius: 10, padding: "0.7rem",
+              cursor: "default", fontWeight: 700, fontSize: "0.88rem" }}>
+              Unavailable
+            </button>
+          )}
+          <ShareButton
+            url={`${window.location.origin}/cars`}
+            title={car.name}
+            text={`Check out ${car.name} — ${fmtPeso(car.price)}/day in ${car.location}! Book on Cebu Car Tour.`}
+          />
+        </div>
       </div>
     </div>
   );

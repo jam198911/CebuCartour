@@ -25,7 +25,7 @@ export const BOOKINGS_INIT = [
 
 export const USERS_INIT = [
   { id: 1, name: "Maria Santos", email: "maria@example.com", role: "customer", status: "active", joined: "2025-01-15" },
-  { id: 2, name: "TravelEastern PH", email: "vendor1@example.com", role: "vendor", status: "active", joined: "2025-01-10", approved: true, approvalStatus: "approved", company: "TravelEastern PH", phone: "09171234567", address: "Tacloban City, Leyte", idType: "Business Permit", idNumber: "BP-2025-001", services: ["Car Rental","Island Tours"], bio: "We are a premier travel company operating in Eastern Visayas since 2018.", rejectionReason: "" },
+  { id: 2, name: "TravelEastern PH", email: "vendor1@example.com", role: "vendor", status: "active", joined: "2025-01-10", approved: true, approvalStatus: "approved", company: "TravelEastern PH", phone: "09171234567", address: "Tacloban City, Leyte", idType: "Business Permit", idNumber: "BP-2025-001", services: ["Car Rental","Island Tours"], bio: "We are a premier travel company operating in Central Visayas since 2018.", rejectionReason: "" },
   { id: 3, name: "VisayasTours Co.", email: "vendor2@example.com", role: "vendor", status: "pending", joined: "2025-06-01", approved: false, approvalStatus: "pending", company: "VisayasTours Co.", phone: "09281234567", address: "Ormoc City, Leyte", idType: "DTI Registration", idNumber: "DTI-2025-887", services: ["Tour Packages","Adventure Tours"], bio: "Specializing in adventure and cultural tours around Leyte and Samar.", rejectionReason: "" },
   { id: 4, name: "Juan Cruz", email: "juan@example.com", role: "customer", status: "active", joined: "2025-02-20" },
   { id: 5, name: "Ana Reyes", email: "ana@example.com", role: "customer", status: "active", joined: "2025-03-05" },

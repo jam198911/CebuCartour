@@ -12,9 +12,9 @@ function _setCanonical(page) {
   el.setAttribute("href", `${window.location.origin}${page === "home" ? "/" : `/${page}`}`);
 }
 const PAGE_META = {
-  home:    { title: "CebuCarTour — Car Rentals & Tours in Cebu",         desc: "Book car rentals and guided tour packages across Cebu and Eastern Visayas. Explore islands, heritage sites, and adventure destinations." },
-  cars:    { title: "Car Rentals | CebuCarTour",                          desc: "Rent cars, vans, SUVs and jeepneys across Cebu and Eastern Visayas. Affordable daily rates, verified vendors." },
-  tours:   { title: "Tour Packages | CebuCarTour",                        desc: "Island tours, adventure tours, and cultural heritage packages — discover the best of Cebu and Eastern Visayas." },
+  home:    { title: "CebuCarTour — Car Rentals & Tours in Cebu",         desc: "Book car rentals and guided tour packages across Cebu and Central Visayas. Explore islands, heritage sites, and adventure destinations." },
+  cars:    { title: "Car Rentals | CebuCarTour",                          desc: "Rent cars, vans, SUVs and jeepneys across Cebu and Central Visayas. Affordable daily rates, verified vendors." },
+  tours:   { title: "Tour Packages | CebuCarTour",                        desc: "Island tours, adventure tours, and cultural heritage packages — discover the best of Cebu and Central Visayas." },
   search:  { title: "Search Results | CebuCarTour",                       desc: "Find available cars and tour packages matching your destination and travel dates." },
   booking: { title: "Book Now | CebuCarTour",                             desc: "Complete your car rental or tour package booking on CebuCarTour." },
   about:   { title: "About Us | CebuCarTour",                             desc: "CebuCarTour connects travelers with trusted local vendors and tour operators across Cebu and the Visayas." },
@@ -29,11 +29,16 @@ export function usePageMeta(page, bookingItem) {
     const base  = PAGE_META[page] || PAGE_META.home;
     const title = (page === "booking" && bookingItem) ? `Book ${bookingItem.name} | CebuCarTour` : base.title;
     const desc  = (page === "booking" && bookingItem) ? `Reserve ${bookingItem.name}. ${(bookingItem.description || "").slice(0, 120)}` : base.desc;
+    const ogImage = "https://pub-e6f5000df6384773860fb6d8149ceb4e.r2.dev/1779683107170-971b1d673131b477bd740ef7.jpg";
     document.title = title;
-    _setMeta("name",     "description",    desc);
-    _setMeta("property", "og:title",       title);
-    _setMeta("property", "og:description", desc);
-    _setMeta("property", "og:url",         window.location.href);
+    _setMeta("name",     "description",       desc);
+    _setMeta("property", "og:title",          title);
+    _setMeta("property", "og:description",    desc);
+    _setMeta("property", "og:image",          ogImage);
+    _setMeta("property", "og:url",            window.location.href);
+    _setMeta("name",     "twitter:title",     title);
+    _setMeta("name",     "twitter:description", desc);
+    _setMeta("name",     "twitter:image",     ogImage);
     _setCanonical(page);
   }, [page, bookingItem]);
 }

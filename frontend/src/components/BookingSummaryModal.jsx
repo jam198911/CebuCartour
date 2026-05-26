@@ -52,7 +52,7 @@ export default function BookingSummaryModal({ booking, itemName, item = null, on
       bold(); sz(20); ink("#FFFFFF");
       pdf.text("CebuCarTour", M, 14);
       reg(); sz(8.5); ink("#A8D8E8");
-      pdf.text("Eastern Visayas  |  Tour & Car Rental Platform", M, 21);
+      pdf.text("Central Visayas  |  Tour & Car Rental Platform", M, 21);
 
       bold(); sz(11); ink("#FFFFFF");
       pdf.text("BOOKING RECEIPT", W - M, 13, { align:"right" });
@@ -289,7 +289,7 @@ export default function BookingSummaryModal({ booking, itemName, item = null, on
                   <i className="fa-solid fa-car"/> CebuCarTour
                 </div>
                 <div style={{ fontSize:"0.78rem", opacity:.75, marginTop:"0.25rem" }}>
-                  Eastern Visayas Tour &amp; Car Rental
+                  Central Visayas Tour &amp; Car Rental
                 </div>
               </div>
               <div style={{ textAlign:"right" }}>

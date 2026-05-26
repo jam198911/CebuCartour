@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import './styles/app.css';
 import { api } from "./api.js";
 import { usePageMeta } from "./utils/seo.js";
-import { CARS, TOURS, USERS_INIT } from "./data/mockData.js";
 import { ErrorBoundary, PageErrorBoundary } from "./components/ErrorBoundaries.jsx";
 import { Toast } from "./components/SharedUI.jsx";
 import BookingSummaryModal from "./components/BookingSummaryModal.jsx";
@@ -14,10 +13,11 @@ import CarsPage from "./pages/CarsPage.jsx";
 import ToursPage from "./pages/ToursPage.jsx";
 import BookingPage from "./pages/BookingPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
-import CustomerProfile from "./pages/CustomerProfile.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
-import VendorDashboard from "./pages/VendorDashboard.jsx";
 import AboutPage, { ContactPage } from "./pages/AboutPage.jsx";
+
+const CustomerProfile = lazy(() => import("./pages/CustomerProfile.jsx"));
+const AdminDashboard  = lazy(() => import("./pages/AdminDashboard.jsx"));
+const VendorDashboard = lazy(() => import("./pages/VendorDashboard.jsx"));
 
 export default function App() {
   const [user, setUser] = useState(() => {
@@ -46,9 +46,9 @@ export default function App() {
   const [bookingItem, setBookingItem] = useState(null);
   const [toast, setToast] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [users, setUsers] = useState(USERS_INIT);
-  const [cars, setCars] = useState(CARS);
-  const [tours, setTours] = useState(TOURS);
+  const [users, setUsers] = useState([]);
+  const [cars, setCars] = useState([]);
+  const [tours, setTours] = useState([]);
   const [pdfModal, setPdfModal] = useState(null);
   const [serviceFee, setServiceFee] = useState(5);
   const [destinations, setDestinations] = useState(CEBU_DESTINATIONS);
@@ -101,8 +101,10 @@ export default function App() {
           }
         })
         .catch(() => {
-          // Token expired or invalid — clear it but keep user browsing
+          // Token expired or invalid — clear session so user is shown as logged out
           localStorage.removeItem("cebuCartour_token");
+          localStorage.removeItem("cebuCartour_user");
+          setUser(null);
         });
     }
 
@@ -170,6 +172,7 @@ export default function App() {
     localStorage.removeItem("cebuCartour_token");
     goTo("home");
     showToast("Logged out successfully.");
+    fetchAllData(null);
   };
 
   const updateUser = async (updatedFields) => {
@@ -324,15 +327,17 @@ export default function App() {
       {page === "about" && <AboutPage />}
       {page === "contact" && <ContactPage user={user} />}
       {(page === "login" || page === "register") && <AuthPage startTab={page} onLogin={handleLogin} goTo={goTo} users={users} onRegister={u => setUsers(prev => [...prev, u])} resetToken={resetToken} onResetDone={() => setResetToken(null)} />}
-      {page === "admin" && user?.role === "admin" && (
-        <AdminDashboard user={user} bookings={bookings} users={users} cars={cars} tours={tours} serviceFee={serviceFee} updateServiceFee={updateServiceFee} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} approveVendor={approveVendor} rejectVendor={rejectVendor} disableUser={disableUser} deleteUser={deleteUser} deleteBooking={deleteBooking} deleteListing={deleteListing} setPdfModal={setPdfModal} updateUser={updateUser} approveDeletion={approveDeletion} declineDeletion={declineDeletion} destinations={destinations} setDestinations={setDestinations} showToast={showToast} onRefresh={fetchAllData} />
-      )}
-      {page === "vendor" && user?.role === "vendor" && (
-        <VendorDashboard user={user} bookings={vendorBookings} cars={vendorCars} tours={vendorTours} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} deleteBooking={deleteBooking} setCars={setCars} setTours={setTours} updateCar={updateCar} updateTour={updateTour} deleteCar={deleteCar} deleteTour={deleteTour} showToast={showToast} setPdfModal={setPdfModal} allCars={cars} allTours={tours} serviceFee={serviceFee} updateUser={updateUser} requestDeletion={requestDeletion} />
-      )}
-      {page === "profile" && user?.role === "customer" && (
-        <CustomerProfile user={user} bookings={myBookings} goTo={goTo} onLogout={handleLogout} updateUser={updateUser} cars={cars} tours={tours} requestDeletion={requestDeletion} users={users} deleteBooking={deleteBooking} serviceFee={serviceFee} submitRating={submitRating} />
-      )}
+      <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh",color:"var(--muted)",fontSize:"0.9rem"}}><i className="fa-solid fa-spinner fa-spin" style={{marginRight:"0.5rem"}}/> Loading...</div>}>
+        {page === "admin" && user?.role === "admin" && (
+          <AdminDashboard user={user} bookings={bookings} users={users} cars={cars} tours={tours} serviceFee={serviceFee} updateServiceFee={updateServiceFee} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} approveVendor={approveVendor} rejectVendor={rejectVendor} disableUser={disableUser} deleteUser={deleteUser} deleteBooking={deleteBooking} deleteListing={deleteListing} setPdfModal={setPdfModal} updateUser={updateUser} approveDeletion={approveDeletion} declineDeletion={declineDeletion} destinations={destinations} setDestinations={setDestinations} showToast={showToast} onRefresh={fetchAllData} />
+        )}
+        {page === "vendor" && user?.role === "vendor" && (
+          <VendorDashboard user={user} bookings={vendorBookings} cars={vendorCars} tours={vendorTours} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} deleteBooking={deleteBooking} setCars={setCars} setTours={setTours} updateCar={updateCar} updateTour={updateTour} deleteCar={deleteCar} deleteTour={deleteTour} showToast={showToast} setPdfModal={setPdfModal} allCars={cars} allTours={tours} serviceFee={serviceFee} updateUser={updateUser} requestDeletion={requestDeletion} />
+        )}
+        {page === "profile" && user?.role === "customer" && (
+          <CustomerProfile user={user} bookings={myBookings} goTo={goTo} onLogout={handleLogout} updateUser={updateUser} cars={cars} tours={tours} requestDeletion={requestDeletion} users={users} deleteBooking={deleteBooking} serviceFee={serviceFee} submitRating={submitRating} />
+        )}
+      </Suspense>
       </PageErrorBoundary>
       <PageErrorBoundary key="modal" goTo={goTo}>
         {modal && <DetailModal item={modal} onClose={() => setModal(null)} openBooking={openBooking} />}

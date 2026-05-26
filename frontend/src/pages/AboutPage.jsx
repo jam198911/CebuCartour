@@ -5,13 +5,13 @@ export default function AboutPage() {
     <div style={{paddingTop:"64px"}}>
       <div className="about-hero">
         <h1>About CebuCarTour</h1>
-        <p>We connect travelers with the best local car rental vendors and tour operators across Eastern Visayas – making every journey unforgettable.</p>
+        <p>We connect travelers with the best local car rental vendors and tour operators across Central Visayas – making every journey unforgettable.</p>
       </div>
       <div className="section">
         <div className="section-header">
           <div className="section-tag">Our Mission</div>
           <h2>Travel Made Simple</h2>
-          <p>We believe everyone deserves to experience the natural wonders of Leyte, Samar, and Eastern Visayas. We bridge travelers with verified local vendors for authentic, hassle-free adventures.</p>
+          <p>We believe everyone deserves to experience the natural wonders of Leyte, Samar, and Central Visayas. We bridge travelers with verified local vendors for authentic, hassle-free adventures.</p>
         </div>
         <div className="section-header" style={{marginTop:"3rem"}}>
           <div className="section-tag">Meet the Team</div>
@@ -150,7 +150,7 @@ export function ContactPage({ user }) {
             borderRadius:24,padding:"2.2rem",color:"#fff",marginBottom:"1.5rem"}}>
             <div style={{fontSize:"1.4rem",fontWeight:800,fontFamily:"'Playfair Display',serif",marginBottom:"0.5rem"}}><i className="fa-solid fa-car"/> CebuCarTour</div>
             <p style={{color:"rgba(255,255,255,0.78)",fontSize:"0.88rem",margin:"0 0 1.8rem",lineHeight:1.6}}>
-              Your trusted partner for car rentals and tours across Cebu and Eastern Visayas.
+              Your trusted partner for car rentals and tours across Cebu and Central Visayas.
             </p>
             <div style={{display:"flex",flexDirection:"column",gap:"1rem"}}>
               {[[<i className="fa-solid fa-location-dot"/>,contactAddress],[<i className="fa-solid fa-envelope"/>,contactEmail],[<i className="fa-solid fa-mobile-screen"/>,contactPhone],[<i className="fa-solid fa-globe"/>,"cebuCartour.com"]].map(([icon,val])=>(
@@ -312,7 +312,7 @@ export function Footer() {
       <div className="footer-grid">
         <div>
           <div className="footer-brand"><i className="fa-solid fa-car"/> CebuCarTour</div>
-          <p style={{fontSize:"0.9rem",lineHeight:"1.7",maxWidth:"300px"}}>Your gateway to the best car rentals and tour packages in Eastern Visayas, Philippines.</p>
+          <p style={{fontSize:"0.9rem",lineHeight:"1.7",maxWidth:"300px"}}>Your gateway to the best car rentals and tour packages in Central Visayas, Philippines.</p>
         </div>
         <div>
           <h4>Services</h4>

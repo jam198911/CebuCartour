@@ -70,6 +70,11 @@ CREATE TABLE IF NOT EXISTS cars (
   rating          DECIMAL(3,1)    NOT NULL DEFAULT 0.0,
   reviews         INT             NOT NULL DEFAULT 0,
   description     TEXT,
+  color           VARCHAR(100)    NOT NULL DEFAULT '',
+  year            INT             DEFAULT NULL,
+  withDriver      BOOLEAN         NOT NULL DEFAULT FALSE,
+  features        JSON,
+  images          JSON,
   createdAt       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

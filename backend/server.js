@@ -81,7 +81,7 @@ const uploadLimiter = rateLimit({
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
-const allowedOrigins = [process.env.FRONTEND_URL].filter(Boolean);
+const allowedOrigins = (process.env.FRONTEND_URL || '').split(',').map(s => s.trim()).filter(Boolean);
 if (process.env.NODE_ENV !== 'production') allowedOrigins.push('http://localhost:5173');
 app.use(cors({
   origin: allowedOrigins,
@@ -89,7 +89,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// /uploads served directly by Apache from public_html/uploads — no express.static needed
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 

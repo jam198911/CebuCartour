@@ -43,7 +43,7 @@ export function ImageUploader({ images = [], onChange, maxImages = 3 }) {
         {images.map((src, i) => (
           <div key={i} className="img-slot filled">
             <img src={src} alt={`Photo ${i+1}`} />
-            <button className="img-slot-remove" onClick={() => removeImage(i)}>✕</button>
+            <button className="img-slot-remove" onClick={() => removeImage(i)}><i className="fa-solid fa-xmark"/></button>
             <span className="img-slot-num">Photo {i+1}</span>
           </div>
         ))}
@@ -145,7 +145,7 @@ export function EditProfileModal({ user, onSave, onClose }) {
           <button onClick={onClose}
             style={{ background:"rgba(255,255,255,0.2)", border:"none", borderRadius:8,
               padding:"0.4rem 0.8rem", cursor:"pointer", color:"#fff", fontWeight:700 }}>
-            ✕
+            <i className="fa-solid fa-xmark"/>
           </button>
         </div>
 
@@ -169,7 +169,7 @@ export function EditProfileModal({ user, onSave, onClose }) {
                 {form.profilePhoto && (
                   <button type="button" onClick={() => set("profilePhoto","")}
                     style={{background:"#FEE2E2",color:"var(--danger)",border:"none",padding:"0.5rem 0.8rem",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:"0.85rem"}}>
-                    ✕ Remove
+                    <i className="fa-solid fa-xmark"/> Remove
                   </button>
                 )}
               </div>
@@ -322,7 +322,7 @@ export function EditGcashModal({ user, onSave, onClose }) {
           </div>
           <button onClick={onClose}
             style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}>
-            ✕
+            <i className="fa-solid fa-xmark"/>
           </button>
         </div>
         <div className="profile-modal-body">
@@ -332,7 +332,7 @@ export function EditGcashModal({ user, onSave, onClose }) {
           <div className="profile-field-grid">
             <div className="profile-field">
               <label>GCash Number</label>
-              <input value={form.gcashNumber} onChange={e => set("gcashNumber", e.target.value)} placeholder="e.g. 0917-XXX-XXXX" />
+              <input value={form.gcashNumber} onChange={e => set("gcashNumber", e.target.value.replace(/D/g,"").slice(0,11))} placeholder="09XXXXXXXXX" inputMode="numeric" maxLength={11} />
             </div>
             <div className="profile-field">
               <label>GCash Account Name</label>
@@ -375,7 +375,7 @@ export function EditBankModal({ user, onSave, onClose }) {
           </div>
           <button onClick={onClose}
             style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}>
-            ✕
+            <i className="fa-solid fa-xmark"/>
           </button>
         </div>
         <div className="profile-modal-body">
@@ -503,7 +503,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
                   </span>
                   <button onClick={() => setViewBooking(null)}
                     style={{background:"rgba(255,255,255,0.18)",border:"none",borderRadius:8,padding:"0.4rem 0.7rem",cursor:"pointer",color:"#fff",fontWeight:700,fontSize:"1rem",lineHeight:1}}>
-                    ✕
+                    <i className="fa-solid fa-xmark"/>
                   </button>
                 </div>
               </div>
@@ -866,7 +866,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
                   </button>
                 </div>
                 <button onClick={() => markCancelsSeen(newCancellations.map(b => b.id))}
-                  style={{ background:"none", border:"none", fontSize:"1.1rem", cursor:"pointer", color:"#991B1B", flexShrink:0, lineHeight:1 }}>✕</button>
+                  style={{ background:"none", border:"none", fontSize:"1.1rem", cursor:"pointer", color:"#991B1B", flexShrink:0, lineHeight:1 }}><i className="fa-solid fa-xmark"/></button>
               </div>
             )}
 

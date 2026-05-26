@@ -33,9 +33,13 @@ router.get('/', async (req, res) => {
       ? Math.max(parseInt(req.query.offset) || 0, 0)
       : (Math.max(parseInt(req.query.page) || 1, 1) - 1) * limit;
 
+    // Only show cars from approved+active vendors for public listing
+    const vendorFilter = `JOIN users u ON c.vendorId = u.id
+                          WHERE u.role = 'vendor' AND u.status = 'active' AND u.approvalStatus = 'approved'`;
+
     const [[countRows], [rows]] = await Promise.all([
-      pool.query('SELECT COUNT(*) AS total FROM cars'),
-      pool.query('SELECT * FROM cars ORDER BY id ASC LIMIT ? OFFSET ?', [limit, offset]),
+      pool.query(`SELECT COUNT(*) AS total FROM cars c ${vendorFilter}`),
+      pool.query(`SELECT c.* FROM cars c ${vendorFilter} ORDER BY c.id ASC LIMIT ? OFFSET ?`, [limit, offset]),
     ]);
 
     const total = countRows[0].total;

@@ -4,15 +4,16 @@ import TourCard from "../components/TourCard.jsx";
 import { Footer } from "./AboutPage.jsx";
 import { api } from "../api.js";
 
-export const HERO_SLIDES = [
+export const HERO_SLIDES = [/*
   { img:"https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=1600&q=80", label:"Kawasan Falls, Badian — Cebu" },
   { img:"https://images.unsplash.com/photo-1559628233-100c798642d4?w=1600&q=80", label:"Whale Shark Watching, Oslob — Cebu" },
   { img:"https://images.unsplash.com/photo-1551632811-561732d1e306?w=1600&q=80", label:"Osmena Peak, Dalaguete — Cebu" },
   { img:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80", label:"Malapascua Island — Cebu" },
   { img:"https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1600&q=80", label:"Moalboal Sardine Run — Cebu" },
-];
+*/
+  ];
 
-export const CEBU_DESTINATIONS = [
+export const CEBU_DESTINATIONS = [/*
   {
     name:"Kawasan Falls", tag:"Waterfall", tagColor:"#0D9488",
     img:"https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=800&q=80",
@@ -108,7 +109,7 @@ export const CEBU_DESTINATIONS = [
     distance:"2h ferry from Cebu Port",
     description:"Just a short ferry ride from Cebu, Bohol delivers the iconic Chocolate Hills, adorable Philippine tarsiers, and a scenic river cruise all in one day. It's the most popular day trip from Cebu for good reason.",
     highlights:["Chocolate Hills (1,776 mounds)","Philippine tarsier sanctuary","Loboc River cruise","Panglao Island beaches","Baclayon Church (1595)"],
-  },
+  },*/
 ];
 
 export default function Home({ goTo, cars, tours, setModal, openBooking, users = [], destinations = CEBU_DESTINATIONS, onSearch }) {
@@ -142,11 +143,8 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
     return () => clearInterval(intervalRef.current);
   }, [paused, slides.length]);
 
-  const activeVendorIds = new Set(
-    users.filter(u => u.role === "vendor" && u.status === "active" && u.approvalStatus === "approved").map(u => u.id)
-  );
-  const availCars  = cars.filter(c => c.available && activeVendorIds.has(c.vendorId));
-  const availTours = tours.filter(t => t.available && activeVendorIds.has(t.vendorId));
+  const availCars  = cars.filter(c => c.available);
+  const availTours = tours.filter(t => t.available);
   const displayCars  = showAllCars  ? availCars  : availCars.slice(0, 6);
   const displayTours = showAllTours ? availTours : availTours.slice(0, 6);
   const locations = [...new Set([...cars.map(c=>c.location), ...tours.map(t=>t.location)])].sort();
@@ -187,20 +185,8 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
         <div className="hero-caption"><i className="fa-solid fa-location-dot"></i> {slides[slide]?.label}</div>
 
         <div className="hero-content">
-          <div className="hero-badge"><i className="fa-solid fa-umbrella-beach"/> Cebu &amp; Eastern Visayas</div>
           <h1>Experience <em>Cebu</em><br/>Like Never Before</h1>
           <p>Pristine beaches, crystal waterfalls, and rich heritage await. Premium car rentals and curated tours across Cebu, Leyte, and Samar — all in one place.</p>
-
-          {/* Destination pills */}
-          <div style={{display:"flex",gap:"0.55rem",flexWrap:"wrap",marginBottom:"2rem",justifyContent:"center"}}>
-            {["Kawasan Falls","Malapascua","Oslob","Bantayan Island","Sumilon Sandbar"].map(d=>(
-              <span key={d} style={{
-                background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.28)",
-                color:"rgba(255,255,255,0.92)",padding:"0.28rem 0.85rem",borderRadius:50,
-                fontSize:"0.76rem",fontWeight:600,backdropFilter:"blur(6px)",cursor:"default",
-              }}><i class="fa-solid fa-magnifying-glass"></i> {d}</span>
-            ))}
-          </div>
 
           <div className="hero-btns">
             <button className="btn-primary" onClick={() => goTo("tours")}><i className="fa-solid fa-map"/> Explore Tours</button>
@@ -299,7 +285,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
         <div style={{position:"relative",padding:"0.5rem 0 1.4rem"}}>
           {/* Prev button */}
           {carouselIdx > 0 && (
-            <button onClick={() => setCarouselIdx(i => Math.max(0, i - 1))}
+            <button className="dest-carousel-btn" onClick={() => setCarouselIdx(i => Math.max(0, i - 1))}
               style={{position:"absolute",left:"0.8rem",top:"50%",transform:"translateY(-50%)",
                 zIndex:10,width:44,height:44,borderRadius:"50%",border:"none",
                 background:"#fff",boxShadow:"0 4px 16px rgba(0,0,0,0.18)",
@@ -312,7 +298,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
           )}
           {/* Next button */}
           {carouselIdx < maxCarouselIdx && (
-            <button onClick={() => setCarouselIdx(i => Math.min(maxCarouselIdx, i + 1))}
+            <button className="dest-carousel-btn" onClick={() => setCarouselIdx(i => Math.min(maxCarouselIdx, i + 1))}
               style={{position:"absolute",right:"0.8rem",top:"50%",transform:"translateY(-50%)",
                 zIndex:10,width:44,height:44,borderRadius:"50%",border:"none",
                 background:"#fff",boxShadow:"0 4px 16px rgba(0,0,0,0.18)",
@@ -358,7 +344,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
 
           {/* Dot indicators */}
           {destinations.length > CARDS_VISIBLE && (
-            <div style={{display:"flex",justifyContent:"center",gap:"0.45rem",marginTop:"1.2rem"}}>
+            <div className="dest-carousel-dots" style={{display:"flex",justifyContent:"center",gap:"0.45rem",marginTop:"1.2rem"}}>
               {Array.from({length: maxCarouselIdx + 1}).map((_,i) => (
                 <button key={i} onClick={() => setCarouselIdx(i)}
                   style={{width: i === carouselIdx ? 22 : 10, height:10,borderRadius:50,border:"none",
@@ -390,7 +376,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
                   border:"none",borderRadius:"50%",width:38,height:38,cursor:"pointer",
                   color:"#fff",fontSize:"1.1rem",display:"flex",alignItems:"center",
                   justifyContent:"center",backdropFilter:"blur(4px)"}}>
-                âœ•
+                <i className="fa-solid fa-xmark"/>
               </button>
               {/* Title over image */}
               <div style={{position:"absolute",bottom:20,left:24,right:24}}>

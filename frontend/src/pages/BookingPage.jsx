@@ -81,6 +81,7 @@ function MiniCalendar({ selectedStart, selectedEnd, onSelect, rangeMode }) {
 
 export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, users = [] }) {
   const [step, setStep] = useState(0);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // Schedule state
   const [startDate, setStartDate] = useState(null);
@@ -187,6 +188,11 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
 
   const orderSidebarJSX = (
     <div className="order-sidebar">
+      <button className="sidebar-mobile-toggle" onClick={() => setShowSidebar(s => !s)}>
+        <span><i className="fa-solid fa-receipt"/> Order Summary — {fmtPeso(total)}</span>
+        <i className={`fa-solid fa-chevron-${showSidebar ? "up" : "down"}`}/>
+      </button>
+      <div className={`order-sidebar-collapsible${showSidebar ? " open" : ""}`}>
       {item.image
         ? <img src={item.image} alt={item.name} className="order-sidebar-img" onError={e=>{e.currentTarget.style.display="none";}} />
         : <div className="order-sidebar-img" style={{background:"#F1F5F9",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem",color:"#D1D5DB"}}><i className={`fa-solid ${item.type==="car"?"fa-car":"fa-umbrella-beach"}`}/></div>
@@ -215,6 +221,7 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
           </>
         )}
       </div>
+      </div>
     </div>
   );
 
@@ -234,7 +241,7 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
         <MiniCalendar selectedStart={startDate} selectedEnd={endDate} onSelect={handleCalSelect} rangeMode={isCar} />
       </div>
       <hr style={{border:"none",borderTop:"1px solid var(--border)",margin:"1.5rem 0"}} />
-      <div style={{display:"grid",gridTemplateColumns:isCar?"1fr 1fr":"1fr",gap:"1rem"}}>
+      <div className={`time-sections-grid${isCar ? "" : " single"}`}>
         <div>
           <label style={{display:"block",fontSize:"0.78rem",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em",marginBottom:"0.5rem"}}>
             {isCar ? "Pickup Time *" : "Start Time *"}
@@ -471,7 +478,7 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
           </div>
         ))}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"1rem",marginTop:"2rem"}}>
+      <div className="confirm-actions">
         <button className="wiz-btn-back" style={{flex:"unset"}} onClick={() => goTo(isCar ? "cars" : "tours")}>
           Browse More
         </button>

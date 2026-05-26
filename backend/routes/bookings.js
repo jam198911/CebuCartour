@@ -200,8 +200,15 @@ router.put('/:id', verifyToken, async (req, res) => {
       if (body.rating        !== undefined) add('rating',        body.rating);
       if (body.ratingNote    !== undefined) add('ratingNote',    body.ratingNote);
     } else if (role === 'vendor') {
-      // Vendors can only update their side of the booking
+      // Vendors can approve/cancel bookings and update their side details
+      if (body.status !== undefined) {
+        if (!['approved', 'cancelled'].includes(body.status)) {
+          return res.status(403).json({ error: 'Vendors can only approve or cancel bookings' });
+        }
+        add('status', body.status);
+      }
       if (body.vendorStatus !== undefined) add('vendorStatus', body.vendorStatus);
+      if (body.notes        !== undefined) add('notes',        body.notes);
       if (body.dropTime     !== undefined) add('dropTime',     body.dropTime);
       if (body.dropoff      !== undefined) add('dropoff',      body.dropoff);
     } else if (role === 'customer') {

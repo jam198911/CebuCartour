@@ -158,7 +158,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 {viewProof.id} — {viewProof.name}
               </div>
             </div>
-            <button onClick={() => setViewProof(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700,fontSize:"1rem"}}>✕</button>
+            <button onClick={() => setViewProof(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700,fontSize:"1rem"}}><i className="fa-solid fa-xmark"/></button>
           </div>
           <div style={{padding:"1.5rem",textAlign:"center"}}>
             {viewProof.paymentProof?.startsWith("data:image") ? (
@@ -829,7 +829,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                       <div style={{fontWeight:700,fontSize:"1rem"}}><i className="fa-solid fa-pen"/> Edit {editItem.type === "car" ? "Car" : "Tour"}</div>
                       <div style={{fontSize:"0.82rem",opacity:.8}}>{editItem.data.name}</div>
                     </div>
-                    <button onClick={() => setEditItem(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}>✕</button>
+                    <button onClick={() => setEditItem(null)} style={{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:8,padding:"0.4rem 0.8rem",cursor:"pointer",color:"#fff",fontWeight:700}}><i className="fa-solid fa-xmark"/></button>
                   </div>
                   <div style={{padding:"1.8rem"}}>
                     <div className="form-grid">
@@ -1313,63 +1313,62 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
         )}
         {section === "profile" && (
           <div style={{maxWidth:680}}>
-            <div style={{background:"#fff",borderRadius:16,border:"1px solid var(--border)",overflow:"hidden",marginBottom:"1.5rem"}}>
-              <div style={{background:"linear-gradient(135deg,var(--ocean),var(--teal))",padding:"1.8rem 2rem",color:"#fff",display:"flex",gap:"1.2rem",alignItems:"center"}}>
-                <div style={{width:64,height:64,borderRadius:"50%",overflow:"hidden",flexShrink:0,border:"3px solid rgba(255,255,255,0.5)"}}>
+            <div className="vp-card">
+              {/* Hero */}
+              <div className="vp-hero">
+                <div className="vp-hero-photo">
                   {user.profilePhoto
-                    ? <img src={user.profilePhoto} alt="Profile" style={{width:"100%",height:"100%",objectFit:"cover"}} />
-                    : <div style={{width:"100%",height:"100%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem"}}>{user.avatar||<i className="fa-solid fa-store"/>}</div>
+                    ? <img src={user.profilePhoto} alt="Profile" />
+                    : <div className="vp-hero-avatar">{user.avatar || <i className="fa-solid fa-store"/>}</div>
                   }
                 </div>
-                <div style={{flex:1}}>
-                  <h2 style={{fontSize:"1.4rem",marginBottom:"0.2rem"}}>{user.name}</h2>
-                  <p style={{opacity:.8,fontSize:"0.85rem"}}>{user.company || "Vendor Account"} · {user.email}</p>
-                </div>
-                <button onClick={() => setShowEditProfile(true)}
-                  style={{background:"rgba(255,255,255,0.2)",border:"2px solid rgba(255,255,255,0.5)",color:"#fff",padding:"0.6rem 1.2rem",borderRadius:50,cursor:"pointer",fontWeight:700,fontSize:"0.88rem"}}>
-                  <i className="fa-solid fa-pen"/> Edit Profile
-                </button>
+                <h2 className="vp-hero-name">{user.name}</h2>
+                <p className="vp-hero-sub">{user.company || "Vendor Account"} · {user.email}</p>
               </div>
-              <div style={{padding:"1.5rem 2rem"}}>
-                <div style={{marginBottom:"1rem",fontSize:"0.75rem",fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em"}}>Personal Information</div>
+
+              {/* Info */}
+              <div className="vp-info">
+                <div className="vp-section-title">Personal Information</div>
                 {[
-                  ["Full Name",      user.name],
-                  ["Email",          user.email],
-                  ["Phone",          user.phone    || "Not set"],
-                  ["Address",        user.address  || "Not set"],
+                  ["Full Name", user.name],
+                  ["Email",     user.email],
+                  ["Phone",     user.phone   || "Not set"],
+                  ["Address",   user.address || "Not set"],
                 ].map(([k,v]) => (
-                  <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"0.6rem 0",borderBottom:"1px solid #F3F4F6",fontSize:"0.9rem"}}>
-                    <span style={{color:"var(--muted)"}}>{k}</span>
-                    <span style={{fontWeight:600}}>{v}</span>
+                  <div key={k} className="vp-row">
+                    <span className="vp-label">{k}</span>
+                    <span className="vp-value">{v}</span>
                   </div>
                 ))}
-                <div style={{marginTop:"1.3rem",marginBottom:"0.8rem",fontSize:"0.75rem",fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em"}}>Business Information</div>
+
+                <div className="vp-section-title" style={{marginTop:"1.2rem"}}>Business Information</div>
                 {[
-                  ["Company",        user.company  || "Not set"],
-                  ["Permit Type",    user.idType   || "Not set"],
-                  ["Permit No.",     user.idNumber || "Not set"],
-                  ["Approval",       user.approvalStatus || "pending"],
+                  ["Company",     user.company  || "Not set"],
+                  ["Permit Type", user.idType   || "Not set"],
+                  ["Permit No.",  user.idNumber || "Not set"],
+                  ["Approval",    user.approvalStatus || "pending"],
                 ].map(([k,v]) => (
-                  <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"0.6rem 0",borderBottom:"1px solid #F3F4F6",fontSize:"0.9rem"}}>
-                    <span style={{color:"var(--muted)"}}>{k}</span>
-                    <span style={{fontWeight:600,color: k==="Approval" && v==="approved" ? "var(--success)" : k==="Approval" && v==="pending" ? "var(--warning)" : "var(--ink)"}}>{v}</span>
+                  <div key={k} className="vp-row">
+                    <span className="vp-label">{k}</span>
+                    <span className="vp-value" style={{color: k==="Approval" && v==="approved" ? "var(--success)" : k==="Approval" && v==="pending" ? "var(--warning)" : "var(--ink)"}}>{v}</span>
                   </div>
                 ))}
+
                 {user.bio && (
                   <>
-                    <div style={{marginTop:"1.3rem",marginBottom:"0.5rem",fontSize:"0.75rem",fontWeight:700,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em"}}>Business Bio</div>
-                    <div style={{background:"#F0F9FF",borderRadius:10,padding:"0.9rem",fontSize:"0.88rem",color:"var(--ink)",lineHeight:1.7,borderLeft:"3px solid var(--teal)"}}>
+                    <div className="vp-section-title" style={{marginTop:"1.2rem"}}>Business Bio</div>
+                    <div style={{background:"#F0F9FF",borderRadius:10,padding:"0.9rem",fontSize:"0.88rem",color:"var(--ink)",lineHeight:1.7,borderLeft:"3px solid var(--teal)",marginBottom:"0.5rem"}}>
                       {user.bio}
                     </div>
                   </>
                 )}
-                <button onClick={() => setShowEditProfile(true)}
-                  style={{marginTop:"1.5rem",background:"var(--ocean)",color:"#fff",border:"none",padding:"0.85rem",borderRadius:12,cursor:"pointer",fontWeight:700,fontSize:"0.95rem",width:"100%"}}>
+
+                <button className="vp-edit-btn" onClick={() => setShowEditProfile(true)}>
                   <i className="fa-solid fa-pen"/> Edit My Profile
                 </button>
-
               </div>
             </div>
+
 
             {/* â"€â"€ GCash Details â"€â"€ */}
             <div style={{background:"#fff",borderRadius:16,border:"1px solid #E5E7EB",padding:"1.5rem 1.8rem",marginBottom:"1rem",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
@@ -1383,7 +1382,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 </button>
               </div>
               {user.gcashNumber ? (
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr",gap:"1rem"}}>
                   {[["GCash Number", user.gcashNumber], ["Account Name", user.gcashName || "—"]].map(([k,v]) => (
                     <div key={k}>
                       <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.25rem"}}>{k}</div>
@@ -1410,7 +1409,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 </button>
               </div>
               {user.bankNumber ? (
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr",gap:"1rem"}}>
                   {[
                     ["Account Number", user.bankNumber],
                     ["Account Name",   user.bankName || "—"],
@@ -1444,7 +1443,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                   <i className="fa-solid fa-circle-xmark"/> {pwError}
                 </div>
               )}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1.2rem"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr",gap:"1rem",marginBottom:"1.2rem"}}>
                 {[["Create New Password","newPw","Min. 8 characters"],["Confirm Password","confirm","Repeat new password"]].map(([label,key,ph]) => (
                   <div key={key}>
                     <div style={{fontSize:"0.72rem",color:"#9CA3AF",fontWeight:600,marginBottom:"0.4rem"}}>{label}</div>

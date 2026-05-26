@@ -1,0 +1,14 @@
+PassengerEnabled on
+PassengerAppRoot /home/u696465670/domains/cebucartour.com/app
+PassengerAppType node
+PassengerStartupFile server.js
+PassengerNodejs /opt/alt/alt-nodejs20/root/usr/bin/node
+
+RewriteEngine On
+
+# Serve /uploads/* directly via Apache — bypass Passenger to avoid HTTP/2 stream errors
+RewriteCond %{REQUEST_URI} ^/uploads/ [NC]
+RewriteRule ^ - [L]
+
+RewriteCond %{HTTP_HOST} ^www\.cebucartour\.com [NC]
+RewriteRule ^(.*)$ https://cebucartour.com/$1 [R=301,L]

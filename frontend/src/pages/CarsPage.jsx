@@ -12,11 +12,7 @@ export default function CarsPage({ cars, setModal, openBooking, users = [], sear
     if (searchFilters.location) { setFilters(f => ({ ...f, location: searchFilters.location })); setPage(1); }
   }, [searchFilters.location]);
 
-  const activeVendorIds = new Set(
-    users.filter(u => u.role === "vendor" && u.status === "active" && u.approvalStatus === "approved").map(u => u.id)
-  );
-  const activeCars = cars.filter(c => activeVendorIds.has(c.vendorId));
-  const filtered = activeCars
+  const filtered = cars
     .filter(c => filters.type === "all" || c.type === filters.type)
     .filter(c => filters.location === "all" || c.location.includes(filters.location))
     .filter(c => c.price <= filters.maxPrice)
@@ -27,14 +23,14 @@ export default function CarsPage({ cars, setModal, openBooking, users = [], sear
   const start      = filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const end        = Math.min(page * PAGE_SIZE, filtered.length);
 
-  const types     = [...new Set(activeCars.map(c => c.type))];
-  const locations = [...new Set(activeCars.map(c => c.location))];
+  const types     = [...new Set(cars.map(c => c.type))];
+  const locations = [...new Set(cars.map(c => c.location))];
 
   return (
     <div className="listing-page">
       <div className="page-header">
         <h1>Car Rentals</h1>
-        <p>Browse our fleet of {activeCars.length} available vehicles across Eastern Visayas.</p>
+        <p>Browse our fleet of {cars.length} available vehicles across Central Visayas.</p>
       </div>
       {searchFilters.location && (
         <div style={{display:"flex",alignItems:"center",gap:"0.6rem",padding:"0.6rem 1.5rem",background:"#EFF6FF",borderBottom:"1px solid #BFDBFE"}}>

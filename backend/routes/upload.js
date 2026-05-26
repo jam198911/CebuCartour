@@ -1,24 +1,33 @@
 /**
  * routes/upload.js — File upload endpoint.
  * Mounted at /api/upload in server.js.
- * Files are saved to backend/uploads/ and served as static assets.
+ * Files are uploaded to Cloudflare R2 and served via R2 public URL.
  *
  * Security layers:
  *  1. fileFilter  — rejects non-image MIME types declared by the client.
  *  2. Filename    — extension is derived from the *validated* MIME type, never
  *                   from the original filename, so shell.php → saved as .jpg.
- *  3. Magic bytes — reads the first 12 bytes of the saved file and rejects
- *                   anything whose signature doesn't match a real image format.
- *                   The file is deleted before the error response is sent.
+ *  3. Magic bytes — reads the first 12 bytes and rejects anything whose
+ *                   signature doesn't match a real image format.
  */
 
 const express = require('express');
 const multer  = require('multer');
-const path    = require('path');
 const crypto  = require('crypto');
-const fs      = require('fs');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 
 const router = express.Router();
+
+// ─── R2 client ────────────────────────────────────────────────────────────────
+
+const r2 = new S3Client({
+  region: 'auto',
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId:     process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
 
 // ─── Allowed MIME types → safe extension ─────────────────────────────────────
 
@@ -33,38 +42,19 @@ const ALLOWED_MIME = {
 // ─── Magic-byte signatures ────────────────────────────────────────────────────
 
 const MAGIC_SIGS = [
-  // JPEG: FF D8 FF
-  { offset: 0, bytes: [0xFF, 0xD8, 0xFF] },
-  // PNG:  89 50 4E 47 0D 0A 1A 0A
-  { offset: 0, bytes: [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A] },
-  // GIF:  47 49 46 38  ("GIF8")
-  { offset: 0, bytes: [0x47, 0x49, 0x46, 0x38] },
-  // WebP: bytes 8–11 spell "WEBP" inside a RIFF container
-  { offset: 8, bytes: [0x57, 0x45, 0x42, 0x50] },
+  { offset: 0, bytes: [0xFF, 0xD8, 0xFF] },                               // JPEG
+  { offset: 0, bytes: [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A] }, // PNG
+  { offset: 0, bytes: [0x47, 0x49, 0x46, 0x38] },                          // GIF
+  { offset: 8, bytes: [0x57, 0x45, 0x42, 0x50] },                          // WebP
 ];
 
-function hasValidMagicBytes(filePath) {
-  const fd  = fs.openSync(filePath, 'r');
-  const buf = Buffer.alloc(12);
-  fs.readSync(fd, buf, 0, 12, 0);
-  fs.closeSync(fd);
+function hasValidMagicBytes(buffer) {
   return MAGIC_SIGS.some(({ offset, bytes }) =>
-    bytes.every((b, i) => buf[offset + i] === b)
+    bytes.every((b, i) => buffer[offset + i] === b)
   );
 }
 
-// ─── Multer config ────────────────────────────────────────────────────────────
-
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', 'uploads'),
-  filename: (req, file, cb) => {
-    // Extension comes from the validated MIME map — never from file.originalname.
-    // This prevents a .php (or any executable) extension reaching the filesystem.
-    const ext    = ALLOWED_MIME[file.mimetype.toLowerCase()] ?? '.jpg';
-    const unique = crypto.randomBytes(12).toString('hex');
-    cb(null, `${Date.now()}-${unique}${ext}`);
-  },
-});
+// ─── Multer — memory storage (buffer sent directly to R2) ────────────────────
 
 const fileFilter = (req, file, cb) => {
   if (ALLOWED_MIME[file.mimetype.toLowerCase()]) {
@@ -75,26 +65,40 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
 });
 
 // ─── POST / ──────────────────────────────────────────────────────────────────
 
-router.post('/', upload.single('file'), (req, res) => {
+router.post('/', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  // Magic-bytes check — validates actual file content, not just the declared MIME.
-  if (!hasValidMagicBytes(req.file.path)) {
-    fs.unlink(req.file.path, () => {});
+  // Magic-bytes check on the in-memory buffer
+  if (!hasValidMagicBytes(req.file.buffer)) {
     return res.status(400).json({ error: 'File content does not match an allowed image format' });
   }
 
-  const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-  res.json({ url, filename: req.file.filename });
+  const ext      = ALLOWED_MIME[req.file.mimetype.toLowerCase()] ?? '.jpg';
+  const filename = `${Date.now()}-${crypto.randomBytes(12).toString('hex')}${ext}`;
+
+  try {
+    await r2.send(new PutObjectCommand({
+      Bucket:      process.env.R2_BUCKET,
+      Key:         filename,
+      Body:        req.file.buffer,
+      ContentType: req.file.mimetype,
+    }));
+
+    const url = `${process.env.R2_PUBLIC_URL}/${filename}`;
+    res.json({ url, filename });
+  } catch (err) {
+    console.error('R2 upload error:', err);
+    res.status(500).json({ error: 'Failed to upload image. Please try again.' });
+  }
 });
 
 // ─── Multer error handler ─────────────────────────────────────────────────────
