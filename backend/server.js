@@ -16,6 +16,10 @@ const rateLimit = require('express-rate-limit');
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
+// ─── Trust proxy (Hostinger / Passenger reverse proxy) ───────────────────────
+// Required so express-rate-limit can read X-Forwarded-For correctly.
+app.set('trust proxy', 1);
+
 // ─── Security headers ─────────────────────────────────────────────────────────
 
 app.use(helmet({

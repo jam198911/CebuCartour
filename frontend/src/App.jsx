@@ -356,7 +356,7 @@ export default function App() {
       </Suspense>
       </PageErrorBoundary>
       <PageErrorBoundary key="modal" goTo={goTo}>
-        {modal && <DetailModal item={modal} onClose={() => setModal(null)} openBooking={openBooking} />}
+        {modal && <DetailModal item={modal} onClose={() => setModal(null)} openBooking={openBooking} users={users} />}
       </PageErrorBoundary>
       {pdfModal && <BookingSummaryModal booking={pdfModal.booking} itemName={pdfModal.itemName} item={pdfModal.item} onClose={() => setPdfModal(null)} vendor={users.find(u => u.id === pdfModal.booking?.vendorId)} serviceFee={serviceFee} />}
       {toast && <Toast msg={toast} onClose={() => setToast(null)} />}

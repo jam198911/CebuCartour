@@ -110,9 +110,14 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
     </div>
   );
 
-  const isCar = item.itemType === "car";
+  const isCar    = item.itemType === "car";
+  const isPerVan = !isCar && item.pricingType === "per_van";
   const days = startDate && endDate ? Math.max(1, Math.round((endDate - startDate) / 86400000)) : startDate ? 1 : 0;
-  const subtotal = isCar ? item.price * Math.max(days,1) : item.price * form.guests;
+  const subtotal = isCar
+    ? item.price * Math.max(days, 1)
+    : isPerVan
+      ? item.price                        // flat group/package rate
+      : item.price * form.guests;         // per-person × guests
   const serviceF = Math.round(subtotal * (serviceFee / 100));
   const total = subtotal + serviceF;
   const fmtDate = (d) => d ? d.toLocaleDateString("en-PH",{weekday:"short",month:"short",day:"numeric",year:"numeric"}) : "—";
@@ -209,8 +214,10 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
         {form.pickup && <div className="order-row"><span><i className="fa-solid fa-location-dot"/> Meetup</span><span style={{textAlign:"right",maxWidth:"160px"}}>{form.pickup}</span></div>}
         {!isCar && form.guests > 0 && <div className="order-row"><span><i className="fa-solid fa-users"/> Guests</span><span>{form.guests} pax</span></div>}
         <hr className="order-divider" />
-        <div className="order-row"><span>Base price</span><span>{fmtPeso(isCar ? item.price * Math.max(days,1) : item.price * form.guests)}</span></div>
+        <div className="order-row"><span>Base price</span><span>{fmtPeso(subtotal)}</span></div>
         {isCar && days >= 1 && <div className="order-row" style={{fontSize:"0.78rem",color:"var(--muted)"}}><span>{fmtPeso(item.price)} × {days} {days === 1 ? "day" : "days"}</span></div>}
+        {!isCar && !isPerVan && form.guests > 1 && <div className="order-row" style={{fontSize:"0.78rem",color:"var(--muted)"}}><span>{fmtPeso(item.price)} × {form.guests} pax</span></div>}
+        {!isCar && isPerVan && <div className="order-row" style={{fontSize:"0.78rem",color:"var(--muted)"}}><span><i className="fa-solid fa-van-shuttle"/> Package / group rate</span></div>}
         <div className="order-row"><span>Service fee ({serviceFee}%)</span><span>{fmtPeso(serviceF)}</span></div>
         <div className="order-row total"><span>Total</span><span style={{color:"var(--coral)"}}>{fmtPeso(total)}</span></div>
         {item.includes && item.includes.length > 0 && (
@@ -321,7 +328,10 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
         </div>
         {!isCar && (
           <div className="form-group">
-            <label>Number of Guests <span style={{fontWeight:400,color:"#94A3B8",fontSize:"0.8rem"}}>(max {maxGuests})</span></label>
+            <label style={{display:"flex",alignItems:"center",gap:"0.4rem",flexWrap:"nowrap",whiteSpace:"nowrap",overflow:"hidden"}}>
+              <span style={{flexShrink:0}}>No. of Guests</span>
+              <span style={{fontWeight:400,color:"#94A3B8",fontSize:"0.72rem",flexShrink:0}}>(max {maxGuests}{isPerVan ? " · flat rate" : ""})</span>
+            </label>
             <input
               type="number"
               min={1}

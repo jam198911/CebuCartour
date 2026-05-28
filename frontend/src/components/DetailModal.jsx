@@ -2,9 +2,10 @@ import { useState } from "react";
 import { fmtPeso } from "../utils/helpers.js";
 import { Stars } from "./SharedUI.jsx";
 
-export default function DetailModal({ item, onClose, openBooking }) {
+export default function DetailModal({ item, onClose, openBooking, users = [] }) {
   const imgs = (item.images && item.images.length > 0) ? item.images : item.image ? [item.image] : [];
   const [activeImg, setActiveImg] = useState(0);
+  const vendor = users.find(u => u.id === item.vendorId);
 
   return (
     <div className="overlay" onClick={onClose}>
@@ -41,10 +42,25 @@ export default function DetailModal({ item, onClose, openBooking }) {
               <div className="card-loc">
                 <i className="fa-solid fa-location-dot"/> {item.location}
               </div>
+              {vendor && (
+                <div style={{display:"flex",alignItems:"center",gap:"0.4rem",marginTop:"0.35rem"}}>
+                  <div style={{width:20,height:20,borderRadius:"50%",overflow:"hidden",flexShrink:0,border:"1px solid var(--border)"}}>
+                    {vendor.profilePhoto
+                      ? <img src={vendor.profilePhoto} alt={vendor.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                      : <div style={{width:"100%",height:"100%",background:"linear-gradient(135deg,var(--ocean),var(--teal))",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6rem",color:"#fff"}}>
+                          <i className="fa-solid fa-building"/>
+                        </div>
+                    }
+                  </div>
+                  <span style={{fontSize:"0.78rem",color:"var(--muted)",fontWeight:600}}>
+                    {vendor.company || vendor.name}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="modal-price-col">
               <div className="modal-price">{fmtPeso(item.price)}</div>
-              <div className="modal-price-unit">{item.itemType === "car" ? "per day" : "per person"}</div>
+              <div className="modal-price-unit">{item.itemType === "car" ? "per day" : item.pricingType === "per_van" ? "per group" : "per person"}</div>
               <div style={{marginTop:"0.35rem"}}><Stars rating={item.rating} /></div>
             </div>
           </div>

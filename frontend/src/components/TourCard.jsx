@@ -122,7 +122,7 @@ export default function TourCard({ tour, onClick, onBook, vendor }) {
           <ShareButton
             url={`${window.location.origin}/?type=tour&id=${tour.id}`}
             title={tour.name}
-            text={`Check out ${tour.name} — ${fmtPeso(tour.price)}/person in ${tour.location}! Book on Cebu Car Tour.`}
+            text={`Check out ${tour.name} — ${fmtPeso(tour.price)}${tour.pricingType === "per_van" ? "/group" : "/person"} in ${tour.location}! Book on Cebu Car Tour.`}
           />
         </div>
       </div>

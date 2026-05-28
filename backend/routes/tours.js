@@ -72,7 +72,7 @@ router.post('/', verifyToken, async (req, res) => {
       vendorId, name, location, image = '', category = '',
       duration = '', groupSize = 0, price, available = true,
       rating = 0, reviews = 0, includes = [], description = '',
-      meetingPoint = '', images = [],
+      meetingPoint = '', images = [], pricingType = 'per_pax',
     } = req.body;
 
     if (!name || price === undefined) {
@@ -82,11 +82,11 @@ router.post('/', verifyToken, async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO tours
          (vendorId, name, location, image, category, duration, groupSize,
-          price, available, rating, reviews, includes, description)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          pricingType, price, available, rating, reviews, includes, description)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         vendorId || 0, name, location || '', image, category,
-        duration, groupSize, price, available,
+        duration, groupSize, pricingType, price, available,
         rating, reviews, JSON.stringify(includes), description,
       ]
     );
@@ -111,7 +111,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
     const {
       vendorId, name, location, image, category, duration,
-      groupSize, price, available, rating, reviews, includes, description,
+      groupSize, pricingType, price, available, rating, reviews, includes, description,
       meetingPoint, images,
     } = req.body;
 
@@ -127,6 +127,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     if (category     !== undefined) add('category',     category);
     if (duration     !== undefined) add('duration',     duration);
     if (groupSize    !== undefined) add('groupSize',    groupSize);
+    if (pricingType  !== undefined) add('pricingType',  pricingType);
     if (price        !== undefined) add('price',        price);
     if (available    !== undefined) add('available',    available);
     if (rating       !== undefined) add('rating',       rating);
