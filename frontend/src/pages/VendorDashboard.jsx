@@ -626,7 +626,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 {icon:"fa-solid fa-circle-check",label:"Approval Rate",  val:`${approvalRate}%`,    sub:`${approvedBk.length} of ${bookings.length} bookings`,              color:"#059669"},
                 {icon:"fa-solid fa-money-bill-wave",label:"Gross Revenue",  val:fmtMoney(totalRev),    sub:`${serviceFee}% platform fee applied`,                             color:"#D97706"},
                 {icon:"fa-solid fa-money-bill",label:"Net Earnings",   val:fmtMoney(netEarnings), sub:`After ${fmtMoney(platformFee)} fee`,                      color:"#059669"},
-                {icon:"fa-solid fa-chart-bar",label:"Avg / Booking",  val:fmtMoney(avgBooking),  sub:"Per approved booking",                                            color:"#7C3AED"},
+                {icon:"fa-solid fa-chart-bar",label:"Avg / Booking",  val:fmtMoney(avgBooking),  sub:"Per approved booking",                                            color:"#F5A623"},
                 {icon:"fa-solid fa-hourglass-half",label:"Pending",        val:pendingBk.length,      sub:pendingBk.length>0?"Awaiting your approval":"All up to date",       color:pendingBk.length>0?"#D97706":"#6B7280"},
                 {icon:"fa-solid fa-circle-xmark",label:"Cancelled",      val:cancelBk.length,       sub:cancelBk.length>0?`${Math.round(cancelBk.length/bookings.length*100||0)}% cancellation rate`:"No cancellations", color:cancelBk.length>0?"#DC2626":"#6B7280"},
               ].map(({icon,label,val,sub,color})=>(
@@ -679,7 +679,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                 <div style={CTITLE}>Monthly Bookings Count (Last 6 Months)</div>
                 <div style={{fontSize:"1.4rem",fontWeight:800,color:"#111827",marginBottom:"0.2rem"}}>{vMonths.reduce((s,m)=>s+m.count,0)}</div>
                 <div style={{fontSize:"0.72rem",color:"var(--muted)",marginBottom:"0.75rem"}}>Total bookings over last 6 months</div>
-                <BarChart data={vMonths.map(m=>({label:m.label,value:m.count}))} color="#7C3AED" />
+                <BarChart data={vMonths.map(m=>({label:m.label,value:m.count}))} color="#F5A623" />
               </div>
             </div>
 
@@ -1114,7 +1114,7 @@ export default function VendorDashboard({ user, bookings, cars, tours, onLogout,
                         <td><span className="tag" style={{fontSize:"0.72rem"}}>{t.category}</span></td>
                         <td style={{fontSize:"0.85rem"}}>{t.location}</td>
                         <td><strong>{fmtPeso(t.price)}</strong></td>
-                        <td><span style={{fontSize:"0.75rem",fontWeight:700,color:t.pricingType==="per_van"?"#7C3AED":"#0891B2"}}>{t.pricingType==="per_van"?"Per Van":"Per Pax"}</span></td>
+                        <td><span style={{fontSize:"0.75rem",fontWeight:700,color:t.pricingType==="per_van"?"#F5A623":"#0891B2"}}>{t.pricingType==="per_van"?"Per Van":"Per Pax"}</span></td>
                         <td style={{fontSize:"0.85rem"}}>{t.duration}</td>
                         <td>{t.groupSize}</td>
                         <td>

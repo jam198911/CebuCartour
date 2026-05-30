@@ -954,7 +954,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                   {icon:"fa-solid fa-money-bill-wave",label:"Total Revenue",    val:fmtMoney(totalRevenue),                    sub:"From approved bookings",  accent:"#059669"},
                   {icon:"fa-solid fa-box",label:"Total Bookings",    val:bookings.length,                        sub:`${approvedBk} approved`,  accent:"#2563EB"},
                   {icon:"fa-solid fa-circle-xmark",label:"Cancelled",         val:cancelBk,                               sub:bookings.length>0?`${cancelRate}% cancellation rate`:"No cancellations", accent:cancelBk>0?"#DC2626":"#6B7280"},
-                  {icon:"fa-solid fa-users",label:"Total Users",       val:users.length,                           sub:`${customers.length} customers · ${vendors.length} vendors`, accent:"#7C3AED"},
+                  {icon:"fa-solid fa-users",label:"Total Users",       val:users.length,                           sub:`${customers.length} customers · ${vendors.length} vendors`, accent:"#F5A623"},
                   {icon:"fa-solid fa-gem",label:"Commission Earned", val:fmtMoney(totalCommission),             sub:`${serviceFee}% platform fee`, accent:"#D97706"},
                   {icon:"fa-solid fa-tag",label:"Active Listings",  val:cars.filter(c=>c.available).length+tours.filter(t=>t.available).length, sub:`of ${cars.length+tours.length} total`, accent:"#0891B2"},
                 ].map(({icon,label,val,sub,accent})=>(
@@ -998,7 +998,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
 
                 <div style={CARD}>
                   <div style={CTITLE}>Revenue by Type</div>
-                  {[["Car Rentals",carRev,"#2563EB"],["Tours",tourRev,"#7C3AED"]].map(([l,v,c])=>(
+                  {[["Car Rentals",carRev,"#2563EB"],["Tours",tourRev,"#F5A623"]].map(([l,v,c])=>(
                     <div key={l} style={{marginBottom:"1rem"}}>
                       <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.8rem",marginBottom:"0.3rem"}}>
                         <span style={{fontWeight:600,color:"#374151"}}>{l}</span>
@@ -1012,7 +1012,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                   ))}
                   <div style={{borderTop:"1px solid #F3F4F6",paddingTop:"0.75rem"}}>
                     <div style={{...CTITLE,marginBottom:"0.4rem"}}>Availability</div>
-                    {[["Cars",cars.filter(c=>c.available).length,cars.length,"#2563EB"],["Tours",tours.filter(t=>t.available).length,tours.length,"#7C3AED"]].map(([l,a,t,c])=>(
+                    {[["Cars",cars.filter(c=>c.available).length,cars.length,"#2563EB"],["Tours",tours.filter(t=>t.available).length,tours.length,"#F5A623"]].map(([l,a,t,c])=>(
                       <div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:"0.78rem",padding:"0.18rem 0"}}>
                         <span style={{color:"var(--muted)"}}>{l} Available</span>
                         <span style={{fontWeight:700,color:c}}>{a}/{t}</span>
@@ -1026,7 +1026,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
                 <div style={CARD}>
                   <div style={CTITLE}>Monthly Bookings</div>
-                  <BarChart data={monthBkData} color="#7C3AED" />
+                  <BarChart data={monthBkData} color="#F5A623" />
                   <div style={{borderTop:"1px solid #F3F4F6",marginTop:"0.75rem",paddingTop:"0.75rem"}}>
                     <div style={{...CTITLE,marginBottom:"0.4rem"}}>New User Registrations</div>
                     <BarChart data={monthUsrData} color="#059669" />
@@ -1068,7 +1068,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                             {l.type==="car"?<i className="fa-solid fa-car"/>:<i className="fa-solid fa-map"/>} {l.name}
                           </div>
                           <div style={{height:4,background:"#F3F4F6",borderRadius:50,marginTop:3}}>
-                            <div style={{width:`${(l.revenue/maxLRev)*100}%`,height:"100%",background:l.type==="car"?"#2563EB":"#7C3AED",borderRadius:50}}/>
+                            <div style={{width:`${(l.revenue/maxLRev)*100}%`,height:"100%",background:l.type==="car"?"#2563EB":"#F5A623",borderRadius:50}}/>
                           </div>
                         </div>
                         <div style={{flexShrink:0,textAlign:"right"}}>
@@ -1098,7 +1098,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                     ))}
                   </div>
                 </div>
-                <AreaSparkline data={last6Months.map(m=>({label:m.label,value:m.commission}))} color="#7C3AED" />
+                <AreaSparkline data={last6Months.map(m=>({label:m.label,value:m.commission}))} color="#F5A623" />
               </div>
 
               {/* Row 4 â€" Listing health + Booking conversion */}
@@ -1106,7 +1106,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                 <div style={CARD}>
                   <div style={CTITLE}>Listing Health</div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.65rem",marginTop:"0.25rem"}}>
-                    {[["Total Cars",cars.length,"#2563EB"],["Avail. Cars",cars.filter(c=>c.available).length,"#059669"],["Total Tours",tours.length,"#7C3AED"],["Avail. Tours",tours.filter(t=>t.available).length,"#059669"]].map(([l,v,c])=>(
+                    {[["Total Cars",cars.length,"#2563EB"],["Avail. Cars",cars.filter(c=>c.available).length,"#059669"],["Total Tours",tours.length,"#F5A623"],["Avail. Tours",tours.filter(t=>t.available).length,"#059669"]].map(([l,v,c])=>(
                       <div key={l} style={{background:"#F8FAFC",borderRadius:12,padding:"0.75rem",border:"1px solid #E9ECF0",textAlign:"center"}}>
                         <div style={{fontSize:"1.5rem",fontWeight:800,color:c}}>{v}</div>
                         <div style={{fontSize:"0.68rem",color:"var(--muted)",fontWeight:600,marginTop:"0.1rem"}}>{l}</div>
@@ -1344,7 +1344,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                             </button>
                             <button data-tip="Resend Invite"
                               onClick={() => handleResendInvite(v.id)}
-                              style={{background:"#EDE9FE",color:"#7C3AED",border:"none",padding:"0.35rem 0.7rem",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:"0.78rem"}}>
+                              style={{background:"#FEF9EC",color:"#F5A623",border:"none",padding:"0.35rem 0.7rem",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:"0.78rem"}}>
                                <i className="fa-solid fa-envelope"/>
                             </button>
                             <button data-tip="Suspend"
@@ -1649,7 +1649,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                             <div style={{fontSize:"0.76rem",color:"var(--muted)"}}>{u.phone||"—"}</div>
                           </td>
                           <td>
-                            <span style={{background:u.role==="vendor"?"#DBEAFE":"#EDE9FE",color:u.role==="vendor"?"#1D4ED8":"#5B21B6",
+                            <span style={{background:u.role==="vendor"?"#DBEAFE":"#FEF9EC",color:u.role==="vendor"?"#1D4ED8":"#5B21B6",
                               fontSize:"0.75rem",fontWeight:700,padding:"0.2rem 0.55rem",borderRadius:50}}>
                                {u.role==="vendor"?"Vendor":"Customer"}
                             </span>
@@ -2590,7 +2590,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                           {u.name}
                           <span style={{marginLeft:"0.5rem"}}>
                             <span className="tag" style={{fontSize:"0.7rem",
-                              background:u.role==="vendor"?"#DBEAFE":"#EDE9FE",
+                              background:u.role==="vendor"?"#DBEAFE":"#FEF9EC",
                               color:u.role==="vendor"?"#1D4ED8":"#5B21B6"}}>
                               {u.role}
                             </span>

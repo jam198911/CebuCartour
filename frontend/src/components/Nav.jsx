@@ -6,8 +6,8 @@ export default function Nav({ user, goTo, onLogout }) {
   return (
     <>
       <nav className="nav">
-        <div className="nav-brand" onClick={() => { goTo("home"); close(); }}>
-          <i className="fa-solid fa-car"/> CebuCar<span>Tour</span>
+        <div className="nav-brand" onClick={() => { goTo("home"); close(); }} style={{padding:0}}>
+          <img src="/logo.png" alt="CebuCarTour" style={{height:44,width:"auto",display:"block"}} />
         </div>
         <div className="nav-links">
           <span className="nav-link" onClick={() => goTo("home")}>Home</span>

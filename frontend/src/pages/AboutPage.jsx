@@ -11,7 +11,7 @@ export default function AboutPage() {
         <div className="section-header">
           <div className="section-tag">Our Mission</div>
           <h2>Travel Made Simple</h2>
-          <p>We believe everyone deserves to experience the natural wonders of Leyte, Samar, and Central Visayas. We bridge travelers with verified local vendors for authentic, hassle-free adventures.</p>
+          <p>We believe everyone deserves to experience the natural wonders of Cebu — from its pristine islands to rich heritage sites. We bridge travelers with verified local vendors for authentic, hassle-free adventures.</p>
         </div>
         <div className="section-header" style={{marginTop:"3rem"}}>
           <div className="section-tag">Meet the Team</div>
@@ -337,7 +337,7 @@ export function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        © 2026 CebuCarTour. All rights reserved DecodeTech. Made with <i className="fa-solid fa-heart" style={{color:"#E85D04"}}/> in Cebu, Philippines.
+        © 2026 CebuCarTour. All rights reserved and developed by DecodeTech. Made with <i className="fa-solid fa-heart" style={{color:"#E85D04"}}/> in Cebu, Philippines.
       </div>
     </footer>
   );

@@ -322,7 +322,7 @@ export default function BookingPage({ item, user, onBook, goTo, serviceFee = 5, 
           <input
             value={form.pickup}
             onChange={e => setForm(f => ({...f, pickup: e.target.value}))}
-            placeholder="e.g. Tacloban Airport Terminal 1, Daniel Z. Romualdez..."
+            placeholder="e.g. SM City Cebu, Fuente Osmeña Circle, Mactan Airport..."
             autoComplete="off"
           />
         </div>

@@ -59,9 +59,9 @@ export default function TourCard({ tour, onClick, onBook, vendor }) {
         {/* Row 2: Category badge + Rating */}
         <div style={{ display: "flex", justifyContent: "space-between",
           alignItems: "center", marginBottom: "0.55rem" }}>
-          <span style={{ background: "#7C3AED", color: "#fff",
-            fontSize: "0.65rem", fontWeight: 700, padding: "0.18rem 0.6rem",
-            borderRadius: 50, letterSpacing: ".04em" }}>
+          <span style={{ background: "#F0F9FF", color: "var(--ocean)",
+            border: "1px solid #BAE6FD", fontSize: "0.74rem", fontWeight: 600,
+            padding: "0.2rem 0.65rem", borderRadius: 50 }}>
             {tour.category}
           </span>
           <Stars rating={tour.rating} />
@@ -94,7 +94,7 @@ export default function TourCard({ tour, onClick, onBook, vendor }) {
         {/* Row 4: Location */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.3rem",
           fontSize: "0.78rem", color: "var(--muted)", marginBottom: "0.55rem" }}>
-          <i className="fa-solid fa-location-dot" style={{ color: "#7C3AED", fontSize: "0.72rem" }}/>
+          <i className="fa-solid fa-location-dot" style={{ color: "#3578C5", fontSize: "0.72rem" }}/>
           {tour.location}
         </div>
 
@@ -107,8 +107,7 @@ export default function TourCard({ tour, onClick, onBook, vendor }) {
         {/* Row 6: Book + Share */}
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           {tour.available ? (
-            <button className="book-now-btn" style={{ margin: 0, padding: "0.7rem",
-              background: "#7C3AED", flex: 1 }}
+            <button className="book-now-btn" style={{ margin: 0, padding: "0.7rem", flex: 1 }}
               onClick={e => { e.stopPropagation(); onBook(); }}>
               <i className="fa-solid fa-calendar-check"/> Book This Tour
             </button>

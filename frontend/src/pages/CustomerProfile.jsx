@@ -813,7 +813,7 @@ export default function CustomerProfile({ user, bookings, goTo, onLogout, update
                     ))}
                     <div style={{ display:"flex", gap:"0.5rem", marginTop:"0.75rem" }}>
                       {[["Car Rentals", bookings.filter(b=>b.type==="car").length, "#2563EB"],
-                        ["Tours",      bookings.filter(b=>b.type==="tour").length, "#7C3AED"]].map(([label,count,color]) => (
+                        ["Tours",      bookings.filter(b=>b.type==="tour").length, "#F5A623"]].map(([label,count,color]) => (
                         <div key={label} style={{ flex:1, background:"#F8FAFC", borderRadius:10, padding:"0.5rem 0.7rem", border:"1px solid #E9ECF0" }}>
                           <div style={{ fontSize:"0.75rem", fontWeight:600, color:"#374151" }}>{label}</div>
                           <div style={{ fontSize:"1.1rem", fontWeight:800, color, marginTop:"0.1rem" }}>{count}</div>

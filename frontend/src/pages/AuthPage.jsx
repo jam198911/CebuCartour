@@ -353,7 +353,7 @@ export default function AuthPage({ onLogin, goTo, users = [], onRegister, resetT
         {/* Vendor fields: Business Name → Owner Name → Phone → Email */}
         {role === "vendor" ? (
           <>
-            {inp("company","Business Name *","e.g. Central Visayas Tours")}
+            {inp("company","Business Name *","e.g. Cebu Tours & Travel")}
             {inp("name","Owner Name *","Juan dela Cruz")}
             <div className="form-group" style={{marginBottom:"1rem"}}>
               <label style={{fontSize:"0.78rem",display:"flex",fontWeight:"700",color:"var(--muted)",textTransform:"uppercase",letterSpacing:".06em"}}>Contact Number *</label>

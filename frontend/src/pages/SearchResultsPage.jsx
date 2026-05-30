@@ -266,7 +266,7 @@ export default function SearchResultsPage({ cars, tours, setModal, openBooking, 
           {showTours && filteredTours.length > 0 && (
             <div>
               <SectionHead icon="fa-solid fa-map" label="Tour Packages" count={filteredTours.length}
-                accentColor="#7C3AED" accentBg="#EDE9FE" onViewAll={() => goTo("tours")} />
+                accentColor="#F5A623" accentBg="#FEF9EC" onViewAll={() => goTo("tours")} />
               <div className="sr-cards-grid">
                 {filteredTours.map(tour => (
                   <TourCard key={tour.id} tour={tour}

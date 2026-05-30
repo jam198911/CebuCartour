@@ -31,7 +31,7 @@ export const CEBU_DESTINATIONS = [/*
     highlights:["Thresher shark diving (Monad Shoal)","White sand Bounty Beach","Vibrant coral reefs","Sunset island hopping","Laid-back beach bars"],
   },
   {
-    name:"Oslob Whale Sharks", tag:"Wildlife", tagColor:"#7C3AED",
+    name:"Oslob Whale Sharks", tag:"Wildlife", tagColor:"#3578C5",
     img:"https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80",
     location:"Oslob, Cebu", bestTime:"Year-round", duration:"Half Day", difficulty:"Easy",
     distance:"130 km from Cebu City",
@@ -103,7 +103,7 @@ export const CEBU_DESTINATIONS = [/*
     highlights:["Iconic elongated sandbar","Crystal-clear snorkeling","Dramatic aerial views","Day trip & overnight camping","Pristine untouched reef"],
   },
   {
-    name:"Bohol Day Trip", tag:"Province", tagColor:"#7C3AED",
+    name:"Bohol Day Trip", tag:"Province", tagColor:"#3578C5",
     img:"https://images.unsplash.com/photo-1604537529428-15bcbeecfe4d?w=800&q=80",
     location:"Tagbilaran, Bohol", bestTime:"Year-round", duration:"Full Day", difficulty:"Easy",
     distance:"2h ferry from Cebu Port",
@@ -186,7 +186,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
 
         <div className="hero-content">
           <h1>Experience <em>Cebu</em><br/>Like Never Before</h1>
-          <p>Pristine beaches, crystal waterfalls, and rich heritage await. Premium car rentals and curated tours across Cebu, Leyte, and Samar — all in one place.</p>
+          <p>Pristine beaches, crystal waterfalls, and rich heritage await. Premium car rentals and curated tour packages across Cebu — all in one place.</p>
 
           <div className="hero-btns">
             <button className="btn-primary" onClick={() => goTo("tours")}><i className="fa-solid fa-map"/> Explore Tours</button>
@@ -394,14 +394,6 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
             {/* Blog body */}
             <div className="dest-modal-body">
 
-              {/* Tag */}
-              <div style={{marginBottom:"1.2rem"}}>
-                <span style={{background:destModal.tagColor,color:"#fff",fontSize:"0.72rem",fontWeight:700,
-                  padding:"0.28rem 0.9rem",borderRadius:50,textTransform:"uppercase",letterSpacing:".08em"}}>
-                  {destModal.tag}
-                </span>
-              </div>
-
               {/* Quick facts row */}
               <div style={{display:"flex",gap:"0.8rem",flexWrap:"wrap",marginBottom:"1.6rem",
                 paddingBottom:"1.4rem",borderBottom:"1px solid #F1F5F9"}}>
@@ -423,7 +415,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
               </div>
 
               {/* Description */}
-              <p style={{fontSize:"1rem",lineHeight:1.8,color:"#374151",marginBottom:"1.6rem"}}>
+              <p style={{fontSize:"1rem",lineHeight:1.8,color:"#374151",marginBottom:"1.6rem",textAlign:"justify"}}>
                 {destModal.description}
               </p>
 

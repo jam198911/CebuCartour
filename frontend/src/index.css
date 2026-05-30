@@ -211,9 +211,9 @@ code {
   .tag { 
   background:var(--sand); 
   color:var(--ocean); 
-  font-size:10px !important; 
+  font-size:10px; 
   font-weight:600; 
-  padding:1px 10px;
+  padding:0px 5px;
   border-radius:50px; 
 }
 .card-badge { 

@@ -59,9 +59,9 @@ export default function CarCard({ car, onClick, onBook, vendor }) {
         {/* Row 2: Type badge + Rating */}
         <div style={{ display: "flex", justifyContent: "space-between",
           alignItems: "center", marginBottom: "0.55rem" }}>
-          <span style={{ background: "var(--ocean)", color: "#fff",
-            fontSize: "0.65rem", fontWeight: 700, padding: "0.18rem 0.6rem",
-            borderRadius: 50, letterSpacing: ".04em" }}>
+          <span style={{ background: "#F0F9FF", color: "var(--ocean)",
+            border: "1px solid #BAE6FD", fontSize: "0.74rem", fontWeight: 600,
+            padding: "0.2rem 0.65rem", borderRadius: 50 }}>
             {car.type}
           </span>
           <Stars rating={car.rating} />
