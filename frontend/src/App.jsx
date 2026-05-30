@@ -52,6 +52,7 @@ export default function App() {
   const [pdfModal, setPdfModal] = useState(null);
   const [serviceFee, setServiceFee] = useState(5);
   const [destinations, setDestinations] = useState(CEBU_DESTINATIONS);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [searchFilters, setSearchFilters] = useState({ location: "", date: "" });
 
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function App() {
     api.tours.getAll().then(setTours).catch(() => {});
     api.destinations.getAll().then(setDestinations).catch(() => {});
     api.settings.getServiceFee().then(f => setServiceFee(f.fee ?? 5)).catch(() => {});
+    api.settings.getTeamMembers().then(r => { if (r.members?.length) setTeamMembers(r.members); }).catch(() => {});
 
     // Protected data — only fetch when a session is active
     if (token) {
@@ -340,12 +342,12 @@ export default function App() {
       {page === "cars" && <CarsPage cars={cars} setModal={setModal} openBooking={openBooking} users={users} searchFilters={searchFilters} clearSearch={() => setSearchFilters({ location: "", date: "" })} />}
       {page === "tours" && <ToursPage tours={tours} setModal={setModal} openBooking={openBooking} users={users} searchFilters={searchFilters} clearSearch={() => setSearchFilters({ location: "", date: "" })} />}
       {page === "booking" && <BookingPage item={bookingItem} user={user} onBook={handleBook} goTo={goTo} serviceFee={serviceFee} users={users} />}
-      {page === "about" && <AboutPage />}
+      {page === "about" && <AboutPage teamMembers={teamMembers} />}
       {page === "contact" && <ContactPage user={user} />}
       {(page === "login" || page === "register") && <AuthPage startTab={page} onLogin={handleLogin} goTo={goTo} users={users} onRegister={u => setUsers(prev => [...prev, u])} resetToken={resetToken} onResetDone={() => setResetToken(null)} />}
       <Suspense fallback={<div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh",color:"var(--muted)",fontSize:"0.9rem"}}><i className="fa-solid fa-spinner fa-spin" style={{marginRight:"0.5rem"}}/> Loading...</div>}>
         {page === "admin" && user?.role === "admin" && (
-          <AdminDashboard user={user} bookings={bookings} users={users} cars={cars} tours={tours} serviceFee={serviceFee} updateServiceFee={updateServiceFee} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} approveVendor={approveVendor} rejectVendor={rejectVendor} disableUser={disableUser} deleteUser={deleteUser} deleteBooking={deleteBooking} deleteListing={deleteListing} setPdfModal={setPdfModal} updateUser={updateUser} approveDeletion={approveDeletion} declineDeletion={declineDeletion} destinations={destinations} setDestinations={setDestinations} showToast={showToast} onRefresh={fetchAllData} />
+          <AdminDashboard user={user} bookings={bookings} users={users} cars={cars} tours={tours} serviceFee={serviceFee} updateServiceFee={updateServiceFee} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} approveVendor={approveVendor} rejectVendor={rejectVendor} disableUser={disableUser} deleteUser={deleteUser} deleteBooking={deleteBooking} deleteListing={deleteListing} setPdfModal={setPdfModal} updateUser={updateUser} approveDeletion={approveDeletion} declineDeletion={declineDeletion} destinations={destinations} setDestinations={setDestinations} teamMembers={teamMembers} setTeamMembers={setTeamMembers} showToast={showToast} onRefresh={fetchAllData} />
         )}
         {page === "vendor" && user?.role === "vendor" && (
           <VendorDashboard user={user} bookings={vendorBookings} cars={vendorCars} tours={vendorTours} onLogout={handleLogout} goTo={goTo} updateBookingStatus={updateBookingStatus} deleteBooking={deleteBooking} setCars={setCars} setTours={setTours} updateCar={updateCar} updateTour={updateTour} deleteCar={deleteCar} deleteTour={deleteTour} showToast={showToast} setPdfModal={setPdfModal} allCars={cars} allTours={tours} serviceFee={serviceFee} updateUser={updateUser} requestDeletion={requestDeletion} />

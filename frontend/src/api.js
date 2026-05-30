@@ -268,5 +268,13 @@ export const api = {
         method: 'PUT',
         body: JSON.stringify({ slides }),
       }),
+
+    getTeamMembers: () => apiFetch('/settings/team-members'),
+
+    updateTeamMembers: (members) =>
+      apiFetch('/settings/team-members', {
+        method: 'PUT',
+        body: JSON.stringify({ members }),
+      }),
   },
 };

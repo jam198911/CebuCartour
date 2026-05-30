@@ -93,4 +93,40 @@ router.put('/hero-slides', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
+// ─── GET /team-members ───────────────────────────────────────────────────────
+
+router.get('/team-members', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT value FROM app_settings WHERE name = 'teamMembers'"
+    );
+    if (rows.length === 0) return res.json({ members: [] });
+    res.json({ members: JSON.parse(rows[0].value) });
+  } catch (err) {
+    console.error('get team-members error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ─── PUT /team-members ───────────────────────────────────────────────────────
+
+router.put('/team-members', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { members } = req.body;
+    if (!Array.isArray(members)) {
+      return res.status(400).json({ error: 'members must be an array' });
+    }
+    await pool.query(
+      `INSERT INTO app_settings (name, value)
+         VALUES ('teamMembers', ?)
+       ON DUPLICATE KEY UPDATE value = VALUES(value)`,
+      [JSON.stringify(members)]
+    );
+    res.json({ members });
+  } catch (err) {
+    console.error('update team-members error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

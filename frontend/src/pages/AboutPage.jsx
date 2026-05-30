@@ -1,36 +1,195 @@
 import { useState } from "react";
 
-export default function AboutPage() {
+const DEFAULT_TEAM = [
+  {photo:"", name:"Carlos Dela Cruz", role:"Founder & CEO",        desc:"Former tour guide turned tech entrepreneur."},
+  {photo:"", name:"Maria Ramos",      role:"Head of Operations",   desc:"Ensuring every booking goes smoothly."},
+  {photo:"", name:"Joel Fernandez",   role:"Vendor Relations",     desc:"Working with local operators and vendors."},
+  {photo:"", name:"Ana Santos",       role:"Tech Lead",            desc:"Building the platform you're using right now."},
+];
+
+const STATS = [
+  { icon:"fa-solid fa-route",         val:"500+",  label:"Tours & Rides Arranged" },
+  { icon:"fa-solid fa-handshake",     val:"20+",   label:"Verified Local Vendors"  },
+  { icon:"fa-solid fa-map-location-dot", val:"30+",label:"Destinations Covered"    },
+  { icon:"fa-solid fa-star",          val:"4.9",   label:"Average Rating"          },
+];
+
+const VALUES = [
+  { icon:"fa-solid fa-shield-halved", color:"#3578C5", bg:"#EFF6FF",
+    title:"Verified Vendors",   desc:"Every operator on our platform is personally reviewed and approved before listing." },
+  { icon:"fa-solid fa-bolt",          color:"#F5A623", bg:"#FFF8EC",
+    title:"Instant Booking",    desc:"Book a tour or rental in under 2 minutes. Confirmation sent right to your inbox." },
+  { icon:"fa-solid fa-map",           color:"#059669", bg:"#F0FDF4",
+    title:"Local Expertise",    desc:"Our team is based in Cebu — we know the islands, the routes, and the best spots." },
+];
+
+export default function AboutPage({ teamMembers = [] }) {
+  const members = teamMembers.length > 0 ? teamMembers : DEFAULT_TEAM;
+
   return (
-    <div style={{paddingTop:"64px"}}>
-      <div className="about-hero">
-        <h1>About CebuCarTour</h1>
-        <p>We connect travelers with the best local car rental vendors and tour operators across Central Visayas – making every journey unforgettable.</p>
+    <div style={{paddingTop:"64px", background:"#F8FAFC", minHeight:"100vh"}}>
+
+      {/* ── HERO ── */}
+      <div style={{
+        background:"linear-gradient(135deg, var(--ocean) 0%, var(--teal) 100%)",
+        padding:"5rem 2rem 7rem", textAlign:"center", position:"relative", overflow:"hidden",
+      }}>
+        <div style={{position:"absolute",inset:0,
+          backgroundImage:"radial-gradient(circle at 15% 40%, rgba(255,255,255,0.07) 0%, transparent 55%), radial-gradient(circle at 85% 20%, rgba(255,255,255,0.09) 0%, transparent 50%)"}} />
+        <div style={{position:"relative",zIndex:1,maxWidth:680,margin:"0 auto"}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:"0.5rem",
+            background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.25)",
+            borderRadius:50,padding:"0.3rem 1rem",fontSize:"0.78rem",fontWeight:700,
+            color:"rgba(255,255,255,0.9)",marginBottom:"1.4rem",backdropFilter:"blur(6px)"}}>
+            <i className="fa-solid fa-location-dot"/> Based in Cebu, Philippines
+          </div>
+          <h1 style={{color:"#fff",fontFamily:"'Playfair Display',serif",
+            fontSize:"clamp(2.2rem,5vw,3.6rem)",fontWeight:900,lineHeight:1.1,marginBottom:"1.2rem"}}>
+            Cebu's Trusted<br/>
+            <span style={{color:"var(--sand)"}}>Travel Companion</span>
+          </h1>
+          <p style={{color:"rgba(255,255,255,0.82)",fontSize:"1.05rem",lineHeight:1.75,marginBottom:0}}>
+            We connect travelers with the best local car rental vendors and tour operators across Cebu — making every journey unforgettable.
+          </p>
+        </div>
+        <div style={{position:"absolute",bottom:-2,left:0,right:0,height:56,
+          background:"#F8FAFC",clipPath:"ellipse(55% 100% at 50% 100%)"}} />
       </div>
-      <div className="section">
-        <div className="section-header">
-          <div className="section-tag">Our Mission</div>
-          <h2>Travel Made Simple</h2>
-          <p>We believe everyone deserves to experience the natural wonders of Cebu — from its pristine islands to rich heritage sites. We bridge travelers with verified local vendors for authentic, hassle-free adventures.</p>
-        </div>
-        <div className="section-header" style={{marginTop:"3rem"}}>
-          <div className="section-tag">Meet the Team</div>
-          <h2>The People Behind CebuCarTour</h2>
-        </div>
-        <div className="team-grid">
-          {[["fa-solid fa-crown","Carlos Dela Cruz","Founder & CEO","Former tour guide turned tech entrepreneur."],
-            ["fa-solid fa-gears","Maria Ramos","Head of Operations","Ensuring every booking goes smoothly."],
-            ["fa-solid fa-handshake","Joel Fernandez","Vendor Relations","Working with local operators and vendors."],
-            ["fa-solid fa-code","Ana Santos","Tech Lead","Building the platform you're using right now."]].map(([icon,name,role,desc]) => (
-            <div key={name} className="team-card">
-              <div className="team-avatar"><i className={icon}/></div>
-              <h3 style={{fontFamily:"'DM Sans',sans-serif",fontWeight:"700",marginBottom:"0.2rem"}}>{name}</h3>
-              <div style={{color:"var(--teal)",fontSize:"0.85rem",fontWeight:"600",marginBottom:"0.8rem"}}>{role}</div>
-              <p style={{color:"var(--muted)",fontSize:"0.88rem",lineHeight:"1.6"}}>{desc}</p>
+
+      {/* ── STATS STRIP ── */}
+      <div style={{maxWidth:1100,margin:"-1rem auto 0",padding:"0 2rem 3rem"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:"1rem"}}>
+          {STATS.map(s => (
+            <div key={s.label} style={{background:"#fff",borderRadius:20,padding:"1.5rem 1.2rem",
+              textAlign:"center",boxShadow:"0 4px 20px rgba(0,0,0,0.07)",border:"1px solid var(--border)"}}>
+              <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,var(--ocean),var(--teal))",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                margin:"0 auto 0.9rem",fontSize:"1.3rem",color:"#fff"}}>
+                <i className={s.icon}/>
+              </div>
+              <div style={{fontSize:"2rem",fontWeight:900,color:"var(--ocean)",lineHeight:1,marginBottom:"0.3rem",
+                fontFamily:"'Playfair Display',serif"}}>{s.val}</div>
+              <div style={{fontSize:"0.82rem",color:"var(--muted)",fontWeight:600}}>{s.label}</div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* ── OUR STORY ── */}
+      <div style={{maxWidth:1100,margin:"0 auto",padding:"0 2rem 4rem"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"3rem",alignItems:"center"}}>
+          <div>
+            <div style={{display:"inline-block",background:"#EFF6FF",color:"var(--teal)",
+              fontSize:"0.75rem",fontWeight:700,padding:"0.3rem 0.9rem",borderRadius:50,
+              letterSpacing:".1em",textTransform:"uppercase",marginBottom:"1rem"}}>
+              Our Story
+            </div>
+            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(1.8rem,3vw,2.4rem)",
+              color:"var(--ink)",lineHeight:1.2,marginBottom:"1.2rem"}}>
+              Born From a Love<br/>of Cebu
+            </h2>
+            <p style={{color:"var(--muted)",lineHeight:1.85,marginBottom:"1rem",textAlign:"justify"}}>
+              CebuCarTour started as a simple idea — make it easier for travelers to discover Cebu's hidden gems without the hassle of unreliable bookings or overpriced tours. We partnered with trusted local operators and built a platform that puts transparency and convenience first.
+            </p>
+            <p style={{color:"var(--muted)",lineHeight:1.85,textAlign:"justify"}}>
+              Today, we're proud to serve both first-time visitors and seasoned travelers, offering everything from island-hopping packages to comfortable van transfers — all bookable in minutes.
+            </p>
+          </div>
+
+          {/* Bento grid */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
+            {[
+              { icon:"fa-solid fa-earth-asia", color:"var(--teal)",  bg:"#EFF6FF", title:"Online Platform", desc:"Book anytime, anywhere" },
+              { icon:"fa-solid fa-users",      color:"#F5A623",      bg:"#FFF8EC", title:"Community First", desc:"Real people, real reviews" },
+              { icon:"fa-solid fa-leaf",       color:"#059669",      bg:"#F0FDF4", title:"Responsible Travel", desc:"Supporting local economy" },
+              { icon:"fa-solid fa-clock",      color:"#7C3AED",      bg:"#F5F3FF", title:"24 / 7 Support",  desc:"Always here to help" },
+            ].map(c => (
+              <div key={c.title} style={{background:"#fff",borderRadius:16,padding:"1.2rem",
+                border:"1px solid var(--border)",boxShadow:"0 2px 10px rgba(0,0,0,0.05)"}}>
+                <div style={{width:40,height:40,borderRadius:12,background:c.bg,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  fontSize:"1.1rem",color:c.color,marginBottom:"0.7rem"}}>
+                  <i className={c.icon}/>
+                </div>
+                <div style={{fontWeight:700,fontSize:"0.88rem",color:"var(--ink)",marginBottom:"0.2rem"}}>{c.title}</div>
+                <div style={{fontSize:"0.78rem",color:"var(--muted)"}}>{c.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── VALUES ── */}
+      <div style={{background:"linear-gradient(135deg,var(--ocean),var(--teal))",padding:"4rem 2rem"}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
+            <div style={{display:"inline-block",background:"rgba(255,255,255,0.15)",color:"rgba(255,255,255,0.9)",
+              fontSize:"0.75rem",fontWeight:700,padding:"0.3rem 0.9rem",borderRadius:50,
+              letterSpacing:".1em",textTransform:"uppercase",marginBottom:"0.8rem",border:"1px solid rgba(255,255,255,0.2)"}}>
+              Why Choose Us
+            </div>
+            <h2 style={{color:"#fff",fontFamily:"'Playfair Display',serif",
+              fontSize:"clamp(1.8rem,3vw,2.4rem)",marginBottom:0}}>
+              What Makes Us Different
+            </h2>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:"1.2rem"}}>
+            {VALUES.map(v => (
+              <div key={v.title} style={{background:"rgba(255,255,255,0.1)",borderRadius:20,
+                padding:"1.8rem",border:"1px solid rgba(255,255,255,0.18)",backdropFilter:"blur(8px)"}}>
+                <div style={{width:52,height:52,borderRadius:16,background:v.bg,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  fontSize:"1.4rem",color:v.color,marginBottom:"1rem"}}>
+                  <i className={v.icon}/>
+                </div>
+                <h3 style={{color:"#fff",fontFamily:"'DM Sans',sans-serif",fontWeight:800,
+                  fontSize:"1rem",marginBottom:"0.5rem"}}>{v.title}</h3>
+                <p style={{color:"rgba(255,255,255,0.78)",fontSize:"0.88rem",lineHeight:1.7,margin:0}}>{v.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── TEAM ── */}
+      <div style={{maxWidth:1100,margin:"0 auto",padding:"4rem 2rem 5rem"}}>
+        <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
+          <div style={{display:"inline-block",background:"#EFF6FF",color:"var(--teal)",
+            fontSize:"0.75rem",fontWeight:700,padding:"0.3rem 0.9rem",borderRadius:50,
+            letterSpacing:".1em",textTransform:"uppercase",marginBottom:"0.8rem"}}>
+            Meet the Team
+          </div>
+          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(1.8rem,3vw,2.4rem)",color:"var(--ink)"}}>
+            The People Behind CebuCarTour
+          </h2>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"1.5rem"}}>
+          {members.map((m, i) => (
+            <div key={i} style={{background:"#fff",borderRadius:24,padding:"2rem 1.5rem",
+              textAlign:"center",border:"1px solid var(--border)",
+              boxShadow:"0 4px 20px rgba(0,0,0,0.06)",transition:"transform .25s, box-shadow .25s"}}
+              onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-6px)";e.currentTarget.style.boxShadow="0 16px 40px rgba(0,0,0,0.12)";}}
+              onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,0.06)";}}>
+              <div style={{width:90,height:90,borderRadius:"50%",margin:"0 auto 1rem",
+                border:"3px solid var(--border)",overflow:"hidden",
+                background:"linear-gradient(135deg,var(--ocean),var(--teal))",
+                display:"flex",alignItems:"center",justifyContent:"center",fontSize:"2rem",color:"#fff"}}>
+                {m.photo
+                  ? <img src={m.photo} alt={m.name} style={{width:"100%",height:"100%",objectFit:"cover"}} />
+                  : <i className="fa-solid fa-user"/>
+                }
+              </div>
+              <h3 style={{fontFamily:"'DM Sans',sans-serif",fontWeight:800,fontSize:"1rem",
+                color:"var(--ink)",marginBottom:"0.25rem"}}>{m.name}</h3>
+              <div style={{display:"inline-block",background:"#EFF6FF",color:"var(--teal)",
+                fontSize:"0.72rem",fontWeight:700,padding:"0.18rem 0.7rem",borderRadius:50,
+                marginBottom:"0.75rem"}}>{m.role}</div>
+              <p style={{color:"var(--muted)",fontSize:"0.84rem",lineHeight:1.65,margin:0}}>{m.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }

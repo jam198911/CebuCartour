@@ -398,9 +398,9 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
               <div style={{display:"flex",gap:"0.8rem",flexWrap:"wrap",marginBottom:"1.6rem",
                 paddingBottom:"1.4rem",borderBottom:"1px solid #F1F5F9"}}>
                 {[
-                  {icon:"fa-solid fa-clock",label:"Duration",val:destModal.duration},
-                  {icon:"fa-solid fa-calendar",label:"Best Time",val:destModal.bestTime},
-                  {icon:"fa-solid fa-bolt",label:"Difficulty",val:destModal.difficulty},
+                  {icon:"fa-solid fa-location-dot",label:"Location",val:destModal.location},
+                  {icon:"fa-solid fa-clock",label:"Operating Hours",val:destModal.bestTime},
+                  {icon:"fa-solid fa-ticket",label:"Entrance Fee",val:destModal.difficulty},
                   {icon:"fa-solid fa-route",label:"Distance",val:destModal.distance},
                 ].map(f => (
                   <div key={f.label} style={{background:"#F8FAFC",borderRadius:12,
@@ -452,12 +452,6 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
                   onMouseLeave={e=>e.currentTarget.style.background="#F0F9FF"}>
                   <i className="fa-solid fa-car"/> Rent a Car
                 </button>
-                <button onClick={() => setDestModal(null)}
-                  style={{flex:"0 0 auto",background:"#F3F4F6",color:"#6B7280",
-                    border:"none",borderRadius:50,padding:"0.85rem 1.5rem",
-                    cursor:"pointer",fontWeight:600,fontSize:"0.95rem"}}>
-                  Close
-                </button>
               </div>
             </div>
           </div>
@@ -497,7 +491,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
             <span style={{fontSize:"0.85rem",color:"var(--muted)"}}>
               Showing <strong>{displayCars.length}</strong> of <strong>{availCars.length}</strong>
             </span>
-            <button className="btn-primary" onClick={()=>goTo("cars")}>View All <i className="fa-solid fa-arrow-right"/></button>
+            <button className="btn-view-all" onClick={()=>goTo("cars")}>View All <i className="fa-solid fa-arrow-right"/></button>
           </div>
         </div>
         <div className="grid-3">
@@ -532,7 +526,7 @@ export default function Home({ goTo, cars, tours, setModal, openBooking, users =
               <span style={{fontSize:"0.85rem",color:"var(--muted)"}}>
                 Showing <strong>{displayTours.length}</strong> of <strong>{availTours.length}</strong>
               </span>
-              <button className="btn-primary" onClick={()=>goTo("tours")}>View All <i className="fa-solid fa-arrow-right"/></button>
+              <button className="btn-view-all" onClick={()=>goTo("tours")}>View All <i className="fa-solid fa-arrow-right"/></button>
             </div>
           </div>
           <div className="grid-3">

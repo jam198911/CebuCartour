@@ -5,7 +5,164 @@ import { BarChart, DonutChart, AreaSparkline } from "../components/Charts.jsx";
 import { EditProfileModal, ImageUploader } from "./CustomerProfile.jsx";
 import { api } from "../api.js";
 
-export default function AdminDashboard({ user, bookings, users, cars, tours, serviceFee, updateServiceFee, onLogout, goTo, updateBookingStatus, approveVendor, rejectVendor, disableUser, deleteUser, deleteBooking, deleteListing, setPdfModal, updateUser, approveDeletion, declineDeletion, destinations = [], setDestinations, showToast = () => {}, onRefresh = () => {} }) {
+// ── Team Members Section ──────────────────────────────────────────────────────
+function TeamMembersSection({ teamMembers, setTeamMembers, showToast }) {
+  const empty = { photo:"", name:"", role:"", desc:"" };
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(empty);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const photoInputRef = useState(null);
+
+  const openNew  = ()  => { setForm(empty); setEditing("new"); };
+  const openEdit = (i) => { setForm({...teamMembers[i]}); setEditing(i); };
+  const cancel   = ()  => { setEditing(null); setForm(empty); };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { url } = await api.upload(file);
+      setForm(f => ({...f, photo: url}));
+    } catch { showToast("Photo upload failed."); }
+    setUploading(false);
+  };
+
+  const save = async () => {
+    if (!form.name.trim() || !form.role.trim()) return showToast("Name and role are required.");
+    setSaving(true);
+    const updated = editing === "new"
+      ? [...teamMembers, form]
+      : teamMembers.map((m, i) => i === editing ? form : m);
+    try {
+      await api.settings.updateTeamMembers(updated);
+      setTeamMembers(updated);
+      showToast(editing === "new" ? "Member added!" : "Member updated!");
+      cancel();
+    } catch { showToast("Failed to save."); }
+    setSaving(false);
+  };
+
+  const remove = async (i) => {
+    const updated = teamMembers.filter((_, idx) => idx !== i);
+    try {
+      await api.settings.updateTeamMembers(updated);
+      setTeamMembers(updated);
+      showToast("Member removed.");
+    } catch { showToast("Failed to remove."); }
+  };
+
+  const Avatar = ({ m, size = 64 }) => m.photo
+    ? <img src={m.photo} alt={m.name} style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",border:"2px solid var(--border)"}} />
+    : <div style={{width:size,height:size,borderRadius:"50%",background:"linear-gradient(135deg,var(--ocean),var(--teal))",
+        display:"flex",alignItems:"center",justifyContent:"center",fontSize:size*0.35,color:"#fff"}}>
+        <i className="fa-solid fa-user"/>
+      </div>;
+
+  return (
+    <div style={{maxWidth:800}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.5rem"}}>
+        <h2 style={{fontSize:"1.3rem",fontWeight:800,color:"var(--ink)"}}>Team Members</h2>
+        <button onClick={openNew} style={{background:"var(--teal)",color:"#fff",border:"none",borderRadius:10,
+          padding:"0.6rem 1.2rem",cursor:"pointer",fontWeight:700,fontSize:"0.88rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
+          <i className="fa-solid fa-plus"/> Add Member
+        </button>
+      </div>
+
+      {teamMembers.length === 0 && (
+        <div style={{textAlign:"center",padding:"3rem",color:"var(--muted)",background:"#F8FAFC",borderRadius:16,border:"1.5px dashed var(--border)"}}>
+          <i className="fa-solid fa-people-group" style={{fontSize:"2rem",marginBottom:"0.75rem",display:"block"}}/>
+          No team members yet. Click "Add Member" to get started.
+        </div>
+      )}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:"1rem",marginBottom:"1.5rem"}}>
+        {teamMembers.map((m, i) => (
+          <div key={i} style={{background:"#fff",border:"1px solid var(--border)",borderRadius:16,padding:"1.2rem",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
+            <div style={{margin:"0 auto 0.75rem",width:64,height:64}}><Avatar m={m} size={64} /></div>
+            <div style={{fontWeight:700,fontSize:"0.95rem",color:"var(--ink)",marginBottom:"0.2rem"}}>{m.name}</div>
+            <div style={{color:"var(--teal)",fontSize:"0.78rem",fontWeight:600,marginBottom:"0.6rem"}}>{m.role}</div>
+            <p style={{color:"var(--muted)",fontSize:"0.78rem",lineHeight:1.5,marginBottom:"0.9rem"}}>{m.desc}</p>
+            <div style={{display:"flex",gap:"0.5rem",justifyContent:"center"}}>
+              <button onClick={() => openEdit(i)} style={{background:"#EFF6FF",color:"var(--teal)",border:"none",borderRadius:8,padding:"0.35rem 0.75rem",cursor:"pointer",fontWeight:700,fontSize:"0.78rem"}}>
+                <i className="fa-solid fa-pen"/> Edit
+              </button>
+              <button onClick={() => remove(i)} style={{background:"#FEF2F2",color:"#DC2626",border:"none",borderRadius:8,padding:"0.35rem 0.75rem",cursor:"pointer",fontWeight:700,fontSize:"0.78rem"}}>
+                <i className="fa-solid fa-trash"/>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {editing !== null && (
+        <div style={{background:"#fff",border:"1px solid var(--border)",borderRadius:16,padding:"1.5rem",boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+          <h3 style={{fontSize:"1rem",fontWeight:800,marginBottom:"1.2rem",color:"var(--ink)"}}>
+            {editing === "new" ? "Add New Member" : "Edit Member"}
+          </h3>
+
+          {/* Photo upload */}
+          <div style={{display:"flex",alignItems:"center",gap:"1.2rem",marginBottom:"1.2rem",
+            padding:"1rem",background:"#F8FAFC",borderRadius:12,border:"1px solid var(--border)"}}>
+            <div style={{flexShrink:0}}>
+              {form.photo
+                ? <img src={form.photo} alt="preview" style={{width:72,height:72,borderRadius:"50%",objectFit:"cover",border:"2px solid var(--border)"}} />
+                : <div style={{width:72,height:72,borderRadius:"50%",background:"linear-gradient(135deg,var(--ocean),var(--teal))",
+                    display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.8rem",color:"#fff"}}>
+                    <i className="fa-solid fa-user"/>
+                  </div>
+              }
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:700,fontSize:"0.85rem",color:"var(--ink)",marginBottom:"0.3rem"}}>Profile Photo</div>
+              <div style={{fontSize:"0.78rem",color:"var(--muted)",marginBottom:"0.6rem"}}>JPG or PNG, square crop recommended</div>
+              <label style={{display:"inline-flex",alignItems:"center",gap:"0.5rem",background:"var(--teal)",color:"#fff",
+                borderRadius:8,padding:"0.45rem 1rem",cursor:"pointer",fontWeight:700,fontSize:"0.8rem"}}>
+                {uploading ? <><i className="fa-solid fa-spinner fa-spin"/> Uploading…</> : <><i className="fa-solid fa-camera"/> {form.photo ? "Change Photo" : "Upload Photo"}</>}
+                <input type="file" accept="image/*" style={{display:"none"}} onChange={handlePhotoUpload} disabled={uploading} />
+              </label>
+              {form.photo && (
+                <button onClick={() => setForm(f=>({...f,photo:""}))}
+                  style={{marginLeft:"0.5rem",background:"none",border:"none",color:"#DC2626",cursor:"pointer",fontSize:"0.8rem",fontWeight:600}}>
+                  <i className="fa-solid fa-xmark"/> Remove
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
+            <div className="form-group">
+              <label>Full Name *</label>
+              <input value={form.name} onChange={e => setForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Juan dela Cruz" />
+            </div>
+            <div className="form-group">
+              <label>Role / Position *</label>
+              <input value={form.role} onChange={e => setForm(f=>({...f,role:e.target.value}))} placeholder="e.g. Founder & CEO" />
+            </div>
+          </div>
+          <div className="form-group" style={{marginBottom:"1.2rem"}}>
+            <label>Short Description</label>
+            <textarea value={form.desc} onChange={e => setForm(f=>({...f,desc:e.target.value}))}
+              placeholder="e.g. Former tour guide turned tech entrepreneur." rows={2}
+              style={{resize:"vertical"}} />
+          </div>
+          <div style={{display:"flex",gap:"0.75rem"}}>
+            <button onClick={save} disabled={saving} style={{background:"var(--teal)",color:"#fff",border:"none",borderRadius:10,
+              padding:"0.65rem 1.4rem",cursor:"pointer",fontWeight:700,fontSize:"0.9rem"}}>
+              {saving ? "Saving…" : <><i className="fa-solid fa-floppy-disk"/> Save</>}
+            </button>
+            <button onClick={cancel} style={{background:"#F3F4F6",color:"#374151",border:"none",borderRadius:10,
+              padding:"0.65rem 1.2rem",cursor:"pointer",fontWeight:600,fontSize:"0.9rem"}}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function AdminDashboard({ user, bookings, users, cars, tours, serviceFee, updateServiceFee, onLogout, goTo, updateBookingStatus, approveVendor, rejectVendor, disableUser, deleteUser, deleteBooking, deleteListing, setPdfModal, updateUser, approveDeletion, declineDeletion, destinations = [], setDestinations, teamMembers = [], setTeamMembers, showToast = () => {}, onRefresh = () => {} }) {
   const [section, setSection]                 = useState("overview");
   const [viewVendor, setViewVendor]           = useState(null);
   const [rejectReason, setRejectReason]       = useState("");
@@ -146,6 +303,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
     users:              "All Users",
     listings:           "Listings",
     destinations:       "Destinations",
+    team:               "Team Members",
     settings:           "Platform Settings",
     profile:            "My Profile",
   };
@@ -163,6 +321,7 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
     ["users",             <i className="fa-solid fa-users"/>,              "All Users",           null],
     ["listings",          <i className="fa-solid fa-tags"/>,               "Listings",            null],
     ["destinations",      <i className="fa-solid fa-map-location-dot"/>,   "Destinations",        destinations.length],
+    ["team",              <i className="fa-solid fa-people-group"/>,        "Team Members",        teamMembers.length || null],
     ["settings",          <i className="fa-solid fa-gear"/>,               "Settings",            null],
     ["profile",           <i className="fa-solid fa-user"/>,               "My Profile",          null],
   ];
@@ -2135,18 +2294,16 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
                         </select>
                       </div>
                       <div className="form-group">
-                        <label>Best Time to Visit</label>
-                        <input value={editDest.bestTime||""} onChange={e => setEditDest(d=>({...d,bestTime:e.target.value}))} placeholder="Nov-May" />
+                        <label>Operating Hours</label>
+                        <input value={editDest.bestTime||""} onChange={e => setEditDest(d=>({...d,bestTime:e.target.value}))} placeholder="e.g. 6AM - 5PM, Daily" />
                       </div>
                       <div className="form-group">
                         <label>Duration</label>
                         <input value={editDest.duration||""} onChange={e => setEditDest(d=>({...d,duration:e.target.value}))} placeholder="Full Day" />
                       </div>
                       <div className="form-group">
-                        <label>Difficulty</label>
-                        <select value={editDest.difficulty||"Easy"} onChange={e => setEditDest(d=>({...d,difficulty:e.target.value}))}>
-                          {["Easy","Moderate","Challenging"].map(v=><option key={v}>{v}</option>)}
-                        </select>
+                        <label>Entrance Fee</label>
+                        <input value={editDest.difficulty||""} onChange={e => setEditDest(d=>({...d,difficulty:e.target.value}))} placeholder="e.g. Free / ₱500 per person" />
                       </div>
                       <div className="form-group">
                         <label>Distance from Cebu City</label>
@@ -2268,6 +2425,10 @@ export default function AdminDashboard({ user, bookings, users, cars, tours, ser
         )}
 
         {/* â"€â"€ SETTINGS â"€â"€ */}
+        {section === "team" && (
+          <TeamMembersSection teamMembers={teamMembers} setTeamMembers={setTeamMembers} showToast={showToast} />
+        )}
+
         {section === "settings" && (loadHeroSlides(), true) && (
           <div style={{maxWidth:680}}>
 
